@@ -1,0 +1,54 @@
+import { Image, Linking, Pressable, Text, View } from 'react-native';
+import { BorderSpinner } from './parts/BorderSpinner';
+import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
+
+export type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
+
+const isJavaScriptProtocol =
+  /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*\:/i;
+
+export const PlaceholderEmbed = ({
+  url,
+  linkText = 'View post',
+  imageUrl,
+  spinner = <BorderSpinner />,
+  allowJavaScriptUrls = true,
+  spinnerDisabled,
+  style,
+}: PlaceholderEmbedProps) => {
+  if (isJavaScriptProtocol.test(url) && !allowJavaScriptUrls) {
+    console.warn(`PlaceholderEmbed has blocked a javascript: URL as a security precaution`);
+    return null;
+  }
+
+  return (
+    <Pressable
+      onPress={() => Linking.openURL(url)}
+      style={[
+        {
+          overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: '#dee2e6',
+          backgroundColor: '#ffffff',
+          position: 'relative',
+        },
+        style,
+      ]}
+    >
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: imageUrl ? 'flex-start' : 'center' }}>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} />
+        ) : (
+          <View style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}>
+            {!spinnerDisabled && spinner}
+            {!!linkText && (
+              <Text style={{ color: '#000000', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 }}>
+                {linkText}
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
+    </Pressable>
+  );
+};

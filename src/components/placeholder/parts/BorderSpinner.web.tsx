@@ -1,0 +1,32 @@
+import type { CSSProperties } from 'react';
+import { Box, StyleTag } from '../../../host';
+import { classNames } from '../../../utils/classNames';
+
+export interface BorderSpinnerProps {
+  className?: string;
+  style?: CSSProperties;
+}
+
+export const BorderSpinner = ({ className, style }: BorderSpinnerProps) => (
+  <>
+    <StyleTag>
+      {`
+        .rsme-spinner {
+          border: 3px solid rgba(0,0,0,0.75);
+          border-right-color: transparent;
+          border-radius: 50%;
+          animation: rsme-spin 1s linear infinite;
+        }
+        @keyframes rsme-spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}
+    </StyleTag>
+    <Box className={classNames('rsme-spinner', className)} style={{ width: 10, height: 10, ...style }} />
+  </>
+);
