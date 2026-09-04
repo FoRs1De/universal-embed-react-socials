@@ -19,7 +19,11 @@ export type EmbedWebViewProps = Record<string, unknown>;
 
 export interface CommonEmbedProps extends EmbedContainerProps {
   url: string;
+  /** Cap the embed width. The embed fills its container up to this size and shrinks with the viewport. */
+  maxWidth?: string | number;
+  /** @deprecated Use `maxWidth`. */
   width?: string | number;
+  /** Omit to size the embed from the platform when possible. */
   height?: string | number;
   linkText?: string;
   placeholderImageUrl?: string;

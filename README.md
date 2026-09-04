@@ -23,13 +23,13 @@ import { FacebookEmbed, InstagramEmbed } from 'universal-embed-react-socials';
 
 <FacebookEmbed
   url="https://www.facebook.com/andrewismusic/posts/451971596293956"
-  width={550}
+  maxWidth={550}
   apiVersion="v26.0"
 />
 
 <InstagramEmbed
   url="https://www.instagram.com/p/CUbHfhpswxt/"
-  width={328}
+  maxWidth={328}
   apiVersion="14"
   captioned
 />
@@ -42,7 +42,7 @@ import { FacebookEmbed } from "universal-embed-react-socials";
 
 <FacebookEmbed
   url="https://www.facebook.com/andrewismusic/posts/451971596293956"
-  width={550}
+  maxWidth={550}
   apiVersion="v26.0"
   locale="en_US"
 />;
@@ -57,7 +57,7 @@ import { InstagramEmbed } from "universal-embed-react-socials";
 
 <InstagramEmbed
   url="https://www.instagram.com/p/CUbHfhpswxt/"
-  width={328}
+  maxWidth={328}
   apiVersion="14"
   captioned
 />;
@@ -73,7 +73,7 @@ import { LinkedInEmbed } from "universal-embed-react-socials";
 <LinkedInEmbed
   url="https://www.linkedin.com/embed/feed/update/urn:li:share:6898694772484112384"
   postUrl="https://www.linkedin.com/posts/peterdiamandis_5-discoveries-the-james-webb-telescope-will-activity-6898694773406875648-z-D7"
-  width={325}
+  maxWidth={325}
   height={570}
 />;
 ```
@@ -86,8 +86,8 @@ Use the `src` from LinkedIn's "Embed this post" iframe.
 import { PinterestEmbed } from "universal-embed-react-socials";
 
 <PinterestEmbed
-  url="https://www.pinterest.co.uk/pin/875105771321194304/"
-  width={345}
+  url="https://www.pinterest.com/pin/99360735500167749/"
+  maxWidth={345}
   height={467}
 />;
 ```
@@ -99,7 +99,7 @@ import { TikTokEmbed } from "universal-embed-react-socials";
 
 <TikTokEmbed
   url="https://www.tiktok.com/@epicgardening/video/7055411162212633903"
-  width={325}
+  maxWidth={325}
 />;
 ```
 
@@ -110,7 +110,7 @@ import { XEmbed } from "universal-embed-react-socials";
 
 <XEmbed
   url="https://twitter.com/PixelAndBracket/status/1356633038717923333"
-  width={325}
+  maxWidth={325}
 />;
 ```
 
@@ -123,7 +123,7 @@ import { YouTubeEmbed } from "universal-embed-react-socials";
 
 <YouTubeEmbed
   url="https://www.youtube.com/watch?v=HpVOs5imUN0"
-  width={325}
+  maxWidth={325}
   height={220}
 />;
 ```
@@ -141,7 +141,7 @@ import { XymaticEmbed } from "universal-embed-react-socials";
   embedId="uPl8iezg"
   licenseKey="your-license-key"
   contentId="optional-content-id"
-  width="100%"
+  maxWidth="100%"
   height={360}
 />;
 ```
@@ -152,14 +152,14 @@ Required: `embedId` and `licenseKey`. Optional: `contentId`, `mixId`, `hasNoAds`
 
 Platform-specific code lives in paired `.web.tsx` and `.native.tsx` files. Metro picks the native files; the web build flattens `.web` files for React DOM. Native embeds use `View` and `WebView` JSX.
 
-You do not need `react-native` installed for a web-only app. On React Native, give embeds an explicit `width` and `height` so the WebView has a concrete size.
+You do not need `react-native` installed for a web-only app. On React Native, give embeds an explicit `maxWidth` and `height` so the WebView has a concrete size.
 
 Pass extra `react-native-webview` options with `webViewProps` (ignored on web):
 
 ```jsx
 <FacebookEmbed
   url="https://www.facebook.com/andrewismusic/posts/451971596293956"
-  width={550}
+  maxWidth={550}
   height={372}
   webViewProps={{
     allowsInlineMediaPlayback: true,
@@ -174,7 +174,7 @@ Pass extra `react-native-webview` options with `webViewProps` (ignored on web):
 Every embed accepts:
 
 - `url`
-- `width` / `height`
+- `maxWidth` / `height` — `maxWidth` caps the embed; it fills its container up to that size and shrinks with the viewport. Omit `height` to size from the embed when the platform reports it. `width` still works as a deprecated alias of `maxWidth`.
 - `linkText`
 - `placeholderImageUrl`
 - `placeholderSpinner` / `placeholderSpinnerDisabled`

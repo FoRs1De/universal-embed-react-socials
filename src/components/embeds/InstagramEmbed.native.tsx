@@ -1,4 +1,5 @@
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
+import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getCleanInstagramUrl } from '../../utils/urls';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { instagramEmbedHtml } from './embedHtml';
@@ -11,6 +12,7 @@ const defaultPlaceholderHeight = 372;
 
 export const InstagramEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on Instagram',
@@ -27,6 +29,7 @@ export const InstagramEmbed = ({
   webViewProps,
 }: InstagramEmbedProps) => {
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
   const placeholder = embedPlaceholder ?? (
     <PlaceholderEmbed
@@ -37,7 +40,7 @@ export const InstagramEmbed = ({
       spinnerDisabled={placeholderSpinnerDisabled}
       {...placeholderProps}
       style={{
-        width: width ?? '100%',
+        width: resolvedMaxWidth ?? '100%',
         height: height ?? defaultPlaceholderHeight,
         ...placeholderProps?.style,
       }}
@@ -52,7 +55,7 @@ export const InstagramEmbed = ({
         captioned,
       })}
       baseUrl="https://www.instagram.com"
-      width={width}
+      width={resolvedMaxWidth}
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}

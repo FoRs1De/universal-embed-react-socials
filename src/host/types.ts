@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, Ref } from 'react';
 
 export interface BoxProps {
   id?: string;
@@ -34,7 +34,8 @@ export interface ImageProps {
 }
 
 export interface IFrameProps {
-  src: string;
+  src?: string;
+  srcDoc?: string;
   width?: string | number;
   height?: string | number;
   className?: string;
@@ -45,6 +46,7 @@ export interface IFrameProps {
   allow?: string;
   allowFullScreen?: boolean;
   title?: string;
+  iframeRef?: Ref<HTMLIFrameElement>;
 }
 
 export interface HtmlEmbedProps {

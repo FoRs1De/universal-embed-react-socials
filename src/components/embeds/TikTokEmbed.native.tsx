@@ -1,3 +1,4 @@
+import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getTikTokVideoId } from '../../utils/urls';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { tiktokEmbedHtml } from './embedHtml';
@@ -10,6 +11,7 @@ const defaultPlaceholderHeight = 550;
 
 export const TikTokEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on TikTok',
@@ -22,6 +24,7 @@ export const TikTokEmbed = ({
   style,
   webViewProps,
 }: TikTokEmbedProps) => {
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const placeholder = embedPlaceholder ?? (
     <PlaceholderEmbed
       url={url}
@@ -31,7 +34,7 @@ export const TikTokEmbed = ({
       spinnerDisabled={placeholderSpinnerDisabled}
       {...placeholderProps}
       style={{
-        width: width ?? '100%',
+        width: resolvedMaxWidth ?? '100%',
         height: height ?? defaultPlaceholderHeight,
         ...placeholderProps?.style,
       }}
@@ -42,7 +45,7 @@ export const TikTokEmbed = ({
     <NativeEmbedView
       html={tiktokEmbedHtml({ url, videoId: getTikTokVideoId(url) })}
       baseUrl="https://www.tiktok.com"
-      width={width}
+      width={resolvedMaxWidth}
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}

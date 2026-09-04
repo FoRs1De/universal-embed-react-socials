@@ -18,6 +18,8 @@ export interface XymaticEmbedProps extends EmbedContainerProps {
   scriptSrc?: string;
   /** Optional link used by the placeholder. */
   url?: string;
+  maxWidth?: string | number;
+  /** @deprecated Use `maxWidth`. */
   width?: string | number;
   height?: string | number;
   linkText?: string;

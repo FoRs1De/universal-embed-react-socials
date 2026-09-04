@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { IFrame } from '../../host';
-import { classNames } from '../../utils/classNames';
+import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
@@ -11,13 +12,17 @@ export type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 const minPlaceholderWidth = 250;
 const maxPlaceholderWidth = 550;
 const defaultPlaceholderHeight = 550;
+const officialEmbedWidth = 504;
+const officialEmbedHeight = 570;
 const borderRadius = 8;
+const LINKEDIN_ORIGINS = ['linkedin.com', 'linkedin.cn', 'licdn.com'];
 
 export const LinkedInEmbed = ({
   url,
   postUrl,
+  maxWidth,
   width,
-  height = 500,
+  height,
   linkText = 'View post on LinkedIn',
   placeholderImageUrl,
   placeholderSpinner,
@@ -29,11 +34,21 @@ export const LinkedInEmbed = ({
   style,
 }: LinkedInEmbedProps) => {
   const [ready, setReady] = useState(false);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const autoHeight = height == null;
+  const { iframeRef } = useAutoEmbedHeight({
+    enabled: autoHeight,
+    fallback: officialEmbedHeight,
+    listenToMessages: autoHeight,
+    allowedOrigins: LINKEDIN_ORIGINS,
+  });
+  const frameHeight = Math.round(officialEmbedHeight * scale);
 
   const placeholderStyle: CSSProperties = {
     minWidth: minPlaceholderWidth,
     maxWidth: maxPlaceholderWidth,
-    width: typeof width !== 'undefined' ? width : '100%',
+    width: '100%',
     height:
       typeof height !== 'undefined'
         ? height
@@ -58,18 +73,33 @@ export const LinkedInEmbed = ({
   );
 
   return (
-    <EmbedShell className={className} extraClassName="rsme-linkedin-embed" width={width} height={height} borderRadius={borderRadius} style={style}>
-      <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
-        <IFrame
-          className={classNames('linkedin-post', !ready && 'rsme-d-none')}
-          src={url}
-          width="100%"
-          height={!ready ? 0 : height}
-          frameBorder={0}
-          onLoad={() => setReady(true)}
-          title="LinkedIn embed"
-        />
-      </MediaFrame>
-    </EmbedShell>
+    <div ref={boxRef} style={boxStyle}>
+      <EmbedShell
+        className={className}
+        extraClassName="rsme-linkedin-embed"
+        width="100%"
+        height={typeof height === 'number' && !isPercentage(height) ? height : frameHeight}
+        borderRadius={borderRadius}
+        style={style}
+      >
+        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
+          <IFrame
+            iframeRef={iframeRef}
+            className="linkedin-post"
+            src={url}
+            width={officialEmbedWidth}
+            height={officialEmbedHeight}
+            frameBorder={0}
+            scrolling="no"
+            onLoad={() => setReady(true)}
+            title="LinkedIn embed"
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+          />
+        </MediaFrame>
+      </EmbedShell>
+    </div>
   );
 };

@@ -23,11 +23,17 @@ export const EmbedStyle = ({ className, style }: EmbedStyleProps) => (
           padding: 0 !important;
         }
 
+        .rsme-embed.rsme-facebook-embed iframe.fb-post,
         .rsme-embed.rsme-facebook-embed .fb-post iframe {
           width: 100% !important;
+          max-height: none !important;
         }
 
         .rsme-embed.rsme-facebook-embed .fb-post span {
+          width: 100% !important;
+        }
+
+        .rsme-embed.rsme-youtube-embed iframe {
           width: 100% !important;
         }
       `}

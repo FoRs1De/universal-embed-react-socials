@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react';
+import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactElement } from 'react';
+import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { classNames } from '../../utils/classNames';
-import { isPercentage } from '../../utils/style';
+import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getCleanInstagramUrl } from '../../utils/urls';
-import { generateUUID } from '../../uuid';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
 import type { InstagramEmbedProps } from './InstagramEmbed.types';
@@ -14,6 +14,7 @@ export type { InstagramEmbedProps } from './InstagramEmbed.types';
 
 const minPlaceholderWidth = 328;
 const defaultPlaceholderHeight = 372;
+const officialEmbedWidth = 550;
 const borderRadius = 3;
 
 const CHECK_SCRIPT_STAGE = 'check-script';
@@ -26,6 +27,7 @@ const EMBED_SUCCESS_STAGE = 'embed-success';
 
 export const InstagramEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on Instagram',
@@ -48,9 +50,9 @@ export const InstagramEmbed = ({
 }: InstagramEmbedProps): ReactElement => {
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
   const [stage, setStage] = useState(CHECK_SCRIPT_STAGE);
-  const uuidRef = useRef(generateUUID());
-  const [processTime, setProcessTime] = useState(Date.now());
-  const embedContainerKey = useMemo(() => `${uuidRef.current}-${processTime}`, [processTime]);
+  const embedId = useId();
+  const [processTime, setProcessTime] = useState(0);
+  const embedContainerKey = useMemo(() => `${embedId}-${processTime}`, [embedId, processTime]);
   const frm = useFrame(frame);
 
   useEffect(() => {
@@ -110,7 +112,7 @@ export const InstagramEmbed = ({
     const subs = new Subs();
     if (stage === CONFIRM_EMBED_SUCCESS_STAGE) {
       subs.setInterval(() => {
-        if (frm.document && !frm.document.getElementById(uuidRef.current)) {
+        if (frm.document && !frm.document.getElementById(embedId)) {
           setStage(EMBED_SUCCESS_STAGE);
         }
       }, 1);
@@ -121,7 +123,7 @@ export const InstagramEmbed = ({
       }
     }
     return subs.createCleanup();
-  }, [retryDelay, retryDisabled, stage, frm.document]);
+  }, [embedId, retryDelay, retryDisabled, stage, frm.document]);
 
   useEffect(() => {
     if (stage === RETRYING_STAGE) {
@@ -131,12 +133,16 @@ export const InstagramEmbed = ({
   }, [stage]);
 
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
-  const percentageWidth = isPercentage(width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { height: observedHeight, containerRef } = useAutoEmbedHeight({
+    enabled: height == null && !percentageHeight,
+  });
 
   const placeholderStyle: CSSProperties = {
-    minWidth: percentageWidth ? undefined : minPlaceholderWidth,
-    width: typeof width !== 'undefined' ? (percentageWidth ? '100%' : width) : '100%',
+    minWidth: minPlaceholderWidth,
+    width: '100%',
     height: percentageHeight
       ? '100%'
       : typeof height !== 'undefined'
@@ -162,28 +168,32 @@ export const InstagramEmbed = ({
   );
 
   return (
+    <div ref={boxRef} style={boxStyle}>
     <EmbedShell
-      className={classNames(uuidRef.current, className)}
+      className={classNames(embedId, className)}
       extraClassName="rsme-instagram-embed"
-      width={width}
-      height={height}
+      width="100%"
+      height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)}
       borderRadius={borderRadius}
       style={{ position: 'relative', ...style }}
     >
+      <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       <blockquote
         key={embedContainerKey}
         className="instagram-media"
         data-instgrm-permalink={`${cleanUrlWithEndingSlash}?utm_source=ig_embed&utm_campaign=loading`}
         data-instgrm-version={resolvedVersion}
         data-instgrm-captioned={captioned ? captioned : undefined}
-        data-width={percentageWidth ? '100%' : width ?? undefined}
+        data-width={officialEmbedWidth}
         style={{ width: 'calc(100% - 2px)' }}
       >
         {!placeholderDisabled && placeholder}
-        <div id={uuidRef.current} className="instagram-media-pre-embed rsme-d-none">
+        <div id={embedId} className="instagram-media-pre-embed rsme-d-none">
           &nbsp;
         </div>
       </blockquote>
+      </div>
     </EmbedShell>
+    </div>
   );
 };

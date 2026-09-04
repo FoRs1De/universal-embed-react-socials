@@ -6,7 +6,7 @@ import type {
   LinkProps,
   StyleTagProps,
   TextProps,
-} from './types';
+} from "./types";
 
 export type {
   BoxProps,
@@ -16,10 +16,24 @@ export type {
   LinkProps,
   StyleTagProps,
   TextProps,
-} from './types';
+} from "./types";
 
-export const Box = ({ id, className, style, children, testID, nativeID, ...rest }: BoxProps) => (
-  <div id={id ?? nativeID} className={className} style={style} data-testid={testID} {...rest}>
+export const Box = ({
+  id,
+  className,
+  style,
+  children,
+  testID,
+  nativeID,
+  ...rest
+}: BoxProps) => (
+  <div
+    id={id ?? nativeID}
+    className={className}
+    style={style}
+    data-testid={testID}
+    {...rest}
+  >
     {children}
   </div>
 );
@@ -35,8 +49,8 @@ export const EmbedLink = ({
   className,
   style,
   children,
-  target = '_blank',
-  rel = 'noopener noreferrer',
+  target = "_blank",
+  rel = "noopener noreferrer",
 }: LinkProps) => (
   <a href={href} className={className} style={style} target={target} rel={rel}>
     {children}
@@ -49,6 +63,7 @@ export const EmbedImage = ({ src, className, style, alt }: ImageProps) => (
 
 export const IFrame = ({
   src,
+  srcDoc,
   width,
   height,
   className,
@@ -59,16 +74,17 @@ export const IFrame = ({
   allow,
   allowFullScreen,
   title,
+  iframeRef,
 }: IFrameProps) => (
   <iframe
+    ref={iframeRef}
     src={src}
+    srcDoc={srcDoc}
     width={width}
     height={height}
     className={className}
-    style={style}
+    style={{ display: "block", border: 0, ...style }}
     onLoad={onLoad}
-    scrolling={scrolling}
-    frameBorder={frameBorder}
     allow={allow}
     allowFullScreen={allowFullScreen}
     title={title}

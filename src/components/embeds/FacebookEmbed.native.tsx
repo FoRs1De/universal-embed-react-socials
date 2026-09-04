@@ -1,5 +1,5 @@
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
-import { isPercentage } from '../../utils/style';
+import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { facebookEmbedHtml } from './embedHtml';
 import type { FacebookEmbedProps } from './FacebookEmbed.types';
@@ -12,6 +12,7 @@ const defaultPlaceholderHeight = 372;
 
 export const FacebookEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on Facebook',
@@ -26,7 +27,8 @@ export const FacebookEmbed = ({
   style,
   webViewProps,
 }: FacebookEmbedProps) => {
-  const resolvedWidth = isPercentage(width) ? '100%' : width ?? defaultEmbedWidth;
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedWidth = isPercentage(resolvedMaxWidth) ? '100%' : resolvedMaxWidth ?? defaultEmbedWidth;
   const placeholder = embedPlaceholder ?? (
     <PlaceholderEmbed
       url={url}
@@ -36,7 +38,7 @@ export const FacebookEmbed = ({
       spinnerDisabled={placeholderSpinnerDisabled}
       {...placeholderProps}
       style={{
-        width: width ?? '100%',
+        width: resolvedMaxWidth ?? '100%',
         height: height ?? defaultPlaceholderHeight,
         ...placeholderProps?.style,
       }}
@@ -47,7 +49,7 @@ export const FacebookEmbed = ({
     <NativeEmbedView
       html={facebookEmbedHtml({ url, width: resolvedWidth, apiVersion, locale })}
       baseUrl="https://www.facebook.com"
-      width={width}
+      width={resolvedMaxWidth}
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}

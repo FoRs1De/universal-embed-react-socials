@@ -43,9 +43,9 @@ export const EmbedImage = ({ src, style }: ImageProps) => (
   <Image source={{ uri: src }} style={[{ width: '100%', height: '100%' }, style]} />
 );
 
-export const IFrame = ({ src, width, height, style, onLoad }: IFrameProps) => (
+export const IFrame = ({ src, srcDoc, width, height, style, onLoad }: IFrameProps) => (
   <WebView
-    source={{ uri: src }}
+    source={srcDoc ? { html: srcDoc } : { uri: src ?? '' }}
     onLoad={onLoad}
     originWhitelist={['*']}
     javaScriptEnabled

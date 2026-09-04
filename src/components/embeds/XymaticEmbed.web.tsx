@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { useAutoEmbedHeight } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { isPercentage } from '../../utils/style';
+import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { DEFAULT_XYMATIC_PLAYER_SCRIPT, getXymaticPlayerConfig } from '../../utils/xymatic';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
@@ -20,6 +21,7 @@ export const XymaticEmbed = ({
   hasNoAds = false,
   scriptSrc = DEFAULT_XYMATIC_PLAYER_SCRIPT,
   url,
+  maxWidth,
   width,
   height,
   linkText = 'Watch video',
@@ -37,8 +39,14 @@ export const XymaticEmbed = ({
 }: XymaticEmbedProps) => {
   const [ready, setReady] = useState(false);
   const frm = useFrame(frame);
-  const percentageWidth = isPercentage(width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
+  const autoHeight = height == null && !percentageHeight;
+  const { height: resolvedHeight, containerRef } = useAutoEmbedHeight({
+    enabled: autoHeight,
+    fallback: defaultPlaceholderHeight,
+    aspectRatio: 16 / 9,
+  });
 
   useEffect(() => {
     debug && console.log(`[${new Date().toISOString()}]: xymatic ${ready ? 'ready' : 'loading'}`);
@@ -65,7 +73,7 @@ export const XymaticEmbed = ({
   }, [frm.document, licenseKey, scriptLoadDisabled, scriptSrc]);
 
   const placeholderStyle: CSSProperties = {
-    width: typeof width !== 'undefined' ? (percentageWidth ? '100%' : width) : '100%',
+    width: '100%',
     height: percentageHeight
       ? '100%'
       : typeof height !== 'undefined'
@@ -89,11 +97,12 @@ export const XymaticEmbed = ({
   );
 
   return (
+    <div ref={containerRef} style={embedMaxWidthStyle(resolvedMaxWidth)}>
     <EmbedShell
       className={className}
       extraClassName="rsme-xymatic-embed"
-      width={width}
-      height={height}
+      width="100%"
+      height={height ?? resolvedHeight}
       borderRadius={borderRadius}
       style={style}
     >
@@ -105,5 +114,6 @@ export const XymaticEmbed = ({
         </div>
       </MediaFrame>
     </EmbedShell>
+    </div>
   );
 };

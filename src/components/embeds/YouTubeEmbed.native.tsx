@@ -1,3 +1,4 @@
+import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { NativeEmbedView } from './NativeEmbedView';
@@ -9,6 +10,7 @@ const defaultPlaceholderHeight = 360;
 
 export const YouTubeEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'Watch on YouTube',
@@ -22,6 +24,7 @@ export const YouTubeEmbed = ({
   style,
   webViewProps,
 }: YouTubeEmbedProps) => {
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const videoId = youTubeProps?.videoId ?? getYouTubeVideoId(url);
   const start = getYouTubeStart(url);
   const playerVars: YouTubePlayerVars = {
@@ -37,7 +40,7 @@ export const YouTubeEmbed = ({
       spinnerDisabled={placeholderSpinnerDisabled}
       {...placeholderProps}
       style={{
-        width: width ?? '100%',
+        width: resolvedMaxWidth ?? '100%',
         height: height ?? defaultPlaceholderHeight,
         ...placeholderProps?.style,
       }}
@@ -47,7 +50,7 @@ export const YouTubeEmbed = ({
   return (
     <NativeEmbedView
       uri={buildYouTubeSrc(videoId, playerVars)}
-      width={width}
+      width={resolvedMaxWidth}
       height={height ?? youTubeProps?.opts?.height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}

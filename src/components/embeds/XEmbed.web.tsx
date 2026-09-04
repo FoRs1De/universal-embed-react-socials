@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useState, type CSSProperties } from 'react';
 import { Box } from '../../host';
+import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { isPercentage } from '../../utils/style';
+import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getXPostId } from '../../utils/urls';
-import { generateUUID } from '../../uuid';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
 import type { XEmbedProps } from './XEmbed.types';
@@ -14,10 +14,12 @@ export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
 const minPlaceholderWidth = 250;
 const maxPlaceholderWidth = 550;
 const defaultPlaceholderHeight = 350;
+const officialEmbedWidth = 550;
 const borderRadius = 12;
 
 export const XEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on X',
@@ -33,10 +35,14 @@ export const XEmbed = ({
 }: XEmbedProps) => {
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
   const [ready, setReady] = useState(false);
-  const uuidRef = useRef(generateUUID());
+  const embedId = useId();
   const frm = useFrame();
-  const percentageWidth = isPercentage(width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { height: observedHeight, containerRef } = useAutoEmbedHeight({
+    enabled: height == null && !percentageHeight,
+  });
 
   useEffect(() => {
     const win = frm.window as Window & { twttr?: { widgets?: { load?: (el?: Element) => void } } };
@@ -57,22 +63,22 @@ export const XEmbed = ({
     const subs = new Subs();
     subs.setInterval(() => {
       if (!processed && win.twttr?.widgets?.load) {
-        win.twttr.widgets.load(doc.getElementById(uuidRef.current) ?? undefined);
+        win.twttr.widgets.load(doc.getElementById(embedId) ?? undefined);
         processed = true;
       }
-      const root = doc.getElementById(uuidRef.current);
+      const root = doc.getElementById(embedId);
       if (root?.querySelector('iframe')) {
         setReady(true);
         twitterTweetEmbedProps?.onLoad?.();
       }
     }, 50);
     return subs.createCleanup();
-  }, [frm.document, frm.window, postId, twitterTweetEmbedProps]);
+  }, [embedId, frm.document, frm.window, postId, twitterTweetEmbedProps]);
 
   const placeholderStyle: CSSProperties = {
     minWidth: minPlaceholderWidth,
     maxWidth: maxPlaceholderWidth,
-    width: typeof width !== 'undefined' ? (percentageWidth ? '100%' : width) : '100%',
+    width: '100%',
     height: percentageHeight
       ? '100%'
       : typeof height !== 'undefined'
@@ -98,13 +104,17 @@ export const XEmbed = ({
   );
 
   return (
-    <EmbedShell className={className} extraClassName="rsme-twitter-embed" width={width} height={height} borderRadius={borderRadius} style={style}>
-      <Box id={uuidRef.current}>
+    <div ref={boxRef} style={boxStyle}>
+    <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)} borderRadius={borderRadius} style={style}>
+      <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
+      <Box id={embedId}>
         <blockquote className="twitter-tweet">
           <a href={`https://twitter.com/i/status/${postId}`}>{linkText}</a>
         </blockquote>
       </Box>
       {!ready && !placeholderDisabled && placeholder}
+      </div>
     </EmbedShell>
+    </div>
   );
 };

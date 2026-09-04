@@ -1,36 +1,43 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { Box } from '../../host';
-import { useFrame } from '../../hooks/useFrame';
-import {
-  DEFAULT_FACEBOOK_API_VERSION,
-  DEFAULT_FACEBOOK_LOCALE,
-  getFacebookSdkSrc,
-} from '../../utils/apiVersion';
-import { classNames } from '../../utils/classNames';
-import { isPercentage } from '../../utils/style';
-import { Subs } from '../../utils/subs';
-import { generateUUID } from '../../uuid';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { IFrame } from '../../host';
+import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
+import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { facebookEmbedHtml } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
+import { MediaFrame } from './MediaFrame';
 import type { FacebookEmbedProps } from './FacebookEmbed.types';
 
 export type { FacebookEmbedProps } from './FacebookEmbed.types';
 
 const defaultEmbedWidth = 550;
+const minPluginWidth = 350;
+const maxPluginWidth = 750;
 const maxPlaceholderWidth = defaultEmbedWidth;
 const defaultPlaceholderHeight = 372;
 const borderRadius = 3;
+const FACEBOOK_CHROME = 180;
+const SDK_FALLBACK_MS = 8000;
 
-const CHECK_SCRIPT_STAGE = 'check-script';
-const LOAD_SCRIPT_STAGE = 'load-script';
-const CONFIRM_SCRIPT_LOADED_STAGE = 'confirm-script-loaded';
-const PROCESS_EMBED_STAGE = 'process-embed';
-const CONFIRM_EMBED_SUCCESS_STAGE = 'confirm-embed-success';
-const RETRYING_STAGE = 'retrying';
-const EMBED_SUCCESS_STAGE = 'embed-success';
+const clampFacebookWidth = (width: number) => Math.min(maxPluginWidth, Math.max(minPluginWidth, width));
+
+const facebookPluginHeight = (width: number): number => Math.round(width + FACEBOOK_CHROME);
+
+const buildFacebookPluginSrc = (url: string, width: number, height: number, locale: string) => {
+  const params = new URLSearchParams({
+    href: url,
+    show_text: 'true',
+    width: String(width),
+    height: String(height),
+    locale,
+  });
+  return `https://www.facebook.com/plugins/post.php?${params.toString()}`;
+};
 
 export const FacebookEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on Facebook',
@@ -40,111 +47,63 @@ export const FacebookEmbed = ({
   placeholderProps,
   embedPlaceholder,
   placeholderDisabled = false,
-  scriptLoadDisabled = false,
-  retryDelay = 5000,
-  retryDisabled = false,
-  frame = undefined,
-  debug = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
   locale = DEFAULT_FACEBOOK_LOCALE,
   className,
   style,
 }: FacebookEmbedProps) => {
-  const [stage, setStage] = useState(CHECK_SCRIPT_STAGE);
-  const embedSuccess = useMemo(() => stage === EMBED_SUCCESS_STAGE, [stage]);
-  const uuidRef = useRef(generateUUID());
-  const [processTime, setProcessTime] = useState(Date.now());
-  const embedContainerKey = useMemo(() => `${uuidRef.current}-${processTime}`, [processTime]);
-  const frm = useFrame(frame);
-  const scriptSrc = getFacebookSdkSrc(apiVersion, locale);
-
-  useEffect(() => {
-    debug && console.log(`[${new Date().toISOString()}]: ${stage}`);
-  }, [debug, stage]);
-
-  useEffect(() => {
-    if (stage !== CHECK_SCRIPT_STAGE) {
-      return;
-    }
-    if ((frm.window as Window & { FB?: { XFBML?: { parse?: () => void } } })?.FB?.XFBML?.parse) {
-      setStage(PROCESS_EMBED_STAGE);
-    } else if (!scriptLoadDisabled) {
-      setStage(LOAD_SCRIPT_STAGE);
-    } else {
-      console.error('Facebook embed script not found. Unable to process Facebook embed:', url);
-    }
-  }, [scriptLoadDisabled, stage, url, frm.window]);
-
-  useEffect(() => {
-    if (stage !== LOAD_SCRIPT_STAGE || !frm.document) {
-      return;
-    }
-    const scriptElement = frm.document.createElement('script');
-    scriptElement.setAttribute('src', scriptSrc);
-    frm.document.head.appendChild(scriptElement);
-    setStage(CONFIRM_SCRIPT_LOADED_STAGE);
-  }, [stage, frm.document, scriptSrc]);
-
-  useEffect(() => {
-    const subs = new Subs();
-    if (stage === CONFIRM_SCRIPT_LOADED_STAGE) {
-      subs.setInterval(() => {
-        if ((frm.window as Window & { FB?: { XFBML?: { parse?: () => void } } })?.FB?.XFBML?.parse) {
-          setStage(PROCESS_EMBED_STAGE);
-        }
-      }, 1);
-    }
-    return subs.createCleanup();
-  }, [stage, frm.window]);
-
-  useEffect(() => {
-    if (stage !== PROCESS_EMBED_STAGE) {
-      return;
-    }
-    const parse = (frm.window as Window & { FB?: { XFBML?: { parse?: () => void } } })?.FB?.XFBML?.parse;
-    if (parse) {
-      parse();
-      setStage(CONFIRM_EMBED_SUCCESS_STAGE);
-    } else {
-      console.error('Facebook embed script not found. Unable to process Facebook embed:', url);
-    }
-  }, [stage, url, frm.window]);
-
-  useEffect(() => {
-    const subs = new Subs();
-    if (stage === CONFIRM_EMBED_SUCCESS_STAGE) {
-      subs.setInterval(() => {
-        if (frm.document) {
-          const fbPostContainerElement = frm.document.getElementById(uuidRef.current);
-          const fbPostElem = fbPostContainerElement?.getElementsByClassName('fb-post')[0];
-          if (fbPostElem && fbPostElem.children.length > 0) {
-            setStage(EMBED_SUCCESS_STAGE);
-          }
-        }
-      }, 1);
-      if (!retryDisabled) {
-        subs.setTimeout(() => {
-          setStage(RETRYING_STAGE);
-        }, retryDelay);
-      }
-    }
-    return subs.createCleanup();
-  }, [retryDisabled, retryDelay, stage, frm.document]);
-
-  useEffect(() => {
-    if (stage === RETRYING_STAGE) {
-      setProcessTime(Date.now());
-      setStage(PROCESS_EMBED_STAGE);
-    }
-  }, [stage]);
-
-  const percentageWidth = isPercentage(width);
+  const [ready, setReady] = useState(false);
+  const [usePluginFallback, setUsePluginFallback] = useState(false);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const percentageWidth = isPercentage(resolvedMaxWidth);
   const percentageHeight = isPercentage(height);
-  const resolvedWidth = percentageWidth ? '100%' : width ?? defaultEmbedWidth;
+  const pluginWidth =
+    percentageWidth || typeof resolvedMaxWidth !== 'number'
+      ? defaultEmbedWidth
+      : clampFacebookWidth(resolvedMaxWidth);
+  const embedHtml = useMemo(
+    () => facebookEmbedHtml({ url, width: pluginWidth, apiVersion, locale }),
+    [apiVersion, locale, pluginWidth, url],
+  );
+  const [frameSrc, setFrameSrc] = useState<string | undefined>();
+  const fallbackHeight = facebookPluginHeight(pluginWidth);
+  const autoHeight = height == null && !percentageHeight;
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
+  const { height: measuredHeight, iframeRef } = useAutoEmbedHeight({
+    enabled: !usePluginFallback && !!frameSrc,
+    measureSrcDoc: !usePluginFallback && !!frameSrc,
+  });
+
+  useEffect(() => {
+    const blob = new Blob([embedHtml], { type: 'text/html' });
+    const next = URL.createObjectURL(blob);
+    setFrameSrc(next);
+    return () => URL.revokeObjectURL(next);
+  }, [embedHtml]);
+
+  useEffect(() => {
+    if (measuredHeight) {
+      setReady(true);
+    }
+  }, [measuredHeight]);
+
+  useEffect(() => {
+    if (!autoHeight || ready || usePluginFallback) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setUsePluginFallback(true);
+      setReady(true);
+    }, SDK_FALLBACK_MS);
+    return () => window.clearTimeout(timer);
+  }, [autoHeight, ready, usePluginFallback]);
+
+  const frameHeight = typeof height === 'number' ? height : (measuredHeight ?? fallbackHeight);
+  const shellHeight = percentageHeight ? '100%' : Math.round(Number(frameHeight) * scale);
 
   const placeholderStyle: CSSProperties = {
     maxWidth: percentageWidth ? undefined : maxPlaceholderWidth,
-    width: typeof width !== 'undefined' ? (percentageWidth ? '100%' : width) : '100%',
+    width: '100%',
     height: percentageHeight
       ? '100%'
       : typeof height !== 'undefined'
@@ -170,20 +129,51 @@ export const FacebookEmbed = ({
   );
 
   return (
-    <EmbedShell className={className} extraClassName="rsme-facebook-embed" width={width} height={height} borderRadius={borderRadius} style={style}>
-      <Box id={uuidRef.current} className={classNames(!embedSuccess && 'rsme-d-none')}>
-        <div
-          key={embedContainerKey}
-          className="fb-post"
-          data-href={url}
-          data-width={resolvedWidth}
-          style={{
-            width: resolvedWidth,
-            height: percentageHeight ? '100%' : height ?? undefined,
-          }}
-        />
-      </Box>
-      {!embedSuccess && !placeholderDisabled && placeholder}
-    </EmbedShell>
+    <div ref={boxRef} style={boxStyle}>
+      <EmbedShell
+        className={className}
+        extraClassName="rsme-facebook-embed"
+        width="100%"
+        height={shellHeight}
+        borderRadius={borderRadius}
+        style={style}
+      >
+        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
+          {usePluginFallback ? (
+            <IFrame
+              src={buildFacebookPluginSrc(url, pluginWidth, fallbackHeight, locale)}
+              width={pluginWidth}
+              height={fallbackHeight}
+              frameBorder={0}
+              scrolling="no"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              allowFullScreen
+              onLoad={() => setReady(true)}
+              title="Facebook embed"
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+            />
+          ) : frameSrc ? (
+            <IFrame
+              iframeRef={iframeRef}
+              src={frameSrc}
+              width={pluginWidth}
+              height={frameHeight}
+              frameBorder={0}
+              scrolling="no"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              allowFullScreen
+              title="Facebook embed"
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+            />
+          ) : null}
+        </MediaFrame>
+      </EmbedShell>
+    </div>
   );
 };

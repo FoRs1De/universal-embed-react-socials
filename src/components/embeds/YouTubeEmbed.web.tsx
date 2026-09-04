@@ -1,7 +1,8 @@
 import { useState, type CSSProperties } from 'react';
 import { Box, IFrame } from '../../host';
+import { useAutoEmbedHeight } from '../../hooks/useEmbedHeight';
 import { classNames } from '../../utils/classNames';
-import { isPercentage } from '../../utils/style';
+import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
@@ -16,6 +17,7 @@ const borderRadius = 0;
 
 export const YouTubeEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'Watch on YouTube',
@@ -32,20 +34,26 @@ export const YouTubeEmbed = ({
   const [ready, setReady] = useState(false);
   const videoId = youTubeProps?.videoId ?? getYouTubeVideoId(url);
   const start = getYouTubeStart(url);
-  const percentageWidth = isPercentage(width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const percentageWidth = isPercentage(resolvedMaxWidth);
   const percentageHeight = isPercentage(height);
+  const autoHeight = height == null && youTubeProps?.opts?.height == null && !percentageHeight;
+  const { height: resolvedHeight, containerRef } = useAutoEmbedHeight({
+    enabled: autoHeight,
+    fallback: defaultPlaceholderHeight,
+    aspectRatio: 16 / 9,
+  });
 
   const playerVars: YouTubePlayerVars = {
     ...(start ? { start } : {}),
     ...youTubeProps?.opts?.playerVars,
   };
   const src = buildYouTubeSrc(videoId, playerVars);
-  const embedWidth = youTubeProps?.opts?.width ?? (percentageWidth ? '100%' : width);
-  const embedHeight = youTubeProps?.opts?.height ?? (percentageHeight ? '100%' : height);
+  const embedHeight = youTubeProps?.opts?.height ?? (percentageHeight ? '100%' : (height ?? resolvedHeight));
 
   const placeholderStyle: CSSProperties = {
     maxWidth: percentageWidth ? undefined : maxPlaceholderWidth,
-    width: typeof width !== 'undefined' ? (percentageWidth ? '100%' : width) : '100%',
+    width: '100%',
     height: percentageHeight
       ? '100%'
       : typeof height !== 'undefined'
@@ -71,13 +79,14 @@ export const YouTubeEmbed = ({
   );
 
   return (
-    <EmbedShell className={className} extraClassName="rsme-youtube-embed" width={width} height={height} borderRadius={borderRadius} style={style}>
+    <div ref={containerRef} style={embedMaxWidthStyle(resolvedMaxWidth)}>
+    <EmbedShell className={className} extraClassName="rsme-youtube-embed" width="100%" height={height ?? embedHeight} borderRadius={borderRadius} style={style}>
       <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
         <Box className={classNames(!ready && 'rsme-d-none')}>
           <IFrame
             className={youTubeProps?.className ?? 'youtube-iframe'}
             src={src}
-            width={embedWidth ?? '100%'}
+            width="100%"
             height={embedHeight ?? '100%'}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
@@ -90,5 +99,6 @@ export const YouTubeEmbed = ({
         </Box>
       </MediaFrame>
     </EmbedShell>
+    </div>
   );
 };

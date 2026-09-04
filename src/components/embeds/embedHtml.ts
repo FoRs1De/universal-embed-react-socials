@@ -7,7 +7,7 @@ const documentShell = (body: string): string => `<!DOCTYPE html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <style>html,body{margin:0;padding:0;background:transparent;} iframe{max-width:100%;}</style>
+    <style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;} .fb-post,iframe,[class*="embed_pin"]{display:block;}</style>
   </head>
   <body>
     ${body}
@@ -27,8 +27,20 @@ export const facebookEmbedHtml = ({
 }): string =>
   documentShell(`
     <div id="fb-root"></div>
-    <div class="fb-post" data-href="${escapeHtmlAttribute(url)}" data-width="${escapeHtmlAttribute(String(width))}"></div>
+    <div class="fb-post" data-href="${escapeHtmlAttribute(url)}" data-width="${escapeHtmlAttribute(String(width))}" data-show-text="true"></div>
     <script async defer src="${escapeHtmlAttribute(getFacebookSdkSrc(apiVersion, locale))}"></script>
+  `);
+
+export const pinterestEmbedHtml = ({
+  url,
+  pinWidth,
+}: {
+  url: string;
+  pinWidth: 'small' | 'medium' | 'large';
+}): string =>
+  documentShell(`
+    <a data-pin-do="embedPin" data-pin-width="${escapeHtmlAttribute(pinWidth)}" href="${escapeHtmlAttribute(url)}"></a>
+    <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
   `);
 
 export const instagramEmbedHtml = ({

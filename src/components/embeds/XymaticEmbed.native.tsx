@@ -1,3 +1,4 @@
+import { resolveEmbedMaxWidth } from '../../utils/style';
 import { DEFAULT_XYMATIC_PLAYER_SCRIPT } from '../../utils/xymatic';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { xymaticEmbedHtml } from './embedHtml';
@@ -16,6 +17,7 @@ export const XymaticEmbed = ({
   hasNoAds,
   scriptSrc = DEFAULT_XYMATIC_PLAYER_SCRIPT,
   url,
+  maxWidth,
   width,
   height,
   linkText = 'Watch video',
@@ -29,6 +31,7 @@ export const XymaticEmbed = ({
   style,
   webViewProps,
 }: XymaticEmbedProps) => {
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const placeholder = embedPlaceholder ?? (
     <PlaceholderEmbed
       url={url ?? '#'}
@@ -39,7 +42,7 @@ export const XymaticEmbed = ({
       allowJavaScriptUrls={false}
       {...placeholderProps}
       style={{
-        width: width ?? '100%',
+        width: resolvedMaxWidth ?? '100%',
         height: height ?? defaultPlaceholderHeight,
         ...placeholderProps?.style,
       }}
@@ -58,7 +61,7 @@ export const XymaticEmbed = ({
         pageTitle,
       })}
       baseUrl="https://cdn.greenvideo.io"
-      width={width}
+      width={resolvedMaxWidth}
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}

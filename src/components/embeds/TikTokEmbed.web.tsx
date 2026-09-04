@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react';
+import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactElement } from 'react';
 import { Box } from '../../host';
+import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
+import { embedScaleStyle, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getTikTokVideoId } from '../../utils/urls';
-import { generateUUID } from '../../uuid';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
 import type { TikTokEmbedProps } from './TikTokEmbed.types';
@@ -13,6 +14,7 @@ export type { TikTokEmbedProps } from './TikTokEmbed.types';
 const minPlaceholderWidth = 325;
 const maxPlaceholderWidth = 480;
 const defaultPlaceholderHeight = 550;
+const officialEmbedWidth = 325;
 const borderRadius = 8;
 
 const PROCESS_EMBED_STAGE = 'process-embed';
@@ -22,6 +24,7 @@ const EMBED_SUCCESS_STAGE = 'embed-success';
 
 export const TikTokEmbed = ({
   url,
+  maxWidth,
   width,
   height,
   linkText = 'View post on TikTok',
@@ -40,11 +43,16 @@ export const TikTokEmbed = ({
   style,
 }: TikTokEmbedProps): ReactElement => {
   const [stage, setStage] = useState(PROCESS_EMBED_STAGE);
-  const uuidRef = useRef(generateUUID());
-  const [processTime, setProcessTime] = useState(Date.now());
-  const embedContainerKey = useMemo(() => `${uuidRef.current}-${processTime}`, [processTime]);
+  const placeholderId = useId();
+  const [processTime, setProcessTime] = useState(0);
+  const embedContainerKey = useMemo(() => `${placeholderId}-${processTime}`, [placeholderId, processTime]);
   const frm = useFrame(frame);
   const embedId = getTikTokVideoId(url);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { height: observedHeight, containerRef } = useAutoEmbedHeight({
+    enabled: height == null,
+  });
 
   useEffect(() => {
     debug && console.log(`[${new Date().toISOString()}]: ${stage}`);
@@ -70,7 +78,7 @@ export const TikTokEmbed = ({
     const subs = new Subs();
     if (stage === CONFIRM_EMBED_SUCCESS_STAGE) {
       subs.setInterval(() => {
-        if (frm.document && !frm.document.getElementById(uuidRef.current)) {
+        if (frm.document && !frm.document.getElementById(placeholderId)) {
           setStage(EMBED_SUCCESS_STAGE);
         }
       }, 1);
@@ -81,7 +89,7 @@ export const TikTokEmbed = ({
       }
     }
     return subs.createCleanup();
-  }, [retryDelay, retryDisabled, stage, frm.document]);
+  }, [placeholderId, retryDelay, retryDisabled, stage, frm.document]);
 
   useEffect(() => {
     if (stage === RETRYING_STAGE) {
@@ -93,7 +101,7 @@ export const TikTokEmbed = ({
   const placeholderStyle: CSSProperties = {
     minWidth: minPlaceholderWidth,
     maxWidth: maxPlaceholderWidth,
-    width: typeof width !== 'undefined' ? width : '100%',
+    width: '100%',
     height:
       typeof height !== 'undefined'
         ? height
@@ -118,20 +126,24 @@ export const TikTokEmbed = ({
   );
 
   return (
-    <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width={width} height={height} borderRadius={borderRadius} style={style}>
+    <div ref={boxRef} style={boxStyle}>
+    <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width="100%" height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)} borderRadius={borderRadius} style={style}>
+      <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       <Box className="tiktok-embed-container">
         <blockquote key={embedContainerKey} className="tiktok-embed" cite={url} data-video-id={embedId}>
           {!placeholderDisabled ? (
-            <div id={uuidRef.current} style={{ display: 'flex', justifyContent: 'center' }}>
+            <div id={placeholderId} style={{ display: 'flex', justifyContent: 'center' }}>
               {placeholder}
             </div>
           ) : (
-            <div id={uuidRef.current} style={{ display: 'none' }}>
+            <div id={placeholderId} style={{ display: 'none' }}>
               &nbsp;
             </div>
           )}
         </blockquote>
       </Box>
+      </div>
     </EmbedShell>
+    </div>
   );
 };
