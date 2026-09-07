@@ -22,7 +22,8 @@ export const NativeEmbedView = ({
   webViewProps,
 }: NativeEmbedViewProps) => {
   const [ready, setReady] = useState(false);
-  const resolvedHeight = toNativeSize(height, fallbackHeight);
+  const hasPlaceholder = placeholder != null && !placeholderDisabled;
+  const resolvedHeight = toNativeSize(height, ready || hasPlaceholder ? fallbackHeight : 0);
   const {
     style: webViewStyle,
     onLoad,
@@ -65,7 +66,7 @@ export const NativeEmbedView = ({
           webViewStyle,
         ]}
       />
-      {!ready && !placeholderDisabled ? (
+      {!ready && hasPlaceholder ? (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{placeholder}</View>
       ) : null}
     </View>

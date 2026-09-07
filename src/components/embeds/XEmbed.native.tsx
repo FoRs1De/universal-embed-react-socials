@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getXPostId } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { xEmbedHtml } from './embedHtml';
 import { NativeEmbedView } from './NativeEmbedView';
 import type { XEmbedProps } from './XEmbed.types';
@@ -19,6 +19,10 @@ export const XEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
   twitterTweetEmbedProps,
@@ -27,21 +31,25 @@ export const XEmbed = ({
 }: XEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{
-        width: resolvedMaxWidth ?? '100%',
-        height: height ?? defaultPlaceholderHeight,
-        ...placeholderProps?.style,
-      }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { width: resolvedMaxWidth ?? '100%' },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth ?? '100%',
+    providerHeight: height ?? defaultPlaceholderHeight,
+  });
 
   return (
     <NativeEmbedView
@@ -51,7 +59,7 @@ export const XEmbed = ({
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
       webViewProps={webViewProps}
     />

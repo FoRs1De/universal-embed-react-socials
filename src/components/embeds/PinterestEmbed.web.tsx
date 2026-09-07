@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
+import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { getPinterestPinId } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
@@ -28,6 +28,10 @@ export const PinterestEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   className,
@@ -39,10 +43,13 @@ export const PinterestEmbed = ({
   const embedSrc = `https://assets.pinterest.com/ext/embed.html?id=${postId}&src=oembed`;
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
-  const embedHeight =
-    typeof height === 'number' && !isPercentage(height)
-      ? height
-      : Math.round(officialEmbedHeight * scale);
+  const { frameHeight, showPlaceholder } = resolveEmbedFrame({
+    ready,
+    fallbackHeight: officialEmbedHeight,
+    scale,
+    height,
+    waitForMeasure: false,
+  });
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -55,32 +62,30 @@ export const PinterestEmbed = ({
     };
   }, [embedSrc]);
 
-  const placeholderStyle: CSSProperties = {
-    minWidth: minPlaceholderWidth,
-    maxWidth: maxPlaceholderWidth,
-    width: '100%',
-    height:
-      typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: 'rgba(0, 0, 0, 0.15)',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={postUrl ?? url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url: postUrl ?? url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: 'rgba(0, 0, 0, 0.15)',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: officialEmbedWidth,
+    providerHeight: officialEmbedHeight,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
@@ -88,11 +93,11 @@ export const PinterestEmbed = ({
         className={className}
         extraClassName="rsme-pinterest-embed"
         width="100%"
-        height={embedHeight}
+        height={frameHeight}
         borderRadius={borderRadius}
         style={style}
       >
-        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
+        <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
           <IFrame
             iframeRef={iframeRef}
             className="pinterest-post"

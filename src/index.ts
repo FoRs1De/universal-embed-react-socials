@@ -11,7 +11,7 @@ export * from './components/placeholder/PlaceholderEmbed';
 export * from './components/placeholder/parts/BorderSpinner';
 export * from './hooks/useFrame';
 export { parseEmbedHeight, useAutoEmbedHeight } from './hooks/useEmbedHeight';
-export type { EmbedWebViewProps } from './types';
+export type { EmbedPlaceholder, EmbedWebViewProps } from './types';
 export {
   DEFAULT_FACEBOOK_API_VERSION,
   DEFAULT_FACEBOOK_LOCALE,

@@ -1,9 +1,8 @@
-import { useEffect, useState, type CSSProperties } from 'react';
-import { useAutoEmbedHeight } from '../../hooks/useEmbedHeight';
+import { useEffect, useState } from 'react';
 import { useFrame } from '../../hooks/useFrame';
-import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
+import { aspectRatioHeight, collapsedEmbedStyle, embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { DEFAULT_XYMATIC_PLAYER_SCRIPT, resolveXymaticControls } from '../../utils/xymatic';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { XymaticEmbedProps } from './XymaticEmbed.types';
@@ -36,6 +35,10 @@ export const XymaticEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   scriptLoadDisabled = false,
@@ -49,11 +52,7 @@ export const XymaticEmbed = ({
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
   const autoHeight = height == null && !percentageHeight;
-  const { height: resolvedHeight, containerRef } = useAutoEmbedHeight({
-    enabled: autoHeight,
-    fallback: defaultPlaceholderHeight,
-    aspectRatio: 16 / 9,
-  });
+  const aspectFallback = aspectRatioHeight(resolvedMaxWidth, 16 / 9, defaultPlaceholderHeight);
   const { attributes, configJson } = resolveXymaticControls({
     embedId,
     contentId,
@@ -92,42 +91,45 @@ export const XymaticEmbed = ({
     frm.document.body.appendChild(script);
   }, [frm.document, licenseKey, scriptLoadDisabled, scriptSrc]);
 
-  const placeholderStyle: CSSProperties = {
-    width: '100%',
-    height: percentageHeight
-      ? '100%'
-      : typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url ?? '#'}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      allowJavaScriptUrls={false}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { borderRadius },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth,
+    providerHeight: typeof height === 'number' ? height : aspectFallback,
+    allowJavaScriptUrls: false,
+  });
+  const hasPlaceholder = resolvedPlaceholder != null;
+  const reserveFrame = ready || hasPlaceholder;
 
   return (
-    <div ref={containerRef} style={embedMaxWidthStyle(resolvedMaxWidth)}>
+    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
     <EmbedShell
       className={className}
       extraClassName="rsme-xymatic-embed"
       width="100%"
-      height={height ?? resolvedHeight}
+      height={!reserveFrame ? 0 : autoHeight ? undefined : height}
       borderRadius={borderRadius}
-      style={style}
+      style={{
+        ...(autoHeight && reserveFrame ? { aspectRatio: '16 / 9' } : {}),
+        ...collapsedEmbedStyle(!reserveFrame),
+        ...style,
+      }}
     >
-      <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
-        <div id="xymatic-embed-wrapper" style={{ width: '100%' }}>
+      <MediaFrame showPlaceholder={!ready && hasPlaceholder} placeholder={resolvedPlaceholder}>
+        <div id="xymatic-embed-wrapper" style={{ width: '100%', height: '100%' }}>
           <green-video {...attributes}>
             <script type="application/json">{configJson}</script>
           </green-video>

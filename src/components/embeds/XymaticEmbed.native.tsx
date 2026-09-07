@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { DEFAULT_XYMATIC_PLAYER_SCRIPT } from '../../utils/xymatic';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { xymaticEmbedHtml } from './embedHtml';
 import { NativeEmbedView } from './NativeEmbedView';
 import type { XymaticEmbedProps } from './XymaticEmbed.types';
@@ -32,6 +32,10 @@ export const XymaticEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   pageTitle,
@@ -39,22 +43,26 @@ export const XymaticEmbed = ({
   webViewProps,
 }: XymaticEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url ?? '#'}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      allowJavaScriptUrls={false}
-      {...placeholderProps}
-      style={{
-        width: resolvedMaxWidth ?? '100%',
-        height: height ?? defaultPlaceholderHeight,
-        ...placeholderProps?.style,
-      }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { width: resolvedMaxWidth ?? '100%' },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth ?? '100%',
+    providerHeight: height ?? defaultPlaceholderHeight,
+    allowJavaScriptUrls: false,
+  });
 
   return (
     <NativeEmbedView
@@ -79,7 +87,7 @@ export const XymaticEmbed = ({
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
       allowsInlineMediaPlayback
       mediaPlaybackRequiresUserAction={false}

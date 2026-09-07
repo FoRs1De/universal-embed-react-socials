@@ -8,7 +8,7 @@ export interface BorderSpinnerProps {
 }
 
 export const BorderSpinner = ({ className, style }: BorderSpinnerProps) => (
-  <>
+  <Box>
     <StyleTag>
       {`
         .rsme-spinner {
@@ -27,6 +27,6 @@ export const BorderSpinner = ({ className, style }: BorderSpinnerProps) => (
         }
       `}
     </StyleTag>
-    <Box className={classNames('rsme-spinner', className)} style={{ width: 10, height: 10, ...style }} />
-  </>
+    <Box className={classNames('rsme-spinner', className)} style={{ width: 10, height: 10, minWidth: 10, minHeight: 10, flexShrink: 0, boxSizing: 'border-box', ...style }} />
+  </Box>
 );

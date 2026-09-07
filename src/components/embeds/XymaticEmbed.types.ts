@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import type { EmbedContainerProps, EmbedWebViewProps } from '../../types';
+import type { CSSProperties, ReactNode } from 'react';
+import type { EmbedContainerProps, EmbedPlaceholder, EmbedWebViewProps } from '../../types';
 import type { Frame } from '../../hooks/useFrame';
 import type { PlaceholderEmbedProps } from '../placeholder/PlaceholderEmbed.types';
 import type {
@@ -54,7 +54,13 @@ export interface XymaticEmbedProps extends EmbedContainerProps {
   placeholderSpinner?: ReactNode;
   placeholderSpinnerDisabled?: boolean;
   placeholderProps?: PlaceholderEmbedProps;
-  embedPlaceholder?: ReactNode;
+  placeholder?: EmbedPlaceholder;
+  /** Width of the placeholder box. Defaults to the embed width, then the provider default. */
+  placeholderWidth?: string | number;
+  /** Height of the placeholder box. Defaults to the embed height, then the provider default. */
+  placeholderHeight?: string | number;
+  placeholderStyle?: CSSProperties;
+  embedPlaceholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
   scriptLoadDisabled?: boolean;
   frame?: Frame;

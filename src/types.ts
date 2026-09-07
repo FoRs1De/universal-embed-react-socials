@@ -1,5 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 
+/** Custom loading UI, or a render function. Return `null` to reserve no space. */
+export type EmbedPlaceholder = ReactNode | (() => ReactNode);
+
 export interface Frame {
   window?: Window;
   document?: Document;
@@ -26,10 +29,18 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   /** Omit to size the embed from the platform when possible. */
   height?: string | number;
   linkText?: string;
+  /** Custom loading placeholder. Wins over the default UI and `embedPlaceholder`. Pass `null` or `() => null` to render nothing and reserve no height. */
+  placeholder?: EmbedPlaceholder;
   placeholderImageUrl?: string;
   placeholderSpinner?: ReactNode;
   placeholderSpinnerDisabled?: boolean;
-  embedPlaceholder?: ReactNode;
+  /** Width of the placeholder box. Defaults to the embed width, then the provider default. */
+  placeholderWidth?: string | number;
+  /** Height of the placeholder box. Defaults to the embed height, then the provider default. */
+  placeholderHeight?: string | number;
+  placeholderStyle?: CSSProperties;
+  /** @deprecated Use `placeholder`. */
+  embedPlaceholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
   /** Extra `react-native-webview` props. Native only. */
   webViewProps?: EmbedWebViewProps;

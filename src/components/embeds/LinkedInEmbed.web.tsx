@@ -1,8 +1,8 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { LinkedInEmbedProps } from './LinkedInEmbed.types';
@@ -28,6 +28,10 @@ export const LinkedInEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   className,
@@ -43,34 +47,38 @@ export const LinkedInEmbed = ({
     listenToMessages: autoHeight,
     allowedOrigins: LINKEDIN_ORIGINS,
   });
-  const frameHeight = Math.round(officialEmbedHeight * scale);
+  const { frameHeight: shellHeight, showPlaceholder } = resolveEmbedFrame({
+    ready,
+    fallbackHeight: officialEmbedHeight,
+    scale,
+    height,
+    waitForMeasure: false,
+  });
 
-  const placeholderStyle: CSSProperties = {
-    minWidth: minPlaceholderWidth,
-    maxWidth: maxPlaceholderWidth,
-    width: '100%',
-    height:
-      typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: 'rgba(0, 0, 0, 0.15)',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={postUrl ?? url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url: postUrl ?? url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: 'rgba(0, 0, 0, 0.15)',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: officialEmbedWidth,
+    providerHeight: officialEmbedHeight,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
@@ -78,11 +86,11 @@ export const LinkedInEmbed = ({
         className={className}
         extraClassName="rsme-linkedin-embed"
         width="100%"
-        height={typeof height === 'number' && !isPercentage(height) ? height : frameHeight}
+        height={shellHeight}
         borderRadius={borderRadius}
         style={style}
       >
-        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
+        <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
           <IFrame
             iframeRef={iframeRef}
             className="linkedin-post"

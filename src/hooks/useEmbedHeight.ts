@@ -3,10 +3,15 @@ import { embedMaxWidthStyle } from '../utils/style';
 
 export const useResponsiveEmbedScale = (
   designWidth: number,
-  { allowUpscale = false }: { allowUpscale?: boolean } = {},
+  {
+    allowUpscale = false,
+    initialWidth,
+  }: { allowUpscale?: boolean; initialWidth?: number } = {},
 ) => {
   const boxRef = useRef<HTMLDivElement | null>(null);
-  const [boxWidth, setBoxWidth] = useState(designWidth);
+  const [boxWidth, setBoxWidth] = useState(
+    initialWidth && initialWidth > 0 ? initialWidth : designWidth,
+  );
 
   useEffect(() => {
     const node = boxRef.current;
@@ -40,6 +45,7 @@ export const useResponsiveEmbedBox = (
 ) => {
   const { boxRef, boxWidth, scale } = useResponsiveEmbedScale(designWidth, {
     allowUpscale: options?.allowUpscale ?? true,
+    initialWidth: typeof maxWidth === 'number' && maxWidth > 0 ? maxWidth : undefined,
   });
   return {
     boxRef,

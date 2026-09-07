@@ -183,9 +183,10 @@ Every embed accepts:
 - `url`
 - `maxWidth` / `height` — `maxWidth` caps the embed; it fills its container up to that size and shrinks with the viewport. Omit `height` to size from the embed when the platform reports it. `width` still works as a deprecated alias of `maxWidth`.
 - `linkText`
-- `placeholderImageUrl`
-- `placeholderSpinner` / `placeholderSpinnerDisabled`
-- `embedPlaceholder` / `placeholderDisabled` / `placeholderProps`
+- `placeholder` — custom loading UI. Replaces the default placeholder.
+- `placeholderWidth` / `placeholderHeight` / `placeholderStyle` — optional overrides. By default the placeholder matches the embed size, or the provider’s default size before the embed has measured.
+- `placeholderImageUrl` / `placeholderSpinner` / `placeholderSpinnerDisabled` / `placeholderProps`
+- `placeholderDisabled` — hide the placeholder. `embedPlaceholder` still works as a deprecated alias of `placeholder`.
 - `className` / `style`
 - `webViewProps` (React Native only)
 

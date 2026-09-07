@@ -10,9 +10,9 @@ export const MediaFrame = ({
   placeholder?: ReactNode;
   showPlaceholder: boolean;
 }) => (
-  <Box style={{ position: 'relative', width: '100%' }}>
+  <Box style={{ position: 'relative', width: '100%', height: '100%' }}>
     {children}
-    {showPlaceholder ? (
+    {showPlaceholder && placeholder != null ? (
       <Box
         style={{
           position: 'absolute',
@@ -20,6 +20,9 @@ export const MediaFrame = ({
           left: 0,
           right: 0,
           bottom: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
         }}
       >
         {placeholder}

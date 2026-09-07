@@ -1,11 +1,11 @@
-import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactElement } from 'react';
+import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { embedScaleStyle, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getTikTokVideoId } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import type { TikTokEmbedProps } from './TikTokEmbed.types';
 
@@ -13,8 +13,9 @@ export type { TikTokEmbedProps } from './TikTokEmbed.types';
 
 const minPlaceholderWidth = 325;
 const maxPlaceholderWidth = 480;
-const defaultPlaceholderHeight = 550;
+const defaultPlaceholderHeight = 739;
 const officialEmbedWidth = 325;
+const tiktokContentMinHeight = 500;
 const borderRadius = 8;
 
 const PROCESS_EMBED_STAGE = 'process-embed';
@@ -32,6 +33,10 @@ export const TikTokEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   scriptLoadDisabled = false,
@@ -78,7 +83,7 @@ export const TikTokEmbed = ({
     const subs = new Subs();
     if (stage === CONFIRM_EMBED_SUCCESS_STAGE) {
       subs.setInterval(() => {
-        if (frm.document && !frm.document.getElementById(placeholderId)) {
+        if (frm.document?.querySelector('.tiktok-embed-container iframe')) {
           setStage(EMBED_SUCCESS_STAGE);
         }
       }, 1);
@@ -98,51 +103,56 @@ export const TikTokEmbed = ({
     }
   }, [stage]);
 
-  const placeholderStyle: CSSProperties = {
-    minWidth: minPlaceholderWidth,
-    maxWidth: maxPlaceholderWidth,
-    width: '100%',
-    height:
-      typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: 'rgba(22,24,35,0.12)',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: 'rgba(22,24,35,0.12)',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: officialEmbedWidth,
+    providerHeight: defaultPlaceholderHeight,
+  });
+  const embedReady = stage === EMBED_SUCCESS_STAGE;
+  const videoHeight =
+    observedHeight != null && observedHeight >= tiktokContentMinHeight ? observedHeight : undefined;
+  const { frameHeight, showPlaceholder } = resolveEmbedFrame({
+    ready: embedReady && videoHeight != null,
+    measuredHeight: videoHeight,
+    fallbackHeight: defaultPlaceholderHeight,
+    scale,
+    height,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
-    <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width="100%" height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)} borderRadius={borderRadius} style={style}>
+    <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       <Box className="tiktok-embed-container">
         <blockquote key={embedContainerKey} className="tiktok-embed" cite={url} data-video-id={embedId}>
-          {!placeholderDisabled ? (
-            <div id={placeholderId} style={{ display: 'flex', justifyContent: 'center' }}>
-              {placeholder}
-            </div>
-          ) : (
-            <div id={placeholderId} style={{ display: 'none' }}>
-              &nbsp;
-            </div>
-          )}
+          <section>
+            <a href={url}>{linkText}</a>
+          </section>
         </blockquote>
       </Box>
       </div>
+      {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
+        <Box style={placeholderOverlayStyle}>{resolvedPlaceholder}</Box>
+      ) : null}
     </EmbedShell>
     </div>
   );

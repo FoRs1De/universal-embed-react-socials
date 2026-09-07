@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
 import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { facebookEmbedHtml } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
@@ -14,15 +14,20 @@ export type { FacebookEmbedProps } from './FacebookEmbed.types';
 const defaultEmbedWidth = 550;
 const minPluginWidth = 350;
 const maxPluginWidth = 750;
-const maxPlaceholderWidth = defaultEmbedWidth;
 const defaultPlaceholderHeight = 372;
 const borderRadius = 3;
-const FACEBOOK_CHROME = 180;
+const FACEBOOK_CHROME = 148;
+const FACEBOOK_CONTENT_MIN = 240;
+const FACEBOOK_STUB_HEIGHT = 1000;
 const SDK_FALLBACK_MS = 8000;
 
 const clampFacebookWidth = (width: number) => Math.min(maxPluginWidth, Math.max(minPluginWidth, width));
 
-const facebookPluginHeight = (width: number): number => Math.round(width + FACEBOOK_CHROME);
+const facebookPluginHeight = (width: number): number =>
+  Math.max(defaultPlaceholderHeight, Math.round(width * (9 / 16) + FACEBOOK_CHROME));
+
+const isFacebookStubHeight = (value: number) =>
+  value === FACEBOOK_STUB_HEIGHT || value >= 1500;
 
 const buildFacebookPluginSrc = (url: string, width: number, height: number, locale: string) => {
   const params = new URLSearchParams({
@@ -45,6 +50,10 @@ export const FacebookEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
@@ -52,8 +61,8 @@ export const FacebookEmbed = ({
   className,
   style,
 }: FacebookEmbedProps) => {
-  const [ready, setReady] = useState(false);
   const [usePluginFallback, setUsePluginFallback] = useState(false);
+  const [pluginReady, setPluginReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageWidth = isPercentage(resolvedMaxWidth);
   const percentageHeight = isPercentage(height);
@@ -69,10 +78,16 @@ export const FacebookEmbed = ({
   const fallbackHeight = facebookPluginHeight(pluginWidth);
   const autoHeight = height == null && !percentageHeight;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
-  const { height: measuredHeight, iframeRef } = useAutoEmbedHeight({
+  const { measured, iframeRef } = useAutoEmbedHeight({
     enabled: !usePluginFallback && !!frameSrc,
     measureSrcDoc: !usePluginFallback && !!frameSrc,
+    measureSelector: 'iframe',
   });
+  const contentHeight =
+    measured != null && measured >= FACEBOOK_CONTENT_MIN && !isFacebookStubHeight(measured)
+      ? measured
+      : undefined;
+  const ready = usePluginFallback ? pluginReady : contentHeight != null;
 
   useEffect(() => {
     const blob = new Blob([embedHtml], { type: 'text/html' });
@@ -82,51 +97,44 @@ export const FacebookEmbed = ({
   }, [embedHtml]);
 
   useEffect(() => {
-    if (measuredHeight) {
-      setReady(true);
-    }
-  }, [measuredHeight]);
-
-  useEffect(() => {
     if (!autoHeight || ready || usePluginFallback) {
       return;
     }
-    const timer = window.setTimeout(() => {
-      setUsePluginFallback(true);
-      setReady(true);
-    }, SDK_FALLBACK_MS);
+    const timer = window.setTimeout(() => setUsePluginFallback(true), SDK_FALLBACK_MS);
     return () => window.clearTimeout(timer);
   }, [autoHeight, ready, usePluginFallback]);
 
-  const frameHeight = typeof height === 'number' ? height : (measuredHeight ?? fallbackHeight);
-  const shellHeight = percentageHeight ? '100%' : Math.round(Number(frameHeight) * scale);
+  const frameHeight =
+    typeof height === 'number' ? height : (contentHeight ?? fallbackHeight);
+  const shellHeight = percentageHeight
+    ? '100%'
+    : Math.round(Number(frameHeight) * (typeof height === 'number' ? 1 : scale));
+  const showPlaceholder = !ready && !placeholderDisabled;
 
-  const placeholderStyle: CSSProperties = {
-    maxWidth: percentageWidth ? undefined : maxPlaceholderWidth,
-    width: '100%',
-    height: percentageHeight
-      ? '100%'
-      : typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: '#dee2e6',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: '#dee2e6',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: pluginWidth,
+    providerHeight: fallbackHeight,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
@@ -138,7 +146,7 @@ export const FacebookEmbed = ({
         borderRadius={borderRadius}
         style={style}
       >
-        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
+        <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
           {usePluginFallback ? (
             <IFrame
               src={buildFacebookPluginSrc(url, pluginWidth, fallbackHeight, locale)}
@@ -148,7 +156,7 @@ export const FacebookEmbed = ({
               scrolling="no"
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
               allowFullScreen
-              onLoad={() => setReady(true)}
+              onLoad={() => setPluginReady(true)}
               title="Facebook embed"
               style={{
                 transform: `scale(${scale})`,
@@ -160,7 +168,7 @@ export const FacebookEmbed = ({
               iframeRef={iframeRef}
               src={frameSrc}
               width={pluginWidth}
-              height={frameHeight}
+              height={typeof height === 'number' ? height : frameHeight}
               frameBorder={0}
               scrolling="no"
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"

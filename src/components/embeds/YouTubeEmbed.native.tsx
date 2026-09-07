@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
 import { buildYouTubeSrc, type YouTubeEmbedProps, type YouTubePlayerVars } from './YouTubeEmbed.types';
 
@@ -18,6 +18,10 @@ export const YouTubeEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
   youTubeProps,
@@ -31,21 +35,25 @@ export const YouTubeEmbed = ({
     ...(start ? { start } : {}),
     ...youTubeProps?.opts?.playerVars,
   };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{
-        width: resolvedMaxWidth ?? '100%',
-        height: height ?? defaultPlaceholderHeight,
-        ...placeholderProps?.style,
-      }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { width: resolvedMaxWidth ?? '100%' },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth ?? '100%',
+    providerHeight: height ?? defaultPlaceholderHeight,
+  });
 
   return (
     <NativeEmbedView
@@ -54,7 +62,7 @@ export const YouTubeEmbed = ({
       height={height ?? youTubeProps?.opts?.height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
       webViewProps={webViewProps}
     />

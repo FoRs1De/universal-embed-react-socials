@@ -35,6 +35,7 @@ export const EmbedStyle = ({ className, style }: EmbedStyleProps) => (
 
         .rsme-embed.rsme-youtube-embed iframe {
           width: 100% !important;
+          height: 100% !important;
         }
       `}
   </StyleTag>

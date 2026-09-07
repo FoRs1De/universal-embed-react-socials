@@ -1,11 +1,11 @@
-import { useEffect, useId, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, isPercentage, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getXPostId } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import type { XEmbedProps } from './XEmbed.types';
 
@@ -13,7 +13,7 @@ export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
 
 const minPlaceholderWidth = 250;
 const maxPlaceholderWidth = 550;
-const defaultPlaceholderHeight = 350;
+const defaultPlaceholderHeight = 560;
 const officialEmbedWidth = 550;
 const borderRadius = 12;
 
@@ -27,6 +27,10 @@ export const XEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
   twitterTweetEmbedProps,
@@ -75,45 +79,53 @@ export const XEmbed = ({
     return subs.createCleanup();
   }, [embedId, frm.document, frm.window, postId, twitterTweetEmbedProps]);
 
-  const placeholderStyle: CSSProperties = {
-    minWidth: minPlaceholderWidth,
-    maxWidth: maxPlaceholderWidth,
-    width: '100%',
-    height: percentageHeight
-      ? '100%'
-      : typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: '#c9d4d9',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={url}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: '#c9d4d9',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: officialEmbedWidth,
+    providerHeight: defaultPlaceholderHeight,
+  });
+  const { frameHeight, showPlaceholder } = resolveEmbedFrame({
+    ready,
+    measuredHeight: observedHeight,
+    fallbackHeight: defaultPlaceholderHeight,
+    scale,
+    height,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
-    <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)} borderRadius={borderRadius} style={style}>
+    <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       <Box id={embedId}>
         <blockquote className="twitter-tweet">
           <a href={`https://twitter.com/i/status/${postId}`}>{linkText}</a>
         </blockquote>
       </Box>
-      {!ready && !placeholderDisabled && placeholder}
       </div>
+      {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
+        <Box style={placeholderOverlayStyle}>
+          {resolvedPlaceholder}
+        </Box>
+      ) : null}
     </EmbedShell>
     </div>
   );

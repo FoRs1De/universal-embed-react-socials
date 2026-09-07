@@ -1,6 +1,57 @@
 import type { CSSProperties } from 'react';
 
+export const aspectRatioHeight = (
+  width: string | number | undefined,
+  ratio = 16 / 9,
+  fallback = 360,
+): number => {
+  if (typeof width === 'number' && width > 0) {
+    return Math.round(width / ratio);
+  }
+  return fallback;
+};
+
 export const isPercentage = (value?: string | number): boolean => !!value?.toString().includes('%');
+
+export const resolveEmbedFrame = ({
+  ready,
+  measuredHeight,
+  fallbackHeight,
+  scale,
+  height,
+  waitForMeasure = true,
+}: {
+  ready: boolean;
+  measuredHeight?: number;
+  fallbackHeight: number;
+  scale: number;
+  height?: string | number;
+  waitForMeasure?: boolean;
+}): { frameHeight: string | number; showPlaceholder: boolean } => {
+  if (height != null && !isPercentage(height)) {
+    return { frameHeight: height, showPlaceholder: !ready };
+  }
+  if (isPercentage(height)) {
+    return { frameHeight: '100%', showPlaceholder: !ready };
+  }
+  const scaledFallback = Math.round(fallbackHeight * scale);
+  const scaledMeasured =
+    typeof measuredHeight === 'number' ? Math.round(measuredHeight * scale) : undefined;
+  const reveal = ready && (!waitForMeasure || scaledMeasured != null);
+  return {
+    frameHeight: reveal && scaledMeasured != null ? scaledMeasured : scaledFallback,
+    showPlaceholder: !reveal,
+  };
+};
+
+export const placeholderOverlayStyle: CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  overflow: 'hidden',
+};
 
 export const resolveEmbedMaxWidth = (
   maxWidth?: string | number,
@@ -39,6 +90,9 @@ export const toNativeSize = (value: string | number | undefined, fallback: numbe
   }
   return fallback;
 };
+
+export const collapsedEmbedStyle = (collapsed: boolean): CSSProperties =>
+  collapsed ? { height: 0, minHeight: 0, overflow: 'hidden' } : {};
 
 export const boxSizeStyle = (
   width?: string | number,

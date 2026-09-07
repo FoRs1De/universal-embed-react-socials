@@ -42,13 +42,22 @@ export const PlaceholderEmbed = ({
       }}
     >
       <EmbedStyle />
-      <EmbedLink href={url} style={{ textDecoration: 'none' }}>
+      <EmbedLink
+        href={url}
+        style={{
+          textDecoration: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+          minHeight: typeof style?.height === 'number' ? undefined : 220,
+          position: 'relative',
+          boxSizing: 'border-box',
+        }}
+      >
         {!imageUrl && (
           <Box
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
@@ -56,57 +65,56 @@ export const PlaceholderEmbed = ({
               paddingRight: 16,
               paddingTop: 16,
               paddingBottom: 16,
-              zIndex: 2,
+              flexShrink: 0,
               backgroundColor: '#ffffff',
             }}
           >
             <ProfilePlaceholder />
           </Box>
         )}
-        <Box
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: imageUrl ? 'flex-start' : 'center',
-            height: '100%',
-            width: '100%',
-          }}
-        >
-          {!imageUrl && (
-            <Box
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                rowGap: 16,
-                zIndex: 3,
-                padding: 8,
-                backgroundColor: '#ffffff',
-              }}
-            >
-              {!spinnerDisabled && spinner}
-              {!!linkText && (
-                <Txt
-                  style={{
-                    color: '#000000',
-                    fontFamily: 'Arial,sans-serif',
-                    fontSize: 14,
-                    fontStyle: 'normal',
-                    fontWeight: '600',
-                    lineHeight: 18,
-                    textAlign: 'center',
-                  }}
-                >
-                  {linkText}
-                </Txt>
-              )}
-            </Box>
-          )}
-          {imageUrl &&
-            (typeof style?.height !== 'undefined' ? (
+        {!imageUrl && (
+          <Box
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 16,
+              padding: 8,
+            }}
+          >
+            {!spinnerDisabled && spinner}
+            {!!linkText && (
+              <Txt
+                style={{
+                  color: '#000000',
+                  fontFamily: 'Arial,sans-serif',
+                  fontSize: 14,
+                  fontStyle: 'normal',
+                  fontWeight: '600',
+                  lineHeight: '18px',
+                  textAlign: 'center',
+                  display: 'block',
+                }}
+              >
+                {linkText}
+              </Txt>
+            )}
+          </Box>
+        )}
+        {imageUrl && (
+          <Box
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              height: '100%',
+              width: '100%',
+            }}
+          >
+            {typeof style?.height !== 'undefined' ? (
               <Box style={{ width: '100%', height: '100%', marginBottom: 40 }}>
                 <EmbedImage src={imageUrl} style={{ width: '100%', height: '100%' }} />
               </Box>
@@ -114,17 +122,15 @@ export const PlaceholderEmbed = ({
               <Box style={{ width: '100%', marginBottom: 40 }}>
                 <EmbedImage src={imageUrl} style={{ width: '100%' }} />
               </Box>
-            ))}
-        </Box>
+            )}
+          </Box>
+        )}
         <Box
           style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
             height: 40,
             width: '100%',
             backgroundColor: '#ffffff',
-            zIndex: 1,
+            flexShrink: 0,
           }}
         >
           {!imageUrl && <EngagementIconsPlaceholder style={{ marginLeft: 16 }} />}

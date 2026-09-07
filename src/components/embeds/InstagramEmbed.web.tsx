@@ -1,19 +1,21 @@
-import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactElement } from 'react';
+import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
+import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { classNames } from '../../utils/classNames';
-import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, isPercentage, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getCleanInstagramUrl } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import type { InstagramEmbedProps } from './InstagramEmbed.types';
 
 export type { InstagramEmbedProps } from './InstagramEmbed.types';
 
 const minPlaceholderWidth = 328;
-const defaultPlaceholderHeight = 372;
+const defaultPlaceholderHeight = 740;
+const captionedPlaceholderHeight = 820;
 const officialEmbedWidth = 550;
 const borderRadius = 3;
 
@@ -36,6 +38,10 @@ export const InstagramEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   scriptLoadDisabled = false,
@@ -135,37 +141,44 @@ export const InstagramEmbed = ({
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
+  const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: height == null && !percentageHeight,
   });
+  const embedReady = stage === EMBED_SUCCESS_STAGE;
 
-  const placeholderStyle: CSSProperties = {
-    minWidth: minPlaceholderWidth,
-    width: '100%',
-    height: percentageHeight
-      ? '100%'
-      : typeof height !== 'undefined'
-        ? height
-        : typeof style?.height !== 'undefined' || typeof style?.maxHeight !== 'undefined'
-          ? '100%'
-          : defaultPlaceholderHeight,
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: '#dee2e6',
-    borderRadius,
-  };
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={cleanUrlWithEndingSlash}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{ ...placeholderStyle, ...placeholderProps?.style }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url: cleanUrlWithEndingSlash,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: '#dee2e6',
+      borderRadius,
+    },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: officialEmbedWidth,
+    providerHeight: fallbackHeight,
+  });
+  const { frameHeight, showPlaceholder } = resolveEmbedFrame({
+    ready: embedReady,
+    measuredHeight: observedHeight,
+    fallbackHeight,
+    scale,
+    height,
+  });
 
   return (
     <div ref={boxRef} style={boxStyle}>
@@ -173,7 +186,7 @@ export const InstagramEmbed = ({
       className={classNames(embedId, className)}
       extraClassName="rsme-instagram-embed"
       width="100%"
-      height={height ?? Math.round((observedHeight ?? defaultPlaceholderHeight) * scale)}
+      height={frameHeight}
       borderRadius={borderRadius}
       style={{ position: 'relative', ...style }}
     >
@@ -187,12 +200,14 @@ export const InstagramEmbed = ({
         data-width={officialEmbedWidth}
         style={{ width: 'calc(100% - 2px)' }}
       >
-        {!placeholderDisabled && placeholder}
         <div id={embedId} className="instagram-media-pre-embed rsme-d-none">
           &nbsp;
         </div>
       </blockquote>
       </div>
+      {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
+        <Box style={placeholderOverlayStyle}>{resolvedPlaceholder}</Box>
+      ) : null}
     </EmbedShell>
     </div>
   );

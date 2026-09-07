@@ -1,7 +1,7 @@
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getCleanInstagramUrl } from '../../utils/urls';
-import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
+import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { instagramEmbedHtml } from './embedHtml';
 import type { InstagramEmbedProps } from './InstagramEmbed.types';
 import { NativeEmbedView } from './NativeEmbedView';
@@ -21,6 +21,10 @@ export const InstagramEmbed = ({
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
   placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
   igVersion = DEFAULT_INSTAGRAM_API_VERSION,
@@ -31,21 +35,25 @@ export const InstagramEmbed = ({
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
-  const placeholder = embedPlaceholder ?? (
-    <PlaceholderEmbed
-      url={cleanUrlWithEndingSlash}
-      imageUrl={placeholderImageUrl}
-      linkText={linkText}
-      spinner={placeholderSpinner}
-      spinnerDisabled={placeholderSpinnerDisabled}
-      {...placeholderProps}
-      style={{
-        width: resolvedMaxWidth ?? '100%',
-        height: height ?? defaultPlaceholderHeight,
-        ...placeholderProps?.style,
-      }}
-    />
-  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url: cleanUrlWithEndingSlash,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { width: resolvedMaxWidth ?? '100%' },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth ?? '100%',
+    providerHeight: height ?? defaultPlaceholderHeight,
+  });
 
   return (
     <NativeEmbedView
@@ -59,7 +67,7 @@ export const InstagramEmbed = ({
       height={height}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
       webViewProps={webViewProps}
     />
