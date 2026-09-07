@@ -7,7 +7,7 @@ import type { XEmbedProps } from './XEmbed.types';
 
 export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
 
-const defaultPlaceholderHeight = 350;
+const defaultPlaceholderHeight = 560;
 
 export const XEmbed = ({
   url,
@@ -28,6 +28,7 @@ export const XEmbed = ({
   twitterTweetEmbedProps,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: XEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
@@ -61,6 +62,7 @@ export const XEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

@@ -14,7 +14,7 @@ const documentShell = (body: string): string => `<!DOCTYPE html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;} .fb-post,iframe,[class*="embed_pin"]{display:block;}</style>
+    <style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;} blockquote,.tiktok-embed,.instagram-media,.twitter-tweet,.fb-post,iframe,[class*="embed_pin"]{display:block;margin:0 !important;max-width:100%;}</style>
   </head>
   <body>
     ${body}
@@ -78,7 +78,7 @@ export const tiktokEmbedHtml = ({
   videoId: string;
 }): string =>
   documentShell(`
-    <blockquote class="tiktok-embed" cite="${escapeHtmlAttribute(url)}" data-video-id="${escapeHtmlAttribute(videoId)}">
+    <blockquote class="tiktok-embed" cite="${escapeHtmlAttribute(url)}" data-video-id="${escapeHtmlAttribute(videoId)}" style="margin:0;max-width:100%;">
       <section></section>
     </blockquote>
     <script async src="https://www.tiktok.com/embed.js"></script>

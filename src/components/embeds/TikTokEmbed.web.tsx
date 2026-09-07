@@ -1,18 +1,32 @@
 import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
-import { Box } from '../../host';
+import { Box, IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import {
+  aspectRatioHeight,
+  collapsedEmbedStyle,
+  embedMaxWidthStyle,
+  embedScaleStyle,
+  isPercentage,
+  placeholderOverlayStyle,
+  resolveEmbedFrame,
+  resolveEmbedMaxWidth,
+} from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getTikTokVideoId } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
-import type { TikTokEmbedProps } from './TikTokEmbed.types';
+import { MediaFrame } from './MediaFrame';
+import {
+  TIKTOK_PLAYER_ASPECT_RATIO,
+  TIKTOK_PLAYER_FALLBACK_HEIGHT,
+  buildTikTokPlayerSrc,
+  usesTikTokPlayer,
+  type TikTokEmbedProps,
+} from './TikTokEmbed.types';
 
-export type { TikTokEmbedProps } from './TikTokEmbed.types';
+export type { TikTokEmbedProps, TikTokPlayerFlag, TikTokPlayerVars } from './TikTokEmbed.types';
 
-const minPlaceholderWidth = 325;
-const maxPlaceholderWidth = 480;
 const defaultPlaceholderHeight = 739;
 const officialEmbedWidth = 325;
 const tiktokContentMinHeight = 500;
@@ -23,7 +37,91 @@ const CONFIRM_EMBED_SUCCESS_STAGE = 'confirm-embed-success';
 const RETRYING_STAGE = 'retrying';
 const EMBED_SUCCESS_STAGE = 'embed-success';
 
-export const TikTokEmbed = ({
+const TikTokPlayerEmbed = ({
+  url,
+  maxWidth,
+  width,
+  height,
+  linkText = 'View post on TikTok',
+  placeholderImageUrl,
+  placeholderSpinner,
+  placeholderSpinnerDisabled = false,
+  placeholderProps,
+  placeholder,
+  placeholderWidth,
+  placeholderHeight,
+  placeholderStyle,
+  embedPlaceholder,
+  placeholderDisabled = false,
+  tikTokProps,
+  className,
+  style,
+}: TikTokEmbedProps): ReactElement => {
+  const [ready, setReady] = useState(false);
+  const videoId = getTikTokVideoId(url);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const percentageHeight = isPercentage(height);
+  const autoHeight = height == null && !percentageHeight;
+  const aspectFallback = aspectRatioHeight(
+    resolvedMaxWidth,
+    TIKTOK_PLAYER_ASPECT_RATIO,
+    TIKTOK_PLAYER_FALLBACK_HEIGHT,
+  );
+  const resolvedPlaceholder = resolveEmbedPlaceholder({
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    placeholderWidth,
+    placeholderHeight,
+    placeholderStyle,
+    extraStyle: { borderRadius },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth,
+    providerHeight: typeof height === 'number' ? height : aspectFallback,
+  });
+  const hasPlaceholder = resolvedPlaceholder != null;
+  const reserveFrame = ready || hasPlaceholder;
+
+  return (
+    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
+      <EmbedShell
+        className={className}
+        extraClassName="rsme-tiktok-embed"
+        width="100%"
+        height={!reserveFrame ? 0 : autoHeight ? undefined : height}
+        borderRadius={borderRadius}
+        style={{
+          ...(autoHeight && reserveFrame ? { aspectRatio: '9 / 16' } : {}),
+          ...collapsedEmbedStyle(!reserveFrame),
+          ...style,
+        }}
+      >
+        <MediaFrame showPlaceholder={!ready && hasPlaceholder} placeholder={resolvedPlaceholder}>
+          <Box style={{ width: '100%', height: '100%', visibility: ready ? 'visible' : 'hidden' }}>
+            <IFrame
+              src={buildTikTokPlayerSrc(videoId, tikTokProps)}
+              width="100%"
+              height="100%"
+              allow="fullscreen; autoplay; encrypted-media"
+              allowFullScreen
+              title="TikTok embed"
+              onLoad={() => setReady(true)}
+            />
+          </Box>
+        </MediaFrame>
+      </EmbedShell>
+    </div>
+  );
+};
+
+const TikTokOEmbed = ({
   url,
   maxWidth,
   width,
@@ -156,4 +254,11 @@ export const TikTokEmbed = ({
     </EmbedShell>
     </div>
   );
+};
+
+export const TikTokEmbed = (props: TikTokEmbedProps): ReactElement => {
+  if (usesTikTokPlayer(props.allowsFullscreenVideo, props.tikTokProps)) {
+    return <TikTokPlayerEmbed {...props} />;
+  }
+  return <TikTokOEmbed {...props} />;
 };

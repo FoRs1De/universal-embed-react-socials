@@ -8,7 +8,8 @@ import { NativeEmbedView } from './NativeEmbedView';
 
 export type { InstagramEmbedProps } from './InstagramEmbed.types';
 
-const defaultPlaceholderHeight = 372;
+const defaultPlaceholderHeight = 560;
+const captionedPlaceholderHeight = 640;
 
 export const InstagramEmbed = ({
   url,
@@ -31,10 +32,12 @@ export const InstagramEmbed = ({
   apiVersion,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: InstagramEmbedProps) => {
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
+  const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url: cleanUrlWithEndingSlash,
     linkText,
@@ -52,7 +55,7 @@ export const InstagramEmbed = ({
     embedWidth: '100%',
     embedHeight: '100%',
     providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    providerHeight: height ?? fallbackHeight,
   });
 
   return (
@@ -66,9 +69,10 @@ export const InstagramEmbed = ({
       width={resolvedMaxWidth}
       height={height}
       style={style}
-      fallbackHeight={defaultPlaceholderHeight}
+      fallbackHeight={fallbackHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

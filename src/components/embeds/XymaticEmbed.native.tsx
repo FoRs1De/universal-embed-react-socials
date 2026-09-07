@@ -41,6 +41,7 @@ export const XymaticEmbed = ({
   pageTitle,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: XymaticEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const resolvedPlaceholder = resolveEmbedPlaceholder({
@@ -85,6 +86,7 @@ export const XymaticEmbed = ({
       baseUrl="https://cdn.greenvideo.io"
       width={resolvedMaxWidth}
       height={height}
+      aspectRatio={16 / 9}
       style={style}
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
@@ -92,6 +94,7 @@ export const XymaticEmbed = ({
       allowsInlineMediaPlayback
       mediaPlaybackRequiresUserAction={false}
       allowsFullscreenVideo
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

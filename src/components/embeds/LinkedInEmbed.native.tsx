@@ -5,14 +5,15 @@ import { NativeEmbedView } from './NativeEmbedView';
 
 export type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
-const defaultPlaceholderHeight = 550;
+const officialEmbedWidth = 504;
+const officialEmbedHeight = 570;
 
 export const LinkedInEmbed = ({
   url,
   postUrl,
   maxWidth,
   width,
-  height = 500,
+  height,
   linkText = 'View post on LinkedIn',
   placeholderImageUrl,
   placeholderSpinner,
@@ -26,6 +27,7 @@ export const LinkedInEmbed = ({
   placeholderDisabled = false,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: LinkedInEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const resolvedPlaceholder = resolveEmbedPlaceholder({
@@ -45,7 +47,7 @@ export const LinkedInEmbed = ({
     embedWidth: '100%',
     embedHeight: '100%',
     providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    providerHeight: height ?? officialEmbedHeight,
   });
 
   return (
@@ -53,10 +55,13 @@ export const LinkedInEmbed = ({
       uri={url}
       width={resolvedMaxWidth}
       height={height}
+      autoHeight={false}
+      fitDesignWidth={officialEmbedWidth}
       style={style}
-      fallbackHeight={defaultPlaceholderHeight}
+      fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

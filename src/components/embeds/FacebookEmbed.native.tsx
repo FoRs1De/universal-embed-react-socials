@@ -30,9 +30,12 @@ export const FacebookEmbed = ({
   locale = DEFAULT_FACEBOOK_LOCALE,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: FacebookEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const resolvedWidth = isPercentage(resolvedMaxWidth) ? '100%' : resolvedMaxWidth ?? defaultEmbedWidth;
+  const resolvedWidth = isPercentage(resolvedMaxWidth)
+    ? '100%'
+    : (resolvedMaxWidth ?? defaultEmbedWidth);
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
     linkText,
@@ -63,6 +66,7 @@ export const FacebookEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

@@ -6,14 +6,15 @@ import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
-const defaultPlaceholderHeight = 550;
+const officialEmbedWidth = 450;
+const officialEmbedHeight = 699;
 
 export const PinterestEmbed = ({
   url,
   postUrl,
   maxWidth,
   width,
-  height = 500,
+  height,
   linkText = 'View post on Pinterest',
   placeholderImageUrl,
   placeholderSpinner,
@@ -27,6 +28,7 @@ export const PinterestEmbed = ({
   placeholderDisabled = false,
   style,
   webViewProps,
+  openLinksInBrowser = true,
 }: PinterestEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const resolvedPlaceholder = resolveEmbedPlaceholder({
@@ -46,18 +48,21 @@ export const PinterestEmbed = ({
     embedWidth: '100%',
     embedHeight: '100%',
     providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    providerHeight: height ?? officialEmbedHeight,
   });
 
   return (
     <NativeEmbedView
-      uri={`https://assets.pinterest.com/ext/embed.html?id=${getPinterestPinId(url)}&src=oembed`}
+      uri={`https://assets.pinterest.com/ext/embed.html?id=${getPinterestPinId(postUrl ?? url)}&src=oembed`}
       width={resolvedMaxWidth}
       height={height}
+      autoHeight
+      fitDesignWidth={officialEmbedWidth}
       style={style}
-      fallbackHeight={defaultPlaceholderHeight}
+      fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
   );

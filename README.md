@@ -161,6 +161,15 @@ Platform-specific code lives in paired `.web.tsx` and `.native.tsx` files. Metro
 
 You do not need `react-native` installed for a web-only app. On React Native, give embeds an explicit `maxWidth` and `height` so the WebView has a concrete size.
 
+On React Native, tapped embed links open in the system browser by default. Pass `openLinksInBrowser={false}` to keep navigation inside the WebView.
+
+```jsx
+<YouTubeEmbed
+  url="https://www.youtube.com/watch?v=HpVOs5imUN0"
+  openLinksInBrowser
+/>
+```
+
 Pass extra `react-native-webview` options with `webViewProps` (ignored on web):
 
 ```jsx
@@ -189,6 +198,7 @@ Every embed accepts:
 - `placeholderDisabled` — hide the placeholder. `embedPlaceholder` still works as a deprecated alias of `placeholder`.
 - `className` / `style`
 - `webViewProps` (React Native only)
+- `openLinksInBrowser` (React Native only) — open tapped embed links in the system browser. Defaults to `true`. Ignored on web.
 
 Facebook, Instagram, and TikTok also support `scriptLoadDisabled`, `retryDelay`, `retryDisabled`, `frame`, and `debug`.
 

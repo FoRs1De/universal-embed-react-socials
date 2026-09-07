@@ -68,4 +68,9 @@ export interface XymaticEmbedProps extends EmbedContainerProps {
   pageTitle?: string;
   /** Extra `react-native-webview` props. Native only. */
   webViewProps?: EmbedWebViewProps;
+  /**
+   * React Native only. Open tapped embed links in the system browser instead of the WebView.
+   * Defaults to `true`. Ignored on web.
+   */
+  openLinksInBrowser?: boolean;
 }
