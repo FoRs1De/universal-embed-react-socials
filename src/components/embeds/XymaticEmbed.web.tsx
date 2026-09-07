@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { useAutoEmbedHeight } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
 import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
-import { DEFAULT_XYMATIC_PLAYER_SCRIPT, getXymaticPlayerConfig } from '../../utils/xymatic';
+import { DEFAULT_XYMATIC_PLAYER_SCRIPT, resolveXymaticControls } from '../../utils/xymatic';
 import { PlaceholderEmbed } from '../placeholder/PlaceholderEmbed';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
@@ -18,7 +18,14 @@ export const XymaticEmbed = ({
   licenseKey,
   contentId,
   mixId,
-  hasNoAds = false,
+  hasNoAds,
+  adTagUrl,
+  adsDisallowed,
+  consentString,
+  environment,
+  templateData,
+  playerConfig,
+  xymaticProps,
   scriptSrc = DEFAULT_XYMATIC_PLAYER_SCRIPT,
   url,
   maxWidth,
@@ -46,6 +53,19 @@ export const XymaticEmbed = ({
     enabled: autoHeight,
     fallback: defaultPlaceholderHeight,
     aspectRatio: 16 / 9,
+  });
+  const { attributes, configJson } = resolveXymaticControls({
+    embedId,
+    contentId,
+    mixId,
+    hasNoAds,
+    adTagUrl,
+    adsDisallowed,
+    consentString,
+    environment,
+    templateData,
+    playerConfig,
+    xymaticProps,
   });
 
   useEffect(() => {
@@ -108,8 +128,8 @@ export const XymaticEmbed = ({
     >
       <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={placeholder}>
         <div id="xymatic-embed-wrapper" style={{ width: '100%' }}>
-          <green-video embed-id={embedId} content-id={contentId} mix-id={mixId}>
-            <script type="application/json">{getXymaticPlayerConfig(hasNoAds)}</script>
+          <green-video {...attributes}>
+            <script type="application/json">{configJson}</script>
           </green-video>
         </div>
       </MediaFrame>

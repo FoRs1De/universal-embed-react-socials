@@ -1,6 +1,13 @@
 import { getFacebookSdkSrc } from "../../utils/apiVersion";
 import { escapeHtmlAttribute } from "../../utils/urls";
-import { DEFAULT_XYMATIC_PLAYER_SCRIPT, getXymaticPlayerConfig } from "../../utils/xymatic";
+import {
+  DEFAULT_XYMATIC_PLAYER_SCRIPT,
+  resolveXymaticControls,
+  type XymaticEnvironment,
+  type XymaticPlayerConfig,
+  type XymaticProps,
+  type XymaticTemplateData,
+} from "../../utils/xymatic";
 
 const documentShell = (body: string): string => `<!DOCTYPE html>
 <html>
@@ -91,6 +98,13 @@ export const xymaticEmbedHtml = ({
   contentId,
   mixId,
   hasNoAds,
+  adTagUrl,
+  adsDisallowed,
+  consentString,
+  environment,
+  templateData,
+  playerConfig,
+  xymaticProps,
   scriptSrc = DEFAULT_XYMATIC_PLAYER_SCRIPT,
   pageTitle,
 }: {
@@ -99,19 +113,39 @@ export const xymaticEmbedHtml = ({
   contentId?: string;
   mixId?: string;
   hasNoAds?: boolean;
+  adTagUrl?: string;
+  adsDisallowed?: boolean;
+  consentString?: string;
+  environment?: XymaticEnvironment;
+  templateData?: XymaticTemplateData;
+  playerConfig?: XymaticPlayerConfig;
+  xymaticProps?: XymaticProps;
   scriptSrc?: string;
   pageTitle?: string;
-}): string =>
-  documentShell(`
+}): string => {
+  const { attributes, configJson } = resolveXymaticControls({
+    embedId,
+    contentId,
+    mixId,
+    hasNoAds,
+    adTagUrl,
+    adsDisallowed,
+    consentString,
+    environment,
+    templateData,
+    playerConfig,
+    xymaticProps,
+  });
+  const videoAttrs = Object.entries(attributes)
+    .map(([key, value]) => `${key}="${escapeHtmlAttribute(value)}"`)
+    .join(' ');
+  return documentShell(`
     ${pageTitle ? `<script>document.title = ${JSON.stringify(pageTitle)};</script>` : ''}
     <div id="xymatic-embed-wrapper" style="width:100%;">
-      <green-video
-        embed-id="${escapeHtmlAttribute(embedId)}"
-        ${contentId ? `content-id="${escapeHtmlAttribute(contentId)}"` : ''}
-        ${mixId ? `mix-id="${escapeHtmlAttribute(mixId)}"` : ''}
-      >
-        <script type="application/json">${getXymaticPlayerConfig(hasNoAds)}</script>
+      <green-video ${videoAttrs}>
+        <script type="application/json">${configJson}</script>
       </green-video>
     </div>
     <script async src="${escapeHtmlAttribute(scriptSrc)}" data-license-key="${escapeHtmlAttribute(licenseKey)}"></script>
   `);
+};

@@ -7,8 +7,13 @@ declare global {
         'embed-id'?: string;
         'content-id'?: string;
         'mix-id'?: string;
+        'ad-tag-url'?: string;
+        'ads-disallowed'?: string;
+        'consent-string'?: string;
+        environment?: string;
         children?: ReactNode;
         style?: CSSProperties;
+        [key: string]: unknown;
       };
     }
   }

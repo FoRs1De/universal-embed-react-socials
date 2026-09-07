@@ -141,12 +141,19 @@ import { XymaticEmbed } from "universal-embed-react-socials";
   embedId="uPl8iezg"
   licenseKey="your-license-key"
   contentId="optional-content-id"
+  mixId="optional-mix-id"
+  hasNoAds={false}
+  environment="prod"
+  xymaticProps={{
+    adTagUrl: "https://example.com/vast.xml",
+    templateData: { enableAdSupport: true },
+  }}
   maxWidth="100%"
   height={360}
 />;
 ```
 
-Required: `embedId` and `licenseKey`. Optional: `contentId`, `mixId`, `hasNoAds`, `scriptSrc` (defaults to `https://cdn.greenvideo.io/players/gv.js`), and `pageTitle` (React Native WebView document title).
+Required: `embedId` and `licenseKey`. Optional player controls: `contentId`, `mixId`, `hasNoAds`, `adTagUrl`, `adsDisallowed`, `consentString`, `environment`, `templateData`, `playerConfig`, and `xymaticProps`. Also `scriptSrc` (defaults to `https://cdn.greenvideo.io/players/gv.js`) and `pageTitle` (React Native WebView document title).
 
 ## React vs React Native
 

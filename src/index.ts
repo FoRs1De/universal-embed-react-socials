@@ -21,3 +21,9 @@ export {
   normalizeInstagramApiVersion,
 } from './utils/apiVersion';
 export { DEFAULT_XYMATIC_PLAYER_SCRIPT } from './utils/xymatic';
+export type {
+  XymaticEnvironment,
+  XymaticPlayerConfig,
+  XymaticProps,
+  XymaticTemplateData,
+} from './utils/xymatic';
