@@ -1,6 +1,5 @@
 import type {
   BoxProps,
-  HtmlEmbedProps,
   IFrameProps,
   ImageProps,
   LinkProps,
@@ -10,7 +9,6 @@ import type {
 
 export type {
   BoxProps,
-  HtmlEmbedProps,
   IFrameProps,
   ImageProps,
   LinkProps,
@@ -88,8 +86,6 @@ export const IFrame = ({
     title={title}
   />
 );
-
-export const HtmlEmbed = (_props: HtmlEmbedProps) => null;
 
 export const StyleTag = ({ className, style, children }: StyleTagProps) => (
   <style className={className} style={style}>

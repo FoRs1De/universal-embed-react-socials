@@ -47,16 +47,6 @@ export interface IFrameProps {
   iframeRef?: Ref<HTMLIFrameElement>;
 }
 
-export interface HtmlEmbedProps {
-  html: string;
-  baseUrl?: string;
-  width?: string | number;
-  height?: string | number;
-  style?: CSSProperties;
-  onLoad?: () => void;
-  testID?: string;
-}
-
 export interface StyleTagProps {
   className?: string;
   style?: CSSProperties;

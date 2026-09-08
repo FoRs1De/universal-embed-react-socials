@@ -72,31 +72,54 @@ export const pinterestEmbedHtml = ({ url }: { url: string }): string =>
       (function () {
         var box = document.getElementById('rsme-pin-box');
         var scale = document.getElementById('rsme-pin-scale');
+        var lastRatio = 0;
+        var lastHeight = 0;
+        var settledTimes = 0;
+        var maxSettledTimes = 6;
+        var timer;
+
+        function schedule() {
+          clearTimeout(timer);
+          if (settledTimes < maxSettledTimes) {
+            timer = setTimeout(fit, 500);
+          }
+        }
+
         function fit() {
           var node = scale.firstElementChild;
-          if (!node) {
-            return;
-          }
-          var w = node.offsetWidth;
-          var h = node.offsetHeight;
-          if (w < 50 || h < 50) {
-            return;
-          }
           var target = document.documentElement.clientWidth || window.innerWidth || 0;
-          if (!target) {
+          var w = node ? node.offsetWidth : 0;
+          var h = node ? node.offsetHeight : 0;
+          if (!target || w < 50 || h < 50) {
+            schedule();
             return;
           }
           var ratio = target / w;
-          scale.style.width = w + 'px';
-          scale.style.transform = 'scale(' + ratio + ')';
-          box.style.height = Math.ceil(h * ratio) + 'px';
+          var height = Math.ceil(h * ratio);
+          if (ratio === lastRatio && height === lastHeight) {
+            settledTimes++;
+          } else {
+            settledTimes = 0;
+            lastRatio = ratio;
+            lastHeight = height;
+            scale.style.width = w + 'px';
+            scale.style.transform = 'scale(' + ratio + ')';
+            box.style.height = height + 'px';
+          }
+          schedule();
         }
-        window.addEventListener('load', fit);
-        window.addEventListener('resize', fit);
+
+        function refit() {
+          settledTimes = 0;
+          fit();
+        }
+
+        window.addEventListener('load', refit);
+        window.addEventListener('resize', refit);
         if (window.MutationObserver) {
-          new MutationObserver(fit).observe(box, { childList: true, subtree: true, attributes: true });
+          // Attributes are intentionally not observed: fit() writes inline styles inside the box.
+          new MutationObserver(refit).observe(box, { childList: true, subtree: true });
         }
-        setInterval(fit, 500);
         fit();
       })();
     </script>

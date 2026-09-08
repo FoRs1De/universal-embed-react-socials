@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { getPinterestPinId } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
@@ -98,10 +98,7 @@ export const PinterestEmbed = ({
             height={officialEmbedHeight}
             onLoad={() => setReady(true)}
             title="Pinterest embed"
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
+            style={embedScaleStyle(scale, officialEmbedWidth)}
           />
         </MediaFrame>
       </EmbedShell>

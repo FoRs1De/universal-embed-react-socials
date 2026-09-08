@@ -17,6 +17,7 @@ const defaultPlaceholderHeight = 740;
 const captionedPlaceholderHeight = 820;
 const officialEmbedWidth = 550;
 const borderRadius = 3;
+const INSTAGRAM_SCRIPT_ID = 'instagram-embed-script';
 
 const CHECK_SCRIPT_STAGE = 'check-script';
 const LOAD_SCRIPT_STAGE = 'load-script';
@@ -85,9 +86,13 @@ export const InstagramEmbed = ({
     if (stage !== LOAD_SCRIPT_STAGE || !frm.document) {
       return;
     }
-    const scriptElement = frm.document.createElement('script');
-    scriptElement.setAttribute('src', 'https://www.instagram.com/embed.js');
-    frm.document.head.appendChild(scriptElement);
+    if (!frm.document.getElementById(INSTAGRAM_SCRIPT_ID)) {
+      const scriptElement = frm.document.createElement('script');
+      scriptElement.id = INSTAGRAM_SCRIPT_ID;
+      scriptElement.async = true;
+      scriptElement.setAttribute('src', 'https://www.instagram.com/embed.js');
+      frm.document.head.appendChild(scriptElement);
+    }
     setStage(CONFIRM_SCRIPT_LOADED_STAGE);
   }, [stage, frm.document]);
 

@@ -3,7 +3,6 @@ import { WebView } from 'react-native-webview';
 import { toNativeSize } from '../utils/style';
 import type {
   BoxProps,
-  HtmlEmbedProps,
   IFrameProps,
   ImageProps,
   LinkProps,
@@ -13,7 +12,6 @@ import type {
 
 export type {
   BoxProps,
-  HtmlEmbedProps,
   IFrameProps,
   ImageProps,
   LinkProps,
@@ -53,30 +51,6 @@ export const IFrame = ({ src, srcDoc, width, height, style, onLoad }: IFrameProp
     startInLoadingState
     mixedContentMode="always"
     setSupportMultipleWindows={false}
-    style={[
-      {
-        width: typeof width === 'number' ? width : '100%',
-        height: toNativeSize(height, 500),
-        backgroundColor: 'transparent',
-      },
-      style,
-    ]}
-  />
-);
-
-export const HtmlEmbed = ({ html, baseUrl, width, height, style, onLoad, testID }: HtmlEmbedProps) => (
-  <WebView
-    testID={testID}
-    source={{ html, baseUrl }}
-    onLoad={onLoad}
-    originWhitelist={['*']}
-    javaScriptEnabled
-    domStorageEnabled
-    startInLoadingState
-    mixedContentMode="always"
-    setSupportMultipleWindows={false}
-    automaticallyAdjustContentInsets={false}
-    scalesPageToFit
     style={[
       {
         width: typeof width === 'number' ? width : '100%',

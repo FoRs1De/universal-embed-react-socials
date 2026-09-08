@@ -1,9 +1,6 @@
-const MIN_EMBED_HEIGHT = 50;
-const MAX_EMBED_HEIGHT = 4000;
-export const AUTO_HEIGHT_TOPIC = 'rsme-ah';
+import { MAX_EMBED_HEIGHT, MIN_EMBED_HEIGHT, isStubEmbedHeight } from '../../utils/embedHeight';
 
-export const isStubEmbedHeight = (height: number): boolean =>
-  height === 1000 || height >= 1500;
+export const AUTO_HEIGHT_TOPIC = 'rsme-ah';
 
 export const parseAutoHeightMessage = (data: unknown): number | undefined => {
   if (data == null) {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
@@ -87,10 +87,7 @@ export const LinkedInEmbed = ({
             height={officialEmbedHeight}
             onLoad={() => setReady(true)}
             title="LinkedIn embed"
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
+            style={embedScaleStyle(scale, officialEmbedWidth)}
           />
         </MediaFrame>
       </EmbedShell>

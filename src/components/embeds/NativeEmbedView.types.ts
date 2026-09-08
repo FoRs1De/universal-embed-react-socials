@@ -9,7 +9,7 @@ export interface NativeEmbedViewProps {
   width?: string | number;
   height?: string | number;
   aspectRatio?: number;
-  /** Grow the WebView to the widget height. Off when `fitDesignWidth` or `aspectRatio` is set. */
+  /** Grow the WebView to the widget height. Defaults off when `height` or `aspectRatio` is set. */
   autoHeight?: boolean;
   /** Official embed width. The native box scales this design size to the layout width. */
   fitDesignWidth?: number;

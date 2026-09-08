@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Linking, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { toNativeSize } from '../../utils/style';
@@ -134,13 +134,19 @@ export const NativeEmbedView = ({
   } = webViewProps ?? {};
   const sizingScript = autoHeightEnabled ? nativeAutoHeightScript : '';
   const uriBootScript = html ? '' : sizingScript;
-  const source = html
-    ? {
-        html: sizingScript ? injectAutoHeightScript(html, sizingScript) : html,
-        baseUrl,
-        headers,
-      }
-    : { uri: uri ?? '', headers };
+  // Memoized so a re-rendering parent that rebuilds an identical HTML string
+  // does not hand the WebView a new `source` and force a reload.
+  const source = useMemo(
+    () =>
+      html
+        ? {
+            html: sizingScript ? injectAutoHeightScript(html, sizingScript) : html,
+            baseUrl,
+            headers,
+          }
+        : { uri: uri ?? '', headers },
+    [baseUrl, headers, html, sizingScript, uri],
+  );
 
   return (
     <View

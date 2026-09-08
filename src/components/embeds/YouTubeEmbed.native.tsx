@@ -13,6 +13,7 @@ import {
 export type { YouTubeEmbedProps, YouTubePlayerVars, YouTubeProps } from './YouTubeEmbed.types';
 
 const defaultPlaceholderHeight = 360;
+const youTubeHeaders = { Referer: `${YOUTUBE_NATIVE_ORIGIN}/` };
 
 export const YouTubeEmbed = ({
   url,
@@ -67,7 +68,7 @@ export const YouTubeEmbed = ({
     <NativeEmbedView
       html={buildYouTubeEmbedHtml(buildYouTubeSrc(videoId, playerVars, YOUTUBE_NATIVE_ORIGIN))}
       baseUrl={YOUTUBE_NATIVE_ORIGIN}
-      headers={{ Referer: `${YOUTUBE_NATIVE_ORIGIN}/` }}
+      headers={youTubeHeaders}
       width={resolvedMaxWidth}
       height={height ?? youTubeProps?.opts?.height}
       aspectRatio={16 / 9}

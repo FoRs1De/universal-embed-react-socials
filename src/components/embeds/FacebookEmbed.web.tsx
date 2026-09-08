@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
-import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
+import { isStubEmbedHeight } from '../../utils/embedHeight';
+import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { facebookEmbedHtml } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
@@ -24,8 +25,6 @@ const clampFacebookWidth = (width: number) => Math.min(maxPluginWidth, Math.max(
 
 const facebookPluginHeight = (width: number): number =>
   Math.max(defaultPlaceholderHeight, Math.round(width * (9 / 16) + FACEBOOK_CHROME));
-
-const isStubEmbedHeight = (height: number) => height === 1000 || height >= 1500;
 
 const buildFacebookPluginSrc = (url: string, width: number, height: number, locale: string) => {
   const params = new URLSearchParams({
@@ -138,10 +137,7 @@ export const FacebookEmbed = ({
     allow: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
     allowFullScreen: true,
     title: 'Facebook embed',
-    style: {
-      transform: `scale(${scale})`,
-      transformOrigin: 'top left' as const,
-    },
+    style: embedScaleStyle(scale, pluginWidth),
   };
 
   return (

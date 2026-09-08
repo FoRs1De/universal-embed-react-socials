@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { MAX_EMBED_HEIGHT, MIN_EMBED_HEIGHT } from '../utils/embedHeight';
 import { embedMaxWidthStyle } from '../utils/style';
 
 export const useResponsiveEmbedScale = (
@@ -58,9 +59,6 @@ export const useResponsiveEmbedBox = (
     ),
   };
 };
-
-const MIN_EMBED_HEIGHT = 50;
-const MAX_EMBED_HEIGHT = 4000;
 
 export const parseEmbedHeight = (data: unknown, depth = 0): number | undefined => {
   if (depth > 4 || data == null) {
