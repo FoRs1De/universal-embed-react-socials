@@ -50,6 +50,58 @@ export const instagramEmbedHtml = ({
     <script async src="https://www.instagram.com/embed.js"></script>
   `);
 
+/**
+ * Pinterest's hosted `embed.html` centers a fixed-width pin in a 450px page,
+ * which cannot be made responsive from the outside. Render the official
+ * `pinit.js` widget in a page we own instead, then scale it to the viewport.
+ */
+export const pinterestEmbedHtml = ({ url }: { url: string }): string =>
+  documentShell(`
+    <style>
+      #rsme-pin-box{width:100%;overflow:hidden;}
+      #rsme-pin-scale{transform-origin:top left;display:inline-block;}
+      #rsme-pin-scale iframe,#rsme-pin-scale span,#rsme-pin-scale img{max-width:none !important;}
+    </style>
+    <div id="rsme-pin-box">
+      <div id="rsme-pin-scale">
+        <a data-pin-do="embedPin" data-pin-width="large" href="${escapeHtmlAttribute(url)}"></a>
+      </div>
+    </div>
+    <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+    <script>
+      (function () {
+        var box = document.getElementById('rsme-pin-box');
+        var scale = document.getElementById('rsme-pin-scale');
+        function fit() {
+          var node = scale.firstElementChild;
+          if (!node) {
+            return;
+          }
+          var w = node.offsetWidth;
+          var h = node.offsetHeight;
+          if (w < 50 || h < 50) {
+            return;
+          }
+          var target = document.documentElement.clientWidth || window.innerWidth || 0;
+          if (!target) {
+            return;
+          }
+          var ratio = target / w;
+          scale.style.width = w + 'px';
+          scale.style.transform = 'scale(' + ratio + ')';
+          box.style.height = Math.ceil(h * ratio) + 'px';
+        }
+        window.addEventListener('load', fit);
+        window.addEventListener('resize', fit);
+        if (window.MutationObserver) {
+          new MutationObserver(fit).observe(box, { childList: true, subtree: true, attributes: true });
+        }
+        setInterval(fit, 500);
+        fit();
+      })();
+    </script>
+  `);
+
 export const xEmbedHtml = ({ postId }: { postId: string }): string =>
   documentShell(`
     <blockquote class="twitter-tweet">

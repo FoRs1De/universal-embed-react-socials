@@ -5,7 +5,6 @@ import { toNativeSize } from '../../utils/style';
 import {
   injectAutoHeightScript,
   nativeAutoHeightScript,
-  nativePinterestBootScript,
   parseAutoHeightMessage,
 } from './nativeEmbedHeight';
 import type { NativeEmbedViewProps } from './NativeEmbedView.types';
@@ -134,11 +133,7 @@ export const NativeEmbedView = ({
     ...restWebViewProps
   } = webViewProps ?? {};
   const sizingScript = autoHeightEnabled ? nativeAutoHeightScript : '';
-  const uriBootScript = html
-    ? ''
-    : fitEnabled && autoHeightEnabled
-      ? nativePinterestBootScript(fitDesignWidth)
-      : sizingScript;
+  const uriBootScript = html ? '' : sizingScript;
   const source = html
     ? {
         html: sizingScript ? injectAutoHeightScript(html, sizingScript) : html,

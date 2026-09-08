@@ -1,12 +1,11 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
-import { getPinterestPinId } from '../../utils/urls';
 import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { pinterestEmbedHtml } from './embedHtml';
 import { NativeEmbedView } from './NativeEmbedView';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
-const officialEmbedWidth = 450;
 const officialEmbedHeight = 699;
 
 export const PinterestEmbed = ({
@@ -51,11 +50,11 @@ export const PinterestEmbed = ({
 
   return (
     <NativeEmbedView
-      uri={`https://assets.pinterest.com/ext/embed.html?id=${getPinterestPinId(postUrl ?? url)}&src=oembed`}
-      width={resolvedMaxWidth}
+      html={pinterestEmbedHtml({ url: postUrl ?? url })}
+      baseUrl="https://www.pinterest.com"
+      width={resolvedMaxWidth ?? '100%'}
       height={height}
       autoHeight
-      fitDesignWidth={officialEmbedWidth}
       style={style}
       fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}

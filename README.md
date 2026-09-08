@@ -134,7 +134,7 @@ Shorts (`youtube.com/shorts/ID`) and `youtu.be` links work. Extra player options
 
 Platform-specific code lives in paired `.web.tsx` and `.native.tsx` files. Metro picks the native files; the web build flattens `.web` files for React DOM. Native embeds use `View` and `WebView` JSX.
 
-You do not need `react-native` installed for a web-only app. On React Native, give embeds an explicit `maxWidth` and `height` so the WebView has a concrete size.
+You do not need `react-native` installed for a web-only app. Omit `maxWidth` to fill the parent; pass `maxWidth` to cap it. On React Native, omit `height` to size from the embed when the platform reports it.
 
 On React Native, tapped embed links open in the system browser by default. Pass `openLinksInBrowser={false}` to keep navigation inside the WebView.
 

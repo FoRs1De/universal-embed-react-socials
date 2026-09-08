@@ -51,7 +51,11 @@ export const useResponsiveEmbedBox = (
     boxRef,
     boxWidth,
     scale,
-    boxStyle: embedMaxWidthStyle(maxWidth, options?.fallbackMaxWidth ?? designWidth),
+    // Omit maxWidth → fill the parent. A design-width fallback kept scale at 1.
+    boxStyle: embedMaxWidthStyle(
+      maxWidth,
+      maxWidth == null ? undefined : (options?.fallbackMaxWidth ?? designWidth),
+    ),
   };
 };
 

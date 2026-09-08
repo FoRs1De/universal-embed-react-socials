@@ -38,7 +38,10 @@ export const PinterestEmbed = ({
   const postId = getPinterestPinId(url);
   const embedSrc = `https://assets.pinterest.com/ext/embed.html?id=${postId}&src=oembed`;
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(
+    officialEmbedWidth,
+    resolvedMaxWidth,
+  );
   const { frameHeight, showPlaceholder } = resolveEmbedFrame({
     ready,
     fallbackHeight: officialEmbedHeight,
