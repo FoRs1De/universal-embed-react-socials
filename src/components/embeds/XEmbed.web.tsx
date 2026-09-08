@@ -11,8 +11,6 @@ import type { XEmbedProps } from './XEmbed.types';
 
 export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
 
-const minPlaceholderWidth = 250;
-const maxPlaceholderWidth = 550;
 const defaultPlaceholderHeight = 560;
 const officialEmbedWidth = 550;
 const borderRadius = 12;
@@ -65,6 +63,7 @@ export const XEmbed = ({
 
     let processed = false;
     const subs = new Subs();
+    const cleanup = subs.createCleanup();
     subs.setInterval(() => {
       if (!processed && win.twttr?.widgets?.load) {
         win.twttr.widgets.load(doc.getElementById(embedId) ?? undefined);
@@ -74,10 +73,11 @@ export const XEmbed = ({
       if (root?.querySelector('iframe')) {
         setReady(true);
         twitterTweetEmbedProps?.onLoad?.();
+        cleanup();
       }
     }, 50);
-    return subs.createCleanup();
-  }, [embedId, frm.document, frm.window, postId, twitterTweetEmbedProps]);
+    return cleanup;
+  }, [embedId, frm.document, frm.window, postId, twitterTweetEmbedProps?.onLoad]);
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,

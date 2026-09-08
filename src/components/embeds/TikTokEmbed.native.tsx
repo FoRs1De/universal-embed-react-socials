@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getTikTokVideoId } from '../../utils/urls';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
 import {
   TIKTOK_PLAYER_ASPECT_RATIO,
@@ -45,7 +45,7 @@ export const TikTokEmbed = ({
   const videoId = getTikTokVideoId(url);
   const usePlayer = usesTikTokPlayer(allowsFullscreenVideo, tikTokProps);
   const fallbackHeight = usePlayer ? TIKTOK_PLAYER_FALLBACK_HEIGHT : defaultPlaceholderHeight;
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,
     placeholder,
@@ -58,11 +58,9 @@ export const TikTokEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? fallbackHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight,
   });
 
   if (usePlayer) {

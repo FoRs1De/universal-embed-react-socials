@@ -1,7 +1,7 @@
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getCleanInstagramUrl } from '../../utils/urls';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { instagramEmbedHtml } from './embedHtml';
 import type { InstagramEmbedProps } from './InstagramEmbed.types';
 import { NativeEmbedView } from './NativeEmbedView';
@@ -38,7 +38,7 @@ export const InstagramEmbed = ({
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
   const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: cleanUrlWithEndingSlash,
     linkText,
     placeholder,
@@ -51,11 +51,9 @@ export const InstagramEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? fallbackHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight,
   });
 
   return (

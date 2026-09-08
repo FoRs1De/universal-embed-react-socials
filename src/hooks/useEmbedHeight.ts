@@ -21,7 +21,7 @@ export const useResponsiveEmbedScale = (
     const update = () => {
       const next = Math.round(node.getBoundingClientRect().width);
       if (next > 0) {
-        setBoxWidth(next);
+        setBoxWidth((prev) => (Math.abs(prev - next) < 2 ? prev : next));
       }
     };
     update();

@@ -6,7 +6,6 @@ export * from './components/embeds/TikTokEmbed';
 export * from './components/embeds/TwitterEmbed';
 export * from './components/embeds/XEmbed';
 export * from './components/embeds/YouTubeEmbed';
-export * from './components/embeds/XymaticEmbed';
 export * from './components/placeholder/PlaceholderEmbed';
 export * from './components/placeholder/parts/BorderSpinner';
 export * from './hooks/useFrame';
@@ -20,10 +19,3 @@ export {
   normalizeFacebookApiVersion,
   normalizeInstagramApiVersion,
 } from './utils/apiVersion';
-export { DEFAULT_XYMATIC_PLAYER_SCRIPT } from './utils/xymatic';
-export type {
-  XymaticEnvironment,
-  XymaticPlayerConfig,
-  XymaticProps,
-  XymaticTemplateData,
-} from './utils/xymatic';

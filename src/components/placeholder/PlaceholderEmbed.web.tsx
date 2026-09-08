@@ -1,5 +1,6 @@
 import { Box, EmbedImage, EmbedLink, Txt } from '../../host';
 import { classNames } from '../../utils/classNames';
+import { isJavaScriptUrl } from '../../utils/urls';
 import { EmbedStyle } from '../embeds/EmbedStyle';
 import { BorderSpinner } from './parts/BorderSpinner';
 import { EngagementIconsPlaceholder } from './parts/EngagementIconsPlaceholder';
@@ -7,9 +8,6 @@ import { ProfilePlaceholder } from './parts/ProfilePlaceholder';
 import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
 export type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
-
-const isJavaScriptProtocol =
-  /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*\:/i;
 
 export const PlaceholderEmbed = ({
   url,
@@ -21,7 +19,7 @@ export const PlaceholderEmbed = ({
   className,
   style,
 }: PlaceholderEmbedProps) => {
-  if (isJavaScriptProtocol.test(url) && !allowJavaScriptUrls) {
+  if (isJavaScriptUrl(url) && !allowJavaScriptUrls) {
     console.warn(`PlaceholderEmbed has blocked a javascript: URL as a security precaution`);
     return null;
   }

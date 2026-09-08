@@ -4,9 +4,6 @@ import type { EmbedPlaceholder } from '../../types';
 import { PlaceholderEmbed } from './PlaceholderEmbed';
 import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
-export const unwrapEmbedPlaceholder = (value?: EmbedPlaceholder): ReactNode =>
-  typeof value === 'function' ? value() : value;
-
 export interface ResolveEmbedPlaceholderOptions {
   url?: string;
   linkText?: string;
@@ -30,7 +27,7 @@ export interface ResolveEmbedPlaceholderOptions {
   allowJavaScriptUrls?: boolean;
 }
 
-export const placeholderBoxStyle = ({
+const placeholderBoxStyle = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
@@ -99,7 +96,7 @@ export const resolveEmbedPlaceholder = ({
   const fillStyle: CSSProperties = { width: '100%', height: '100%' };
   const explicit = placeholder !== undefined ? placeholder : embedPlaceholder;
   if (explicit !== undefined) {
-    const custom = unwrapEmbedPlaceholder(explicit);
+    const custom = typeof explicit === 'function' ? explicit() : explicit;
     if (custom == null || custom === false) {
       return null;
     }
@@ -123,3 +120,23 @@ export const resolveEmbedPlaceholder = ({
     />
   );
 };
+
+export const resolveNativeEmbedPlaceholder = ({
+  resolvedMaxWidth,
+  height,
+  fallbackHeight,
+  extraStyle,
+  ...options
+}: ResolveEmbedPlaceholderOptions & {
+  resolvedMaxWidth?: string | number;
+  height?: string | number;
+  fallbackHeight: number;
+}): ReactNode =>
+  resolveEmbedPlaceholder({
+    ...options,
+    extraStyle: { width: resolvedMaxWidth ?? '100%', ...extraStyle },
+    embedWidth: '100%',
+    embedHeight: '100%',
+    providerWidth: resolvedMaxWidth ?? '100%',
+    providerHeight: height ?? fallbackHeight,
+  });

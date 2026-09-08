@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getXPostId } from '../../utils/urls';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { xEmbedHtml } from './embedHtml';
 import { NativeEmbedView } from './NativeEmbedView';
 import type { XEmbedProps } from './XEmbed.types';
@@ -32,7 +32,7 @@ export const XEmbed = ({
 }: XEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,
     placeholder,
@@ -45,11 +45,9 @@ export const XEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight: defaultPlaceholderHeight,
   });
 
   return (

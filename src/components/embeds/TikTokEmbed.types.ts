@@ -1,7 +1,7 @@
 import type { CommonEmbedProps } from '../../types';
 import type { Frame } from '../../hooks/useFrame';
-import { escapeHtmlAttribute } from '../../utils/urls';
 import type { PlaceholderEmbedProps } from '../placeholder/PlaceholderEmbed.types';
+import { playerIframeHtml } from './playerIframeHtml';
 
 /** Official Embed Player query flags. https://developers.tiktok.com/doc/embed-player */
 export type TikTokPlayerFlag = 0 | 1;
@@ -62,22 +62,9 @@ export const buildTikTokPlayerSrc = (
   return `${TIKTOK_PLAYER_HOST}/player/v1/${videoId}${query ? `?${query}` : ''}`;
 };
 
-export const buildTikTokPlayerHtml = (src: string): string => `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <style>
-      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
-      iframe { margin: 0; padding: 0; width: 100%; height: 100%; border: 0; }
-    </style>
-  </head>
-  <body>
-    <iframe
-      src="${escapeHtmlAttribute(src)}"
-      allow="fullscreen; autoplay; encrypted-media"
-      allowfullscreen
-      title="TikTok embed"
-    ></iframe>
-  </body>
-</html>`;
+export const buildTikTokPlayerHtml = (src: string): string =>
+  playerIframeHtml({
+    src,
+    allow: 'fullscreen; autoplay; encrypted-media',
+    extraIframeAttrs: 'title="TikTok embed"',
+  });

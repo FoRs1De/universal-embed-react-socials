@@ -18,7 +18,6 @@ const defaultPlaceholderHeight = 372;
 const borderRadius = 3;
 const FACEBOOK_CHROME = 148;
 const FACEBOOK_CONTENT_MIN = 240;
-const FACEBOOK_STUB_HEIGHT = 1000;
 const SDK_FALLBACK_MS = 8000;
 
 const clampFacebookWidth = (width: number) => Math.min(maxPluginWidth, Math.max(minPluginWidth, width));
@@ -26,8 +25,7 @@ const clampFacebookWidth = (width: number) => Math.min(maxPluginWidth, Math.max(
 const facebookPluginHeight = (width: number): number =>
   Math.max(defaultPlaceholderHeight, Math.round(width * (9 / 16) + FACEBOOK_CHROME));
 
-const isFacebookStubHeight = (value: number) =>
-  value === FACEBOOK_STUB_HEIGHT || value >= 1500;
+const isStubEmbedHeight = (height: number) => height === 1000 || height >= 1500;
 
 const buildFacebookPluginSrc = (url: string, width: number, height: number, locale: string) => {
   const params = new URLSearchParams({
@@ -84,7 +82,7 @@ export const FacebookEmbed = ({
     measureSelector: 'iframe',
   });
   const contentHeight =
-    measured != null && measured >= FACEBOOK_CONTENT_MIN && !isFacebookStubHeight(measured)
+    measured != null && measured >= FACEBOOK_CONTENT_MIN && !isStubEmbedHeight(measured)
       ? measured
       : undefined;
   const ready = usePluginFallback ? pluginReady : contentHeight != null;
@@ -135,6 +133,16 @@ export const FacebookEmbed = ({
     providerWidth: pluginWidth,
     providerHeight: fallbackHeight,
   });
+  const facebookFrameProps = {
+    width: pluginWidth,
+    allow: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+    allowFullScreen: true,
+    title: 'Facebook embed',
+    style: {
+      transform: `scale(${scale})`,
+      transformOrigin: 'top left' as const,
+    },
+  };
 
   return (
     <div ref={boxRef} style={boxStyle}>
@@ -146,38 +154,20 @@ export const FacebookEmbed = ({
         borderRadius={borderRadius}
         style={style}
       >
-        <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
+        <MediaFrame showPlaceholder={showPlaceholder} placeholder={resolvedPlaceholder}>
           {usePluginFallback ? (
             <IFrame
               src={buildFacebookPluginSrc(url, pluginWidth, fallbackHeight, locale)}
-              width={pluginWidth}
               height={fallbackHeight}
-              frameBorder={0}
-              scrolling="no"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              allowFullScreen
               onLoad={() => setPluginReady(true)}
-              title="Facebook embed"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: 'top left',
-              }}
+              {...facebookFrameProps}
             />
           ) : frameSrc ? (
             <IFrame
               iframeRef={iframeRef}
               src={frameSrc}
-              width={pluginWidth}
               height={typeof height === 'number' ? height : frameHeight}
-              frameBorder={0}
-              scrolling="no"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              allowFullScreen
-              title="Facebook embed"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: 'top left',
-              }}
+              {...facebookFrameProps}
             />
           ) : null}
         </MediaFrame>

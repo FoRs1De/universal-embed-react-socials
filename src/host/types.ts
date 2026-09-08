@@ -41,8 +41,6 @@ export interface IFrameProps {
   className?: string;
   style?: CSSProperties;
   onLoad?: () => void;
-  scrolling?: string;
-  frameBorder?: string | number;
   allow?: string;
   allowFullScreen?: boolean;
   title?: string;

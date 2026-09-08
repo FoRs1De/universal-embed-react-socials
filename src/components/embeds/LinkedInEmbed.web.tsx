@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IFrame } from '../../host';
-import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
@@ -9,13 +9,9 @@ import type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
 export type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
-const minPlaceholderWidth = 250;
-const maxPlaceholderWidth = 550;
-const defaultPlaceholderHeight = 550;
 const officialEmbedWidth = 504;
 const officialEmbedHeight = 570;
 const borderRadius = 8;
-const LINKEDIN_ORIGINS = ['linkedin.com', 'linkedin.cn', 'licdn.com'];
 
 export const LinkedInEmbed = ({
   url,
@@ -40,13 +36,6 @@ export const LinkedInEmbed = ({
   const [ready, setReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
-  const autoHeight = height == null;
-  const { iframeRef } = useAutoEmbedHeight({
-    enabled: autoHeight,
-    fallback: officialEmbedHeight,
-    listenToMessages: autoHeight,
-    allowedOrigins: LINKEDIN_ORIGINS,
-  });
   const { frameHeight: shellHeight, showPlaceholder } = resolveEmbedFrame({
     ready,
     fallbackHeight: officialEmbedHeight,
@@ -92,13 +81,10 @@ export const LinkedInEmbed = ({
       >
         <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
           <IFrame
-            iframeRef={iframeRef}
             className="linkedin-post"
             src={url}
             width={officialEmbedWidth}
             height={officialEmbedHeight}
-            frameBorder={0}
-            scrolling="no"
             onLoad={() => setReady(true)}
             title="LinkedIn embed"
             style={{

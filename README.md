@@ -1,6 +1,6 @@
 # universal-embed-react-socials
 
-Embed posts from Facebook, Instagram, LinkedIn, Pinterest, TikTok, X (Twitter), YouTube, and Xymatic in **React** and **React Native**. Configurable platform API versions available.
+Embed posts from Facebook, Instagram, LinkedIn, Pinterest, TikTok, X (Twitter), and YouTube in **React** and **React Native**. Configurable platform API versions available.
 
 On web, embeds use the official platform scripts and iframes. On React Native, paired `.native` files render a `WebView` (`react-native-webview`).
 
@@ -129,31 +129,6 @@ import { YouTubeEmbed } from "universal-embed-react-socials";
 ```
 
 Shorts (`youtube.com/shorts/ID`) and `youtu.be` links work. Extra player options go through `youTubeProps.opts.playerVars`.
-
-### Xymatic
-
-Same Green Video player used in the journal/app: load `gv.js` with a license key and render a `green-video` element.
-
-```jsx
-import { XymaticEmbed } from "universal-embed-react-socials";
-
-<XymaticEmbed
-  embedId="uPl8iezg"
-  licenseKey="your-license-key"
-  contentId="optional-content-id"
-  mixId="optional-mix-id"
-  hasNoAds={false}
-  environment="prod"
-  xymaticProps={{
-    adTagUrl: "https://example.com/vast.xml",
-    templateData: { enableAdSupport: true },
-  }}
-  maxWidth="100%"
-  height={360}
-/>;
-```
-
-Required: `embedId` and `licenseKey`. Optional player controls: `contentId`, `mixId`, `hasNoAds`, `adTagUrl`, `adsDisallowed`, `consentString`, `environment`, `templateData`, `playerConfig`, and `xymaticProps`. Also `scriptSrc` (defaults to `https://cdn.greenvideo.io/players/gv.js`) and `pageTitle` (React Native WebView document title).
 
 ## React vs React Native
 

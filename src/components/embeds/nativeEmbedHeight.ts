@@ -41,6 +41,10 @@ export const parseAutoHeightMessage = (data: unknown): number | undefined => {
  */
 export const nativePinterestBootScript = (designWidth: number): string => `
   (function () {
+    if (window.__rsmePin) {
+      return;
+    }
+    window.__rsmePin = 1;
     var width = ${designWidth};
     var topic = '${AUTO_HEIGHT_TOPIC}';
     var lastHeight = 0;
@@ -131,61 +135,17 @@ export const nativePinterestBootScript = (designWidth: number): string => `
   })();
 `;
 
-export const nativeFitWidthScript = (designWidth: number, targetWidth = 0): string => `
-  (function () {
-    var design = ${designWidth};
-    var target = ${targetWidth};
-    var applied = '';
-    function fit() {
-      var width = target || window.innerWidth;
-      if (!width || !design) {
-        return;
-      }
-      var scale = width / design;
-      var key = String(width) + ':' + String(scale);
-      if (key === applied) {
-        return;
-      }
-      applied = key;
-      var viewport = document.querySelector('meta[name="viewport"]');
-      if (!viewport) {
-        viewport = document.createElement('meta');
-        viewport.setAttribute('name', 'viewport');
-        document.head.appendChild(viewport);
-      }
-      viewport.setAttribute(
-        'content',
-        'width=' + design + ', initial-scale=1, maximum-scale=1, user-scalable=no'
-      );
-      document.documentElement.style.width = design + 'px';
-      document.documentElement.style.transformOrigin = '0 0';
-      document.documentElement.style.transform = 'scale(' + scale + ')';
-      if (document.body) {
-        document.body.style.margin = '0';
-        document.body.style.width = design + 'px';
-        document.body.style.maxWidth = design + 'px';
-      }
-    }
-    fit();
-    window.addEventListener('load', fit);
-    window.addEventListener('resize', fit);
-    if (window.MutationObserver && document.documentElement) {
-      new MutationObserver(function () {
-        applied = '';
-        fit();
-      }).observe(document.documentElement, { childList: true, subtree: true });
-    }
-    true;
-  })();
-`;
-
 /**
  * Same approach as @brown-bear/react-native-autoheight-webview:
  * wrap body contents, measure the wrapper, and re-run on mutations / delayed checks.
  * https://github.com/giannistolou/react-native-autoheight-webview
  */
-export const nativeAutoHeightScript = (): string => `
+export const nativeAutoHeightScript = `
   (function () {
+    if (window.__rsmeAh) {
+      return;
+    }
+    window.__rsmeAh = 1;
     var topic = '${AUTO_HEIGHT_TOPIC}';
     var lastHeight = 0;
     var heightTheSameTimes = 0;
@@ -232,7 +192,9 @@ export const nativeAutoHeightScript = (): string => `
         height = wrapper.offsetHeight || document.documentElement.offsetHeight;
       }
       height = Math.ceil(height);
-      window.ReactNativeWebView.postMessage(JSON.stringify({ topic: topic, height: height }));
+      if (height && height !== lastHeight) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ topic: topic, height: height }));
+      }
       clearTimeout(forceRefreshTimeout);
       if (lastHeight !== height) {
         heightTheSameTimes = 1;
@@ -267,7 +229,7 @@ export const nativeAutoHeightScript = (): string => `
 `;
 
 export const injectAutoHeightScript = (html: string, script: string): string => {
-  const tag = `<script>(function(){${script}})();</script>`;
+  const tag = `<script>${script}</script>`;
   if (html.includes('</body>')) {
     return html.replace('</body>', `${tag}</body>`);
   }

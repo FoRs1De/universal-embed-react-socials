@@ -1,11 +1,9 @@
 import { Image, Linking, Pressable, Text, View } from 'react-native';
+import { isJavaScriptUrl } from '../../utils/urls';
 import { BorderSpinner } from './parts/BorderSpinner';
 import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
 export type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
-
-const isJavaScriptProtocol =
-  /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*\:/i;
 
 export const PlaceholderEmbed = ({
   url,
@@ -16,7 +14,7 @@ export const PlaceholderEmbed = ({
   spinnerDisabled,
   style,
 }: PlaceholderEmbedProps) => {
-  if (isJavaScriptProtocol.test(url) && !allowJavaScriptUrls) {
+  if (isJavaScriptUrl(url) && !allowJavaScriptUrls) {
     console.warn(`PlaceholderEmbed has blocked a javascript: URL as a security precaution`);
     return null;
   }

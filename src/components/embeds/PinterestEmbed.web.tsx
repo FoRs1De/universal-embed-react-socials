@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
@@ -10,9 +10,6 @@ import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
-const minPlaceholderWidth = 250;
-const maxPlaceholderWidth = 550;
-const defaultPlaceholderHeight = 550;
 const officialEmbedWidth = 450;
 const officialEmbedHeight = 699;
 const borderRadius = 8;
@@ -38,7 +35,6 @@ export const PinterestEmbed = ({
   style,
 }: PinterestEmbedProps) => {
   const [ready, setReady] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const postId = getPinterestPinId(url);
   const embedSrc = `https://assets.pinterest.com/ext/embed.html?id=${postId}&src=oembed`;
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
@@ -52,14 +48,8 @@ export const PinterestEmbed = ({
   });
 
   useEffect(() => {
-    const iframe = iframeRef.current;
-    const markReady = () => setReady(true);
-    iframe?.addEventListener('load', markReady);
-    const timer = window.setTimeout(markReady, 800);
-    return () => {
-      iframe?.removeEventListener('load', markReady);
-      window.clearTimeout(timer);
-    };
+    const timer = window.setTimeout(() => setReady(true), 800);
+    return () => window.clearTimeout(timer);
   }, [embedSrc]);
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
@@ -99,13 +89,10 @@ export const PinterestEmbed = ({
       >
         <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
           <IFrame
-            iframeRef={iframeRef}
             className="pinterest-post"
             src={embedSrc}
             width={officialEmbedWidth}
             height={officialEmbedHeight}
-            frameBorder={0}
-            scrolling="no"
             onLoad={() => setReady(true)}
             title="Pinterest embed"
             style={{

@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useId, useState, type ReactElement } from 'react';
 import { Box, IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
@@ -148,7 +148,7 @@ const TikTokOEmbed = ({
   const [stage, setStage] = useState(PROCESS_EMBED_STAGE);
   const placeholderId = useId();
   const [processTime, setProcessTime] = useState(0);
-  const embedContainerKey = useMemo(() => `${placeholderId}-${processTime}`, [placeholderId, processTime]);
+  const embedContainerKey = `${placeholderId}-${processTime}`;
   const frm = useFrame(frame);
   const embedId = getTikTokVideoId(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
@@ -184,7 +184,7 @@ const TikTokOEmbed = ({
         if (frm.document?.querySelector('.tiktok-embed-container iframe')) {
           setStage(EMBED_SUCCESS_STAGE);
         }
-      }, 1);
+      }, 50);
       if (!retryDisabled) {
         subs.setTimeout(() => {
           setStage(RETRYING_STAGE);

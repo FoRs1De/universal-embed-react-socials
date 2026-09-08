@@ -1,6 +1,6 @@
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
 import { isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { facebookEmbedHtml } from './embedHtml';
 import type { FacebookEmbedProps } from './FacebookEmbed.types';
 import { NativeEmbedView } from './NativeEmbedView';
@@ -36,7 +36,7 @@ export const FacebookEmbed = ({
   const resolvedWidth = isPercentage(resolvedMaxWidth)
     ? '100%'
     : (resolvedMaxWidth ?? defaultEmbedWidth);
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,
     placeholder,
@@ -49,11 +49,9 @@ export const FacebookEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight: defaultPlaceholderHeight,
   });
 
   return (

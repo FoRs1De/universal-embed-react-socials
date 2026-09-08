@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
 import {
   YOUTUBE_NATIVE_ORIGIN,
@@ -45,7 +45,7 @@ export const YouTubeEmbed = ({
     ...(start ? { start } : {}),
     ...youTubeProps?.opts?.playerVars,
   };
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,
     placeholder,
@@ -58,11 +58,9 @@ export const YouTubeEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? defaultPlaceholderHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight: defaultPlaceholderHeight,
   });
 
   return (

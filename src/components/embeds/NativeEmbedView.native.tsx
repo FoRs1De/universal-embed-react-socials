@@ -133,15 +133,12 @@ export const NativeEmbedView = ({
     injectedJavaScriptBeforeContentLoaded,
     ...restWebViewProps
   } = webViewProps ?? {};
-  const sizingScript = autoHeightEnabled ? nativeAutoHeightScript() : '';
-  const uriBootScript = !html
-    ? [
-        fitEnabled && autoHeightEnabled ? nativePinterestBootScript(fitDesignWidth) : '',
-        fitEnabled && autoHeightEnabled ? '' : sizingScript,
-      ]
-        .filter(Boolean)
-        .join('\n')
-    : '';
+  const sizingScript = autoHeightEnabled ? nativeAutoHeightScript : '';
+  const uriBootScript = html
+    ? ''
+    : fitEnabled && autoHeightEnabled
+      ? nativePinterestBootScript(fitDesignWidth)
+      : sizingScript;
   const source = html
     ? {
         html: sizingScript ? injectAutoHeightScript(html, sizingScript) : html,

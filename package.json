@@ -1,7 +1,7 @@
 {
   "name": "universal-embed-react-socials",
   "version": "1.0.0",
-  "description": "Embed socials for React and React Native — Facebook, Instagram, LinkedIn, Pinterest, TikTok, X, YouTube, and Xymatic.",
+  "description": "Embed socials for React and React Native — Facebook, Instagram, LinkedIn, Pinterest, TikTok, X, and YouTube.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "react-native": "./src/index.ts",
@@ -27,9 +27,7 @@
     "pinterest",
     "twitter",
     "x",
-    "youtube",
-    "xymatic",
-    "greenvideo"
+    "youtube"
   ],
   "peerDependencies": {
     "react": ">=16.8.0",

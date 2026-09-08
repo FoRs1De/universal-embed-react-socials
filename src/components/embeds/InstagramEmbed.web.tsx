@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useId, useState, type ReactElement } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
@@ -13,7 +13,6 @@ import type { InstagramEmbedProps } from './InstagramEmbed.types';
 
 export type { InstagramEmbedProps } from './InstagramEmbed.types';
 
-const minPlaceholderWidth = 328;
 const defaultPlaceholderHeight = 740;
 const captionedPlaceholderHeight = 820;
 const officialEmbedWidth = 550;
@@ -26,6 +25,10 @@ const PROCESS_EMBED_STAGE = 'process-embed';
 const CONFIRM_EMBED_SUCCESS_STAGE = 'confirm-embed-success';
 const RETRYING_STAGE = 'retrying';
 const EMBED_SUCCESS_STAGE = 'embed-success';
+
+const instagramProcess = (win?: Window) =>
+  (win as Window & { instgrm?: { Embeds?: { process?: () => void } } } | undefined)?.instgrm?.Embeds
+    ?.process;
 
 export const InstagramEmbed = ({
   url,
@@ -58,7 +61,7 @@ export const InstagramEmbed = ({
   const [stage, setStage] = useState(CHECK_SCRIPT_STAGE);
   const embedId = useId();
   const [processTime, setProcessTime] = useState(0);
-  const embedContainerKey = useMemo(() => `${embedId}-${processTime}`, [embedId, processTime]);
+  const embedContainerKey = `${embedId}-${processTime}`;
   const frm = useFrame(frame);
 
   useEffect(() => {
@@ -69,7 +72,7 @@ export const InstagramEmbed = ({
     if (stage !== CHECK_SCRIPT_STAGE) {
       return;
     }
-    if ((frm.window as Window & { instgrm?: { Embeds?: { process?: () => void } } })?.instgrm?.Embeds?.process) {
+    if (instagramProcess(frm.window)) {
       setStage(PROCESS_EMBED_STAGE);
     } else if (!scriptLoadDisabled) {
       setStage(LOAD_SCRIPT_STAGE);
@@ -92,10 +95,10 @@ export const InstagramEmbed = ({
     const subs = new Subs();
     if (stage === CONFIRM_SCRIPT_LOADED_STAGE) {
       subs.setInterval(() => {
-        if ((frm.window as Window & { instgrm?: { Embeds?: { process?: () => void } } })?.instgrm?.Embeds?.process) {
+        if (instagramProcess(frm.window)) {
           setStage(PROCESS_EMBED_STAGE);
         }
-      }, 1);
+      }, 50);
     }
     return subs.createCleanup();
   }, [stage, frm.window]);
@@ -104,8 +107,7 @@ export const InstagramEmbed = ({
     if (stage !== PROCESS_EMBED_STAGE) {
       return;
     }
-    const process = (frm.window as Window & { instgrm?: { Embeds?: { process?: () => void } } })?.instgrm?.Embeds
-      ?.process;
+    const process = instagramProcess(frm.window);
     if (process) {
       process();
       setStage(CONFIRM_EMBED_SUCCESS_STAGE);
@@ -121,7 +123,7 @@ export const InstagramEmbed = ({
         if (frm.document && !frm.document.getElementById(embedId)) {
           setStage(EMBED_SUCCESS_STAGE);
         }
-      }, 1);
+      }, 50);
       if (!retryDisabled) {
         subs.setTimeout(() => {
           setStage(RETRYING_STAGE);

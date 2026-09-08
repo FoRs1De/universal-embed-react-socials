@@ -69,8 +69,6 @@ export const IFrame = ({
   className,
   style,
   onLoad,
-  scrolling,
-  frameBorder = 0,
   allow,
   allowFullScreen,
   title,

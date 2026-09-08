@@ -1,6 +1,6 @@
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getPinterestPinId } from '../../utils/urls';
-import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
@@ -31,7 +31,7 @@ export const PinterestEmbed = ({
   openLinksInBrowser = true,
 }: PinterestEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const resolvedPlaceholder = resolveEmbedPlaceholder({
+  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: postUrl ?? url,
     linkText,
     placeholder,
@@ -44,11 +44,9 @@ export const PinterestEmbed = ({
     placeholderWidth,
     placeholderHeight,
     placeholderStyle,
-    extraStyle: { width: resolvedMaxWidth ?? '100%' },
-    embedWidth: '100%',
-    embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
-    providerHeight: height ?? officialEmbedHeight,
+    resolvedMaxWidth,
+    height,
+    fallbackHeight: officialEmbedHeight,
   });
 
   return (
