@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
-import { isStubEmbedHeight } from '../../utils/embedHeight';
 import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { facebookEmbedHtml } from './embedHtml';
@@ -81,9 +80,7 @@ export const FacebookEmbed = ({
     measureSelector: 'iframe',
   });
   const contentHeight =
-    measured != null && measured >= FACEBOOK_CONTENT_MIN && !isStubEmbedHeight(measured)
-      ? measured
-      : undefined;
+    measured != null && measured >= FACEBOOK_CONTENT_MIN ? measured : undefined;
   const ready = usePluginFallback ? pluginReady : contentHeight != null;
 
   useEffect(() => {

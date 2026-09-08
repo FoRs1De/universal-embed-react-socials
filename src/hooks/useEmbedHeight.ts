@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { MAX_EMBED_HEIGHT, MIN_EMBED_HEIGHT } from '../utils/embedHeight';
+import { MAX_EMBED_HEIGHT, MIN_EMBED_HEIGHT, isStubEmbedHeight } from '../utils/embedHeight';
 import { embedMaxWidthStyle } from '../utils/style';
+
+const clampEmbedHeight = (height: number): number | undefined => {
+  const rounded = Math.round(height);
+  if (
+    rounded < MIN_EMBED_HEIGHT ||
+    rounded > MAX_EMBED_HEIGHT ||
+    isStubEmbedHeight(rounded)
+  ) {
+    return undefined;
+  }
+  return rounded;
+};
 
 export const useResponsiveEmbedScale = (
   designWidth: number,
@@ -65,7 +77,7 @@ export const parseEmbedHeight = (data: unknown, depth = 0): number | undefined =
     return undefined;
   }
   if (typeof data === 'number') {
-    return data >= MIN_EMBED_HEIGHT && data <= MAX_EMBED_HEIGHT ? Math.round(data) : undefined;
+    return clampEmbedHeight(data);
   }
   if (typeof data === 'string') {
     const trimmed = data.trim();
@@ -109,48 +121,17 @@ export const parseEmbedHeight = (data: unknown, depth = 0): number | undefined =
 export const useAutoEmbedHeight = ({
   enabled = true,
   fallback,
-  aspectRatio,
-  listenToMessages = false,
-  allowedOrigins = [],
   measureSrcDoc = false,
   measureSelector,
 }: {
   enabled?: boolean;
   fallback?: number;
-  aspectRatio?: number;
-  listenToMessages?: boolean;
-  allowedOrigins?: string[];
   measureSrcDoc?: boolean;
   measureSelector?: string;
 } = {}) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [measured, setMeasured] = useState<number | undefined>();
-  const [measuredWidth, setMeasuredWidth] = useState<number | undefined>();
-
-  useEffect(() => {
-    if (!enabled || !listenToMessages) {
-      return;
-    }
-    const handleMessage = (event: MessageEvent) => {
-      const origin = event.origin ?? '';
-      const originAllowed =
-        allowedOrigins.length === 0 || allowedOrigins.some((item) => origin.includes(item));
-      if (!originAllowed) {
-        return;
-      }
-      const iframe = iframeRef.current;
-      if (iframe && event.source && allowedOrigins.length === 0 && event.source !== iframe.contentWindow) {
-        return;
-      }
-      const next = parseEmbedHeight(event.data);
-      if (next) {
-        setMeasured((prev) => (prev === next ? prev : next));
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [allowedOrigins, enabled, listenToMessages]);
 
   useEffect(() => {
     if (!enabled || !measureSrcDoc) {
@@ -164,6 +145,7 @@ export const useAutoEmbedHeight = ({
     let resizeObserver: ResizeObserver | undefined;
     let mutationObserver: MutationObserver | undefined;
     let srcWindow: Window | null = null;
+    const defaultSelector = measureSelector ?? 'iframe';
 
     const handleFrameMessage = (event: MessageEvent) => {
       const next = parseEmbedHeight(event.data);
@@ -177,21 +159,14 @@ export const useAutoEmbedHeight = ({
       if (!doc) {
         return;
       }
-      const source = measureSelector
-        ? doc.querySelector<HTMLElement>(measureSelector)
-        : doc.querySelector<HTMLElement>('[class*="embed_pin"]') ??
-          doc.querySelector<HTMLElement>('iframe');
+      const source = doc.querySelector<HTMLElement>(defaultSelector);
       if (!source) {
         return;
       }
       const rect = source.getBoundingClientRect();
-      const nextHeight = Math.ceil(Math.max(rect.height, source.scrollHeight));
-      const nextWidth = Math.ceil(Math.max(rect.width, source.scrollWidth));
-      if (nextHeight >= MIN_EMBED_HEIGHT) {
-        setMeasured((prev) => (prev === nextHeight ? prev : nextHeight));
-      }
-      if (nextWidth >= MIN_EMBED_HEIGHT) {
-        setMeasuredWidth((prev) => (prev === nextWidth ? prev : nextWidth));
+      const next = clampEmbedHeight(Math.ceil(Math.max(rect.height, source.scrollHeight)));
+      if (next) {
+        setMeasured((prev) => (prev === next ? prev : next));
       }
     };
 
@@ -214,7 +189,7 @@ export const useAutoEmbedHeight = ({
         }
       }
       mutationObserver = new MutationObserver(() => {
-        const inner = doc.querySelector(measureSelector ?? '[class*="embed_pin"], iframe');
+        const inner = doc.querySelector(defaultSelector);
         if (isElement(inner) && resizeObserver) {
           resizeObserver.observe(inner);
         }
@@ -238,7 +213,7 @@ export const useAutoEmbedHeight = ({
   }, [enabled, measureSelector, measureSrcDoc]);
 
   useEffect(() => {
-    if (!enabled || listenToMessages || measureSrcDoc) {
+    if (!enabled || measureSrcDoc) {
       return;
     }
     const node = containerRef.current;
@@ -247,19 +222,10 @@ export const useAutoEmbedHeight = ({
     }
 
     const readHeight = () => {
-      if (aspectRatio) {
-        const width = node.getBoundingClientRect().width;
-        if (width > 0) {
-          const next = Math.round(width / aspectRatio);
-          setMeasured((prev) => (prev === next ? prev : next));
-        }
-        return;
-      }
       const iframe = node.querySelector('iframe');
-      const widget =
-        node.querySelector<HTMLElement>('[class*="embed_pin"]') ?? iframe ?? node;
-      const next = Math.ceil(Math.max(widget.scrollHeight, widget.offsetHeight));
-      if (next >= MIN_EMBED_HEIGHT) {
+      const widget = iframe ?? node;
+      const next = clampEmbedHeight(Math.ceil(Math.max(widget.scrollHeight, widget.offsetHeight)));
+      if (next) {
         setMeasured((prev) => (prev === next ? prev : next));
       }
     };
@@ -279,11 +245,10 @@ export const useAutoEmbedHeight = ({
       resizeObserver.disconnect();
       mutationObserver.disconnect();
     };
-  }, [aspectRatio, enabled, listenToMessages, measureSrcDoc]);
+  }, [enabled, measureSrcDoc]);
 
   return {
     height: enabled ? (measured ?? fallback) : fallback,
-    width: measuredWidth,
     measured,
     iframeRef,
     containerRef,

@@ -6,6 +6,7 @@ import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
+const officialEmbedWidth = 450;
 const officialEmbedHeight = 699;
 
 export const PinterestEmbed = ({
@@ -55,6 +56,7 @@ export const PinterestEmbed = ({
       width={resolvedMaxWidth ?? '100%'}
       height={height}
       autoHeight
+      fitDesignWidth={officialEmbedWidth}
       style={style}
       fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}

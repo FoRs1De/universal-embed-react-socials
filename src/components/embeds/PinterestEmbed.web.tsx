@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
@@ -35,7 +35,7 @@ export const PinterestEmbed = ({
   style,
 }: PinterestEmbedProps) => {
   const [ready, setReady] = useState(false);
-  const postId = getPinterestPinId(url);
+  const postId = getPinterestPinId(postUrl ?? url);
   const embedSrc = `https://assets.pinterest.com/ext/embed.html?id=${postId}&src=oembed`;
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(
@@ -49,11 +49,6 @@ export const PinterestEmbed = ({
     height,
     waitForMeasure: false,
   });
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setReady(true), 800);
-    return () => window.clearTimeout(timer);
-  }, [embedSrc]);
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url: postUrl ?? url,

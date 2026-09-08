@@ -25,14 +25,10 @@ export const useAutoEmbedHeight = ({
 }: {
   enabled?: boolean;
   fallback?: number;
-  aspectRatio?: number;
-  listenToMessages?: boolean;
-  allowedOrigins?: string[];
   measureSrcDoc?: boolean;
   measureSelector?: string;
 } = {}) => ({
   height: fallback,
-  width: undefined as number | undefined,
   measured: undefined as number | undefined,
   iframeRef: { current: null },
   containerRef: { current: null },

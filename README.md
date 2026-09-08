@@ -175,7 +175,7 @@ Every embed accepts:
 - `webViewProps` (React Native only)
 - `openLinksInBrowser` (React Native only) — open tapped embed links in the system browser. Defaults to `true`. Ignored on web.
 
-Facebook, Instagram, and TikTok also support `scriptLoadDisabled`, `retryDelay`, `retryDisabled`, `frame`, and `debug`.
+Instagram and TikTok also support `scriptLoadDisabled`, `retryDelay`, `retryDisabled`, `frame`, and `debug`.
 
 ## API version helpers
 
