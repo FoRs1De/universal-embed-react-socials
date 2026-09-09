@@ -4,11 +4,10 @@
   "description": "Embed socials for React and React Native — Facebook, Instagram, LinkedIn, Pinterest, TikTok, X, and YouTube.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FoRs1De/react-social-media-embed.git"
+    "url": "https://github.com/FoRs1De/universal-embed-react-socials"
   },
-  "homepage": "https://github.com/FoRs1De//react-social-media-embed#readme",
   "bugs": {
-    "url": "https://github.com/FoRs1De//react-social-media-embed/issues"
+    "url": "https://github.com/FoRs1De/universal-embed-react-socials/issues"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
