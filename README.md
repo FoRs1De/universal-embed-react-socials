@@ -158,6 +158,15 @@ Every embed accepts:
 - `webViewProps` (React Native only)
 - `openLinksInBrowser` (React Native only) — open tapped embed links in the system browser. Defaults to `true`. Ignored on web.
 
+```jsx
+<InstagramEmbed
+  url="https://www.instagram.com/p/CUbHfhpswxt/"
+  embedDisabled
+/>
+```
+
+Set `embedDisabled={false}` (or omit it) when you want the live post to load.
+
 Instagram and TikTok also support `scriptLoadDisabled`, `retryDelay`, `retryDisabled`, `frame`, and `debug`.
 
 ## API version helpers
