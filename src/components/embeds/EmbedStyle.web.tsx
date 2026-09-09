@@ -37,6 +37,24 @@ export const EmbedStyle = ({ className, style }: EmbedStyleProps) => (
           width: 100% !important;
           height: 100% !important;
         }
+
+        .rsme-embed.rsme-instagram-embed iframe,
+        .rsme-embed.rsme-instagram-embed .instagram-media,
+        .rsme-embed.rsme-tiktok-embed iframe,
+        .rsme-embed.rsme-tiktok-embed .tiktok-embed,
+        .rsme-embed.rsme-twitter-embed iframe,
+        .rsme-embed.rsme-twitter-embed .twitter-tweet,
+        .rsme-embed.rsme-pinterest-embed iframe {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          box-sizing: border-box !important;
+        }
+
+        .rsme-embed.rsme-pinterest-embed iframe {
+          overflow: hidden !important;
+          border: 0 !important;
+        }
       `}
   </StyleTag>
 );

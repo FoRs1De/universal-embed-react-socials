@@ -50,17 +50,74 @@ export const instagramEmbedHtml = ({
     <script async src="https://www.instagram.com/embed.js"></script>
   `);
 
+/** Pinterest `data-pin-width="large"` widget is 600px. */
+export const PINTEREST_DESIGN_WIDTH = 600;
+
 /**
  * Pinterest's hosted `embed.html` centers a fixed-width pin in a 450px page,
  * which cannot be made responsive from the outside. Render the official
- * `pinit.js` widget in a page we own instead; native scales it with `fitDesignWidth`.
+ * `pinit.js` widget in a page we own instead. On web, `fillWidth` scales that
+ * 600px widget up to the iframe's client width and posts the visual height.
  */
-export const pinterestEmbedHtml = ({ url }: { url: string }): string =>
-  documentShell(`
-    <style>iframe,span,img,[class*="embed_pin"]{max-width:none !important;}</style>
-    <a data-pin-do="embedPin" data-pin-width="large" href="${escapeHtmlAttribute(url)}"></a>
+export const pinterestEmbedHtml = ({
+  url,
+  fillWidth = false,
+  embedId = '',
+}: {
+  url: string;
+  fillWidth?: boolean;
+  embedId?: string;
+}): string => {
+  const pin = `<a data-pin-do="embedPin" data-pin-width="large" href="${escapeHtmlAttribute(url)}"></a>`;
+  if (!fillWidth) {
+    return documentShell(`
+      <style>
+        html,body{width:${PINTEREST_DESIGN_WIDTH}px;overflow:visible;}
+        iframe,span,img,[class*="embed_pin"]{max-width:none !important;margin:0 !important;}
+      </style>
+      ${pin}
+      <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+    `);
+  }
+  return documentShell(`
+    <style>
+      html,body{width:100%;margin:0;padding:0;overflow:hidden;}
+      #pin-wrap{width:${PINTEREST_DESIGN_WIDTH}px;transform-origin:top left;}
+      #pin-wrap iframe,#pin-wrap span,#pin-wrap img,[class*="embed_pin"]{max-width:none !important;margin:0 !important;}
+    </style>
+    <div id="pin-wrap">${pin}</div>
+    <script>
+      (function () {
+        var DESIGN = ${PINTEREST_DESIGN_WIDTH};
+        var wrap = document.getElementById('pin-wrap');
+        var id = ${JSON.stringify(embedId)};
+        function fit() {
+          var pin = wrap.querySelector('iframe, span, [data-pin-id]');
+          if (!pin) return;
+          var viewport = document.documentElement.clientWidth || DESIGN;
+          var pinW = pin.offsetWidth || wrap.offsetWidth || DESIGN;
+          if (pinW < 50) return;
+          wrap.style.transform = 'scale(' + (viewport / pinW) + ')';
+          wrap.style.transformOrigin = 'top left';
+          var visualH = Math.ceil(wrap.getBoundingClientRect().height) + 2;
+          if (visualH < 50) return;
+          document.documentElement.style.height = visualH + 'px';
+          document.body.style.height = visualH + 'px';
+          window.parent.postMessage({ source: 'rsme-pinterest', id: id, height: visualH }, '*');
+        }
+        window.addEventListener('resize', fit);
+        if (typeof ResizeObserver !== 'undefined') new ResizeObserver(fit).observe(wrap);
+        if (typeof MutationObserver !== 'undefined') {
+          new MutationObserver(fit).observe(wrap, { childList: true, subtree: true, attributes: true });
+        }
+        var n = 0;
+        var t = setInterval(function () { fit(); if (++n > 40) clearInterval(t); }, 250);
+        fit();
+      })();
+    </script>
     <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
   `);
+};
 
 export const xEmbedHtml = ({ postId }: { postId: string }): string =>
   documentShell(`

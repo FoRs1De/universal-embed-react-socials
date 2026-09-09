@@ -53,21 +53,24 @@ export const placeholderOverlayStyle: CSSProperties = {
   overflow: 'hidden',
 };
 
+/** Web embeds fill the parent unless `maxWidth` / `width` is set. */
+export const DEFAULT_WEB_EMBED_WIDTH = '100%';
+
 export const resolveEmbedMaxWidth = (
   maxWidth?: string | number,
   width?: string | number,
-): string | number | undefined => maxWidth ?? width;
+): string | number => maxWidth ?? width ?? DEFAULT_WEB_EMBED_WIDTH;
 
 export const embedMaxWidthStyle = (
   maxWidth?: string | number,
   fallbackMax?: number,
 ): CSSProperties => {
-  if (isPercentage(maxWidth)) {
-    return { width: maxWidth, maxWidth: '100%' };
+  if (isPercentage(maxWidth) || maxWidth == null) {
+    return { width: maxWidth ?? DEFAULT_WEB_EMBED_WIDTH, maxWidth: '100%' };
   }
   const size = typeof maxWidth === 'number' ? maxWidth : fallbackMax;
   return {
-    width: size ?? '100%',
+    width: size ?? DEFAULT_WEB_EMBED_WIDTH,
     maxWidth: '100%',
   };
 };

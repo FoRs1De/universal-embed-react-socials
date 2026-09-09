@@ -22,7 +22,7 @@ export type EmbedWebViewProps = Record<string, unknown>;
 
 export interface CommonEmbedProps extends EmbedContainerProps {
   url: string;
-  /** Cap the embed width. The embed fills its container up to this size and shrinks with the viewport. */
+  /** Cap the embed width. On web the embed is `100%` of its container by default; pass a pixel or percent value to cap it. */
   maxWidth?: string | number;
   /** @deprecated Use `maxWidth`. */
   width?: string | number;

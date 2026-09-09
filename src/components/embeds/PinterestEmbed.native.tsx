@@ -6,8 +6,8 @@ import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
-const officialEmbedWidth = 450;
-const officialEmbedHeight = 699;
+const officialEmbedWidth = 600;
+const officialEmbedHeight = 900;
 
 export const PinterestEmbed = ({
   url,

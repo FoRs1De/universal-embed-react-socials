@@ -1,18 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
-import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
-import { getPinterestPinId } from '../../utils/urls';
+import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { PINTEREST_DESIGN_WIDTH, pinterestEmbedHtml } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
 
 export type { PinterestEmbedProps } from './PinterestEmbed.types';
 
-const officialEmbedWidth = 450;
-const officialEmbedHeight = 699;
-const borderRadius = 8;
+const officialEmbedHeight = 900;
+const borderRadius = 16;
 
 export const PinterestEmbed = ({
   url,
@@ -34,24 +32,45 @@ export const PinterestEmbed = ({
   className,
   style,
 }: PinterestEmbedProps) => {
-  const [ready, setReady] = useState(false);
-  const postId = getPinterestPinId(postUrl ?? url);
-  const embedSrc = `https://assets.pinterest.com/ext/embed.html?id=${postId}&src=oembed`;
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(
-    officialEmbedWidth,
-    resolvedMaxWidth,
+  const embedId = useId();
+  const postHref = postUrl ?? url;
+  const embedHtml = useMemo(
+    () => pinterestEmbedHtml({ url: postHref, fillWidth: true, embedId }),
+    [embedId, postHref],
   );
-  const { frameHeight, showPlaceholder } = resolveEmbedFrame({
-    ready,
-    fallbackHeight: officialEmbedHeight,
-    scale,
-    height,
-    waitForMeasure: false,
-  });
+  const [frameSrc, setFrameSrc] = useState<string | undefined>();
+  const [pinHeight, setPinHeight] = useState(0);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const percentageHeight = isPercentage(height);
+
+  useEffect(() => {
+    const blob = new Blob([embedHtml], { type: 'text/html' });
+    const next = URL.createObjectURL(blob);
+    setFrameSrc(next);
+    setPinHeight(0);
+    return () => URL.revokeObjectURL(next);
+  }, [embedHtml]);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { source?: string; id?: string; height?: number } | null;
+      if (!data || data.source !== 'rsme-pinterest' || data.id !== embedId) {
+        return;
+      }
+      if (typeof data.height === 'number' && data.height > 50) {
+        setPinHeight((prev) => (Math.abs(prev - data.height!) < 2 ? prev : Math.round(data.height!)));
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [embedId]);
+
+  const frameHeight = typeof height === 'number' ? height : pinHeight;
+  const ready = frameHeight > 0;
+  const shellHeight = percentageHeight ? '100%' : frameHeight || undefined;
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
-    url: postUrl ?? url,
+    url: postHref,
     linkText,
     placeholder,
     embedPlaceholder,
@@ -71,30 +90,34 @@ export const PinterestEmbed = ({
     },
     embedWidth: '100%',
     embedHeight: '100%',
-    providerWidth: officialEmbedWidth,
+    providerWidth: resolvedMaxWidth,
     providerHeight: officialEmbedHeight,
   });
 
   return (
-    <div ref={boxRef} style={boxStyle}>
+    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), minWidth: 0 }}>
       <EmbedShell
         className={className}
         extraClassName="rsme-pinterest-embed"
         width="100%"
-        height={frameHeight}
+        height={shellHeight}
         borderRadius={borderRadius}
         style={style}
       >
-        <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
-          <IFrame
-            className="pinterest-post"
-            src={embedSrc}
-            width={officialEmbedWidth}
-            height={officialEmbedHeight}
-            onLoad={() => setReady(true)}
-            title="Pinterest embed"
-            style={embedScaleStyle(scale, officialEmbedWidth)}
-          />
+        <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={resolvedPlaceholder}>
+          {frameSrc ? (
+            <IFrame
+              src={frameSrc}
+              width="100%"
+              height={frameHeight || officialEmbedHeight}
+              title="Pinterest embed"
+              style={{
+                width: '100%',
+                height: frameHeight || officialEmbedHeight,
+                overflow: 'hidden',
+              }}
+            />
+          ) : null}
         </MediaFrame>
       </EmbedShell>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MAX_EMBED_HEIGHT, MIN_EMBED_HEIGHT, isStubEmbedHeight } from '../utils/embedHeight';
-import { embedMaxWidthStyle } from '../utils/style';
+import { embedMaxWidthStyle, isPercentage } from '../utils/style';
 
 const clampEmbedHeight = (height: number): number | undefined => {
   const rounded = Math.round(height);
@@ -64,10 +64,12 @@ export const useResponsiveEmbedBox = (
     boxRef,
     boxWidth,
     scale,
-    // Omit maxWidth → fill the parent. A design-width fallback kept scale at 1.
+    // Omit maxWidth → fill the parent at 100%.
     boxStyle: embedMaxWidthStyle(
       maxWidth,
-      maxWidth == null ? undefined : (options?.fallbackMaxWidth ?? designWidth),
+      maxWidth == null || isPercentage(maxWidth)
+        ? undefined
+        : (options?.fallbackMaxWidth ?? designWidth),
     ),
   };
 };
