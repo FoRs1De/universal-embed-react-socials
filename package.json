@@ -1,14 +1,15 @@
 {
   "name": "@fors1de/universal-embed-react-socials",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "Embed socials for React and React Native — Facebook, Instagram, LinkedIn, Pinterest, TikTok, X, and YouTube.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FoRs1De/universal-embed-react-socials"
+    "url": "git+https://github.com/fors1de/universal-embed-react-socials.git"
   },
   "bugs": {
-    "url": "https://github.com/FoRs1De/universal-embed-react-socials/issues"
+    "url": "https://github.com/fors1de/universal-embed-react-socials/issues"
   },
+  "homepage": "https://github.com/fors1de/universal-embed-react-socials#readme",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "react-native": "./src/index.ts",
@@ -19,6 +20,9 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc && node scripts/flatten-web-suffix.js",
     "test": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT",
   "keywords": [
