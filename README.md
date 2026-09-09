@@ -1,4 +1,4 @@
-# universal-embed-react-socials
+# @fors1de/universal-embed-react-socials
 
 Embed posts from Facebook, Instagram, LinkedIn, Pinterest, TikTok, X (Twitter), and YouTube in **React** and **React Native**. Configurable platform API versions available.
 
@@ -7,7 +7,7 @@ On web, embeds use the official platform scripts and iframes. On React Native, p
 ## Install
 
 ```bash
-npm i universal-embed-react-socials
+npm i @fors1de/universal-embed-react-socials
 ```
 
 React Native also needs:
@@ -21,7 +21,7 @@ npm i react-native-webview
 On web, embeds are `width: 100%` of their container by default. Pass `maxWidth` only when you want a cap.
 
 ```jsx
-import { FacebookEmbed, InstagramEmbed } from 'universal-embed-react-socials';
+import { FacebookEmbed, InstagramEmbed } from '@fors1de/universal-embed-react-socials';
 
 <FacebookEmbed
   url="https://www.facebook.com/andrewismusic/posts/451971596293956"
@@ -38,7 +38,7 @@ import { FacebookEmbed, InstagramEmbed } from 'universal-embed-react-socials';
 ### Facebook
 
 ```jsx
-import { FacebookEmbed } from "universal-embed-react-socials";
+import { FacebookEmbed } from "@fors1de/universal-embed-react-socials";
 
 <FacebookEmbed
   url="https://www.facebook.com/andrewismusic/posts/451971596293956"
@@ -52,7 +52,7 @@ import { FacebookEmbed } from "universal-embed-react-socials";
 ### Instagram
 
 ```jsx
-import { InstagramEmbed } from "universal-embed-react-socials";
+import { InstagramEmbed } from "@fors1de/universal-embed-react-socials";
 
 <InstagramEmbed
   url="https://www.instagram.com/p/CUbHfhpswxt/"
@@ -66,7 +66,7 @@ import { InstagramEmbed } from "universal-embed-react-socials";
 ### LinkedIn
 
 ```jsx
-import { LinkedInEmbed } from "universal-embed-react-socials";
+import { LinkedInEmbed } from "@fors1de/universal-embed-react-socials";
 
 <LinkedInEmbed
   url="https://www.linkedin.com/embed/feed/update/urn:li:share:6898694772484112384"
@@ -80,7 +80,7 @@ Use the `src` from LinkedIn's "Embed this post" iframe.
 ### Pinterest
 
 ```jsx
-import { PinterestEmbed } from "universal-embed-react-socials";
+import { PinterestEmbed } from "@fors1de/universal-embed-react-socials";
 
 <PinterestEmbed url="https://www.pinterest.com/pin/99360735500167749/" />;
 ```
@@ -88,7 +88,7 @@ import { PinterestEmbed } from "universal-embed-react-socials";
 ### TikTok
 
 ```jsx
-import { TikTokEmbed } from "universal-embed-react-socials";
+import { TikTokEmbed } from "@fors1de/universal-embed-react-socials";
 
 <TikTokEmbed url="https://www.tiktok.com/@epicgardening/video/7055411162212633903" />;
 ```
@@ -96,7 +96,7 @@ import { TikTokEmbed } from "universal-embed-react-socials";
 ### X (Twitter)
 
 ```jsx
-import { XEmbed } from "universal-embed-react-socials";
+import { XEmbed } from "@fors1de/universal-embed-react-socials";
 
 <XEmbed url="https://twitter.com/PixelAndBracket/status/1356633038717923333" />;
 ```
@@ -106,7 +106,7 @@ import { XEmbed } from "universal-embed-react-socials";
 ### YouTube
 
 ```jsx
-import { YouTubeEmbed } from "universal-embed-react-socials";
+import { YouTubeEmbed } from "@fors1de/universal-embed-react-socials";
 
 <YouTubeEmbed url="https://www.youtube.com/watch?v=HpVOs5imUN0" />;
 ```
@@ -178,7 +178,7 @@ import {
   DEFAULT_WEB_EMBED_WIDTH,
   normalizeFacebookApiVersion,
   getFacebookSdkSrc,
-} from "universal-embed-react-socials";
+} from "@fors1de/universal-embed-react-socials";
 ```
 
 ## License
