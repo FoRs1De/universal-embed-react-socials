@@ -26,6 +26,7 @@ export const PinterestEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   style,
   webViewProps,
   openLinksInBrowser = true,
@@ -61,6 +62,7 @@ export const PinterestEmbed = ({
       fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />

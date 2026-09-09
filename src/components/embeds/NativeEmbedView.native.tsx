@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { toNativeSize } from '../../utils/style';
@@ -95,6 +95,7 @@ export const NativeEmbedView = ({
   fallbackHeight,
   placeholder,
   placeholderDisabled,
+  embedDisabled = false,
   allowsInlineMediaPlayback = false,
   mediaPlaybackRequiresUserAction = true,
   allowsFullscreenVideo = false,
@@ -106,6 +107,14 @@ export const NativeEmbedView = ({
   const [boxWidth, setBoxWidth] = useState(0);
   const [measuredHeight, setMeasuredHeight] = useState(0);
   const hasPlaceholder = placeholder != null && !placeholderDisabled;
+  const live = !embedDisabled;
+
+  useEffect(() => {
+    if (embedDisabled) {
+      setReady(false);
+      setMeasuredHeight(0);
+    }
+  }, [embedDisabled]);
   const fitEnabled = fitDesignWidth != null && fitDesignWidth > 0 && height == null;
   const autoHeightEnabled = autoHeight ?? (height == null && aspectRatio == null);
   const useAspectRatio = aspectRatio != null && height == null && !autoHeightEnabled;
@@ -119,7 +128,7 @@ export const NativeEmbedView = ({
       ? fittedHeight
       : measuredHeight > 0
         ? measuredHeight
-        : toNativeSize(height, ready || hasPlaceholder ? fallbackHeight : 0);
+        : toNativeSize(height, ready || hasPlaceholder || embedDisabled ? fallbackHeight : 0);
   const {
     style: webViewStyle,
     onLoad,
@@ -175,83 +184,85 @@ export const NativeEmbedView = ({
             : { width: '100%', height: '100%' }
         }
       >
-        <WebView
-          ref={webViewRef}
-          originWhitelist={['*']}
-          javaScriptEnabled
-          domStorageEnabled
-          startInLoadingState
-          mixedContentMode="always"
-          automaticallyAdjustContentInsets={false}
-          allowsInlineMediaPlayback={allowsInlineMediaPlayback}
-          mediaPlaybackRequiresUserAction={mediaPlaybackRequiresUserAction}
-          allowsFullscreenVideo={allowsFullscreenVideo}
-          setSupportMultipleWindows={openLinksInBrowser}
-          scrollEnabled={!autoHeightEnabled && !fitEnabled && !useAspectRatio}
-          bounces={false}
-          overScrollMode="never"
-          {...restWebViewProps}
-          source={source}
-          injectedJavaScriptBeforeContentLoaded={
-            uriBootScript
-              ? `${uriBootScript}\n${injectedJavaScriptBeforeContentLoaded ?? ''}`
-              : injectedJavaScriptBeforeContentLoaded
-          }
-          injectedJavaScript={
-            uriBootScript ? `${uriBootScript}\n${injectedJavaScript ?? ''}` : injectedJavaScript
-          }
-          onMessage={(event: { nativeEvent?: { data?: string } }) => {
-            if (typeof onMessage === 'function') {
-              onMessage(event);
+        {live ? (
+          <WebView
+            ref={webViewRef}
+            originWhitelist={['*']}
+            javaScriptEnabled
+            domStorageEnabled
+            startInLoadingState
+            mixedContentMode="always"
+            automaticallyAdjustContentInsets={false}
+            allowsInlineMediaPlayback={allowsInlineMediaPlayback}
+            mediaPlaybackRequiresUserAction={mediaPlaybackRequiresUserAction}
+            allowsFullscreenVideo={allowsFullscreenVideo}
+            setSupportMultipleWindows={openLinksInBrowser}
+            scrollEnabled={!autoHeightEnabled && !fitEnabled && !useAspectRatio}
+            bounces={false}
+            overScrollMode="never"
+            {...restWebViewProps}
+            source={source}
+            injectedJavaScriptBeforeContentLoaded={
+              uriBootScript
+                ? `${uriBootScript}\n${injectedJavaScriptBeforeContentLoaded ?? ''}`
+                : injectedJavaScriptBeforeContentLoaded
             }
-            if (!autoHeightEnabled) {
-              return;
+            injectedJavaScript={
+              uriBootScript ? `${uriBootScript}\n${injectedJavaScript ?? ''}` : injectedJavaScript
             }
-            const next = parseAutoHeightMessage(event?.nativeEvent?.data);
-            if (next) {
-              setMeasuredHeight((prev) => (prev === next ? prev : next));
-            }
-          }}
-          onShouldStartLoadWithRequest={(request: WebViewRequest) => {
-            if (shouldOpenInBrowser(request, uri, baseUrl, openLinksInBrowser)) {
-              openExternalUrl(request.url ?? '');
-              return false;
-            }
-            if (typeof onShouldStartLoadWithRequest === 'function') {
-              return onShouldStartLoadWithRequest(request);
-            }
-            return true;
-          }}
-          onOpenWindow={(event: WebViewOpenWindowEvent) => {
-            const targetUrl = event.nativeEvent?.targetUrl;
-            if (openLinksInBrowser && targetUrl && isHttpUrl(targetUrl)) {
-              openExternalUrl(targetUrl);
-              return;
-            }
-            if (typeof onOpenWindow === 'function') {
-              onOpenWindow(event);
-            }
-          }}
-          onLoad={(event: unknown) => {
-            setReady(true);
-            if (typeof onLoad === 'function') {
-              onLoad(event);
-            }
-          }}
-          onContentProcessDidTerminate={() => {
-            webViewRef.current?.reload();
-          }}
-          style={[
-            {
-              width: fitEnabled ? fitDesignWidth : '100%',
-              height: fitEnabled ? designHeight : '100%',
-              backgroundColor: 'transparent',
-            },
-            webViewStyle,
-          ]}
-        />
+            onMessage={(event: { nativeEvent?: { data?: string } }) => {
+              if (typeof onMessage === 'function') {
+                onMessage(event);
+              }
+              if (!autoHeightEnabled) {
+                return;
+              }
+              const next = parseAutoHeightMessage(event?.nativeEvent?.data);
+              if (next) {
+                setMeasuredHeight((prev) => (prev === next ? prev : next));
+              }
+            }}
+            onShouldStartLoadWithRequest={(request: WebViewRequest) => {
+              if (shouldOpenInBrowser(request, uri, baseUrl, openLinksInBrowser)) {
+                openExternalUrl(request.url ?? '');
+                return false;
+              }
+              if (typeof onShouldStartLoadWithRequest === 'function') {
+                return onShouldStartLoadWithRequest(request);
+              }
+              return true;
+            }}
+            onOpenWindow={(event: WebViewOpenWindowEvent) => {
+              const targetUrl = event.nativeEvent?.targetUrl;
+              if (openLinksInBrowser && targetUrl && isHttpUrl(targetUrl)) {
+                openExternalUrl(targetUrl);
+                return;
+              }
+              if (typeof onOpenWindow === 'function') {
+                onOpenWindow(event);
+              }
+            }}
+            onLoad={(event: unknown) => {
+              setReady(true);
+              if (typeof onLoad === 'function') {
+                onLoad(event);
+              }
+            }}
+            onContentProcessDidTerminate={() => {
+              webViewRef.current?.reload();
+            }}
+            style={[
+              {
+                width: fitEnabled ? fitDesignWidth : '100%',
+                height: fitEnabled ? designHeight : '100%',
+                backgroundColor: 'transparent',
+              },
+              webViewStyle,
+            ]}
+          />
+        ) : null}
       </View>
-      {!ready && hasPlaceholder ? (
+      {(!ready || embedDisabled) && hasPlaceholder ? (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{placeholder}</View>
       ) : null}
     </View>

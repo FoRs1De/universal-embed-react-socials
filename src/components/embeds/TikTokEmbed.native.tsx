@@ -35,6 +35,7 @@ export const TikTokEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   style,
   webViewProps,
   openLinksInBrowser = true,
@@ -75,6 +76,7 @@ export const TikTokEmbed = ({
         fallbackHeight={fallbackHeight}
         placeholder={resolvedPlaceholder}
         placeholderDisabled={placeholderDisabled}
+        embedDisabled={embedDisabled}
         allowsInlineMediaPlayback
         allowsFullscreenVideo={allowsFullscreenVideo !== false}
         openLinksInBrowser={openLinksInBrowser}
@@ -92,6 +94,7 @@ export const TikTokEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       allowsInlineMediaPlayback
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}

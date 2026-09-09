@@ -52,6 +52,7 @@ export const FacebookEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
   locale = DEFAULT_FACEBOOK_LOCALE,
   className,
@@ -75,28 +76,34 @@ export const FacebookEmbed = ({
   const autoHeight = height == null && !percentageHeight;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
   const { measured, iframeRef } = useAutoEmbedHeight({
-    enabled: !usePluginFallback && !!frameSrc,
-    measureSrcDoc: !usePluginFallback && !!frameSrc,
+    enabled: !embedDisabled && !usePluginFallback && !!frameSrc,
+    measureSrcDoc: !embedDisabled && !usePluginFallback && !!frameSrc,
     measureSelector: 'iframe',
   });
   const contentHeight =
     measured != null && measured >= FACEBOOK_CONTENT_MIN ? measured : undefined;
-  const ready = usePluginFallback ? pluginReady : contentHeight != null;
+  const ready = !embedDisabled && (usePluginFallback ? pluginReady : contentHeight != null);
 
   useEffect(() => {
+    if (embedDisabled) {
+      setFrameSrc(undefined);
+      setUsePluginFallback(false);
+      setPluginReady(false);
+      return;
+    }
     const blob = new Blob([embedHtml], { type: 'text/html' });
     const next = URL.createObjectURL(blob);
     setFrameSrc(next);
     return () => URL.revokeObjectURL(next);
-  }, [embedHtml]);
+  }, [embedHtml, embedDisabled]);
 
   useEffect(() => {
-    if (!autoHeight || ready || usePluginFallback) {
+    if (embedDisabled || !autoHeight || ready || usePluginFallback) {
       return;
     }
     const timer = window.setTimeout(() => setUsePluginFallback(true), SDK_FALLBACK_MS);
     return () => window.clearTimeout(timer);
-  }, [autoHeight, ready, usePluginFallback]);
+  }, [autoHeight, ready, embedDisabled, usePluginFallback]);
 
   const frameHeight =
     typeof height === 'number' ? height : (contentHeight ?? fallbackHeight);
@@ -148,7 +155,7 @@ export const FacebookEmbed = ({
         style={style}
       >
         <MediaFrame showPlaceholder={showPlaceholder} placeholder={resolvedPlaceholder}>
-          {usePluginFallback ? (
+          {embedDisabled ? null : usePluginFallback ? (
             <IFrame
               src={buildFacebookPluginSrc(url, pluginWidth, fallbackHeight, locale)}
               height={fallbackHeight}

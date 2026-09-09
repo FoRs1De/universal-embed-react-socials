@@ -29,6 +29,7 @@ export const PinterestEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   className,
   style,
 }: PinterestEmbedProps) => {
@@ -44,12 +45,17 @@ export const PinterestEmbed = ({
   const percentageHeight = isPercentage(height);
 
   useEffect(() => {
+    if (embedDisabled) {
+      setFrameSrc(undefined);
+      setPinHeight(0);
+      return;
+    }
     const blob = new Blob([embedHtml], { type: 'text/html' });
     const next = URL.createObjectURL(blob);
     setFrameSrc(next);
     setPinHeight(0);
     return () => URL.revokeObjectURL(next);
-  }, [embedHtml]);
+  }, [embedHtml, embedDisabled]);
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
@@ -66,8 +72,10 @@ export const PinterestEmbed = ({
   }, [embedId]);
 
   const frameHeight = typeof height === 'number' ? height : pinHeight;
-  const ready = frameHeight > 0;
-  const shellHeight = percentageHeight ? '100%' : frameHeight || undefined;
+  const ready = !embedDisabled && frameHeight > 0;
+  const shellHeight = percentageHeight
+    ? '100%'
+    : frameHeight || (embedDisabled ? officialEmbedHeight : undefined);
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url: postHref,
@@ -105,7 +113,7 @@ export const PinterestEmbed = ({
         style={style}
       >
         <MediaFrame showPlaceholder={!ready && !placeholderDisabled} placeholder={resolvedPlaceholder}>
-          {frameSrc ? (
+          {embedDisabled || !frameSrc ? null : (
             <IFrame
               src={frameSrc}
               width="100%"
@@ -117,7 +125,7 @@ export const PinterestEmbed = ({
                 overflow: 'hidden',
               }}
             />
-          ) : null}
+          )}
         </MediaFrame>
       </EmbedShell>
     </div>

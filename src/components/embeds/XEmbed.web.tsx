@@ -31,6 +31,7 @@ export const XEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
+  embedDisabled = false,
   twitterTweetEmbedProps,
   className,
   style,
@@ -43,10 +44,14 @@ export const XEmbed = ({
   const percentageHeight = isPercentage(height);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
-    enabled: height == null && !percentageHeight,
+    enabled: !embedDisabled && height == null && !percentageHeight,
   });
 
   useEffect(() => {
+    if (embedDisabled) {
+      setReady(false);
+      return;
+    }
     const win = frm.window as Window & { twttr?: { widgets?: { load?: (el?: Element) => void } } };
     const doc = frm.document;
     if (!doc) {
@@ -77,7 +82,7 @@ export const XEmbed = ({
       }
     }, 50);
     return cleanup;
-  }, [embedId, frm.document, frm.window, postId, twitterTweetEmbedProps?.onLoad]);
+  }, [embedId, frm.document, frm.window, postId, embedDisabled, twitterTweetEmbedProps?.onLoad]);
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
@@ -104,7 +109,7 @@ export const XEmbed = ({
     providerHeight: defaultPlaceholderHeight,
   });
   const { frameHeight, showPlaceholder } = resolveEmbedFrame({
-    ready,
+    ready: !embedDisabled && ready,
     measuredHeight: observedHeight,
     fallbackHeight: defaultPlaceholderHeight,
     scale,
@@ -115,11 +120,13 @@ export const XEmbed = ({
     <div ref={boxRef} style={boxStyle}>
     <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
+      {embedDisabled ? null : (
       <Box id={embedId}>
         <blockquote className="twitter-tweet">
           <a href={`https://twitter.com/i/status/${postId}`}>{linkText}</a>
         </blockquote>
       </Box>
+      )}
       </div>
       {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
         <Box style={placeholderOverlayStyle}>

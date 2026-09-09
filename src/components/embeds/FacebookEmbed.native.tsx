@@ -26,6 +26,7 @@ export const FacebookEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
   locale = DEFAULT_FACEBOOK_LOCALE,
   style,
@@ -64,6 +65,7 @@ export const FacebookEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />

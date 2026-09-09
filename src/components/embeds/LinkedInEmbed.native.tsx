@@ -25,6 +25,7 @@ export const LinkedInEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   style,
   webViewProps,
   openLinksInBrowser = true,
@@ -59,6 +60,7 @@ export const LinkedInEmbed = ({
       fallbackHeight={officialEmbedHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />

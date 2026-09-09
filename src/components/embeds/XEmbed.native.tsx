@@ -25,6 +25,7 @@ export const XEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
+  embedDisabled = false,
   twitterTweetEmbedProps,
   style,
   webViewProps,
@@ -60,6 +61,7 @@ export const XEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />

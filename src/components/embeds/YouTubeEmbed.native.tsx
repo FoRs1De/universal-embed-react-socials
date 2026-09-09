@@ -31,6 +31,7 @@ export const YouTubeEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
+  embedDisabled = false,
   youTubeProps,
   style,
   webViewProps,
@@ -76,6 +77,7 @@ export const YouTubeEmbed = ({
       fallbackHeight={defaultPlaceholderHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       allowsInlineMediaPlayback
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}

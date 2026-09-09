@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
@@ -30,14 +30,21 @@ export const LinkedInEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   className,
   style,
 }: LinkedInEmbedProps) => {
   const [ready, setReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+
+  useEffect(() => {
+    if (embedDisabled) {
+      setReady(false);
+    }
+  }, [embedDisabled]);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { frameHeight: shellHeight, showPlaceholder } = resolveEmbedFrame({
-    ready,
+    ready: !embedDisabled && ready,
     fallbackHeight: officialEmbedHeight,
     scale,
     height,
@@ -80,6 +87,7 @@ export const LinkedInEmbed = ({
         style={style}
       >
         <MediaFrame showPlaceholder={showPlaceholder && !placeholderDisabled} placeholder={resolvedPlaceholder}>
+          {embedDisabled ? null : (
           <IFrame
             className="linkedin-post"
             src={url}
@@ -89,6 +97,7 @@ export const LinkedInEmbed = ({
             title="LinkedIn embed"
             style={embedScaleStyle(scale, officialEmbedWidth)}
           />
+          )}
         </MediaFrame>
       </EmbedShell>
     </div>

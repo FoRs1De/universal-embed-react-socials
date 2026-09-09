@@ -153,6 +153,7 @@ Every embed accepts:
 - `placeholderWidth` / `placeholderHeight` / `placeholderStyle` — optional overrides. By default the placeholder matches the embed size, or the provider’s default size before the embed has measured.
 - `placeholderImageUrl` / `placeholderSpinner` / `placeholderSpinnerDisabled` / `placeholderProps`
 - `placeholderDisabled` — hide the placeholder. `embedPlaceholder` still works as a deprecated alias of `placeholder`.
+- `embedDisabled` — keep the placeholder and do not load the live embed (iframe, WebView, or provider scripts) until this is `false`.
 - `className` / `style`
 - `webViewProps` (React Native only)
 - `openLinksInBrowser` (React Native only) — open tapped embed links in the system browser. Defaults to `true`. Ignored on web.

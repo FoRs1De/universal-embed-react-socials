@@ -42,6 +42,11 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   /** @deprecated Use `placeholder`. */
   embedPlaceholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
+  /**
+   * When true, keep the placeholder and do not load the live embed
+   * (iframe, WebView, or provider scripts). Default `false`.
+   */
+  embedDisabled?: boolean;
   /** Extra `react-native-webview` props. Native only. */
   webViewProps?: EmbedWebViewProps;
   /**

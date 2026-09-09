@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, IFrame } from '../../host';
 import { aspectRatioHeight, collapsedEmbedStyle, embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
@@ -28,11 +28,18 @@ export const YouTubeEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled,
+  embedDisabled = false,
   youTubeProps,
   className,
   style,
 }: YouTubeEmbedProps) => {
   const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (embedDisabled) {
+      setReady(false);
+    }
+  }, [embedDisabled]);
   const videoId = youTubeProps?.videoId ?? getYouTubeVideoId(url);
   const start = getYouTubeStart(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
@@ -67,7 +74,7 @@ export const YouTubeEmbed = ({
     providerHeight: typeof embedHeight === 'number' ? embedHeight : aspectFallback,
   });
   const hasPlaceholder = resolvedPlaceholder != null;
-  const reserveFrame = ready || hasPlaceholder;
+  const reserveFrame = ready || hasPlaceholder || embedDisabled;
 
   return (
     <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
@@ -83,7 +90,8 @@ export const YouTubeEmbed = ({
           ...style,
         }}
       >
-        <MediaFrame showPlaceholder={!ready && hasPlaceholder} placeholder={resolvedPlaceholder}>
+        <MediaFrame showPlaceholder={(!ready || embedDisabled) && hasPlaceholder} placeholder={resolvedPlaceholder}>
+          {embedDisabled ? null : (
           <Box style={{ width: '100%', height: '100%', visibility: ready ? 'visible' : 'hidden' }}>
             <IFrame
               className={youTubeProps?.className ?? 'youtube-iframe'}
@@ -99,6 +107,7 @@ export const YouTubeEmbed = ({
               }}
             />
           </Box>
+          )}
         </MediaFrame>
       </EmbedShell>
     </div>

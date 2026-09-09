@@ -28,6 +28,7 @@ export const InstagramEmbed = ({
   placeholderStyle,
   embedPlaceholder,
   placeholderDisabled = false,
+  embedDisabled = false,
   igVersion = DEFAULT_INSTAGRAM_API_VERSION,
   apiVersion,
   style,
@@ -70,6 +71,7 @@ export const InstagramEmbed = ({
       fallbackHeight={fallbackHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
+      embedDisabled={embedDisabled}
       openLinksInBrowser={openLinksInBrowser}
       webViewProps={webViewProps}
     />
