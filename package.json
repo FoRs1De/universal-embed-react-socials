@@ -16,8 +16,8 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "react-native": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "react-native": "./src/index.ts",
       "default": "./dist/index.js"
     }
   },
