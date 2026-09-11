@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 export interface PlaceholderEmbedProps {
   url: string;
-  linkText?: string;
+  placeholderText?: string;
   imageUrl?: string;
   spinner?: ReactNode;
   spinnerDisabled?: boolean;

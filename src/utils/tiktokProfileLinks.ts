@@ -1,4 +1,4 @@
-import type { EmbedWebViewProps } from '../types';
+import type { EmbedWebViewMessageEvent, EmbedWebViewProps } from '../types';
 
 const messageType = 'rsme:tiktok-profile-link';
 
@@ -58,9 +58,9 @@ export const withTikTokProfileLinks = (
     `${tikTokProfileLinkScript}\n${webViewProps?.injectedJavaScriptBeforeContentLoaded ?? ''}\ntrue;`,
   injectedJavaScript:
     `${tikTokProfileLinkScript}\n${webViewProps?.injectedJavaScript ?? ''}\ntrue;`,
-  onMessage: (event: { nativeEvent?: { data?: string } }) => {
-    const profileUrl = parseProfileLink(event.nativeEvent?.data);
+  onMessage: (event: EmbedWebViewMessageEvent) => {
+    const profileUrl = parseProfileLink(event.nativeEvent.data);
     if (profileUrl) openProfile(profileUrl);
-    if (typeof webViewProps?.onMessage === 'function') webViewProps.onMessage(event);
+    webViewProps?.onMessage?.(event);
   },
 });

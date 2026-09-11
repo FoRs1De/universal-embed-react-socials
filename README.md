@@ -153,7 +153,7 @@ Every embed accepts:
 
 - `url`
 - `maxWidth` / `height` — On web, omit `maxWidth` to fill the container (`100%`). Pass a pixel or percent value to cap it. Omit `height` to size the embed from the platform when it reports it.
-- `linkText`
+- `placeholderText` — text on the default placeholder.
 - `placeholder` — custom loading UI. Replaces the default placeholder.
 - `placeholderWidth` / `placeholderHeight` / `placeholderStyle` — optional overrides. By default the placeholder matches the embed size, or the provider’s default size before the embed has measured.
 - `placeholderImageUrl` / `placeholderSpinner` / `placeholderSpinnerDisabled` / `placeholderProps`

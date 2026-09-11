@@ -40,7 +40,7 @@ const TikTokPlayerEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on TikTok',
+  placeholderText = 'View post on TikTok',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -72,7 +72,7 @@ const TikTokPlayerEmbed = ({
   );
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,
@@ -129,7 +129,7 @@ const TikTokOEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on TikTok',
+  placeholderText = 'View post on TikTok',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -213,7 +213,7 @@ const TikTokOEmbed = ({
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,
@@ -253,7 +253,7 @@ const TikTokOEmbed = ({
       <Box className="tiktok-embed-container">
         <blockquote key={embedContainerKey} className="tiktok-embed" cite={url} data-video-id={embedId}>
           <section>
-            <a href={url}>{linkText}</a>
+            <a href={url}>{placeholderText}</a>
           </section>
         </blockquote>
       </Box>

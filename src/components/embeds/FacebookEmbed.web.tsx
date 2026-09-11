@@ -40,7 +40,7 @@ export const FacebookEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on Facebook',
+  placeholderText = 'View post on Facebook',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -112,7 +112,7 @@ export const FacebookEmbed = ({
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,

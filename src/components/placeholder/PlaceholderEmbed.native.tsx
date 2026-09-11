@@ -7,7 +7,7 @@ export type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
 export const PlaceholderEmbed = ({
   url,
-  linkText = 'View post',
+  placeholderText = 'View post',
   imageUrl,
   spinner = <BorderSpinner />,
   allowJavaScriptUrls = true,
@@ -39,9 +39,9 @@ export const PlaceholderEmbed = ({
         ) : (
           <View style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}>
             {!spinnerDisabled && spinner}
-            {!!linkText && (
+            {!!placeholderText && (
               <Text style={{ color: '#000000', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 16 }}>
-                {linkText}
+                {placeholderText}
               </Text>
             )}
           </View>

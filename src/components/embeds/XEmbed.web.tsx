@@ -19,7 +19,7 @@ export const XEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on X',
+  placeholderText = 'View post on X',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -83,7 +83,7 @@ export const XEmbed = ({
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,
@@ -119,7 +119,7 @@ export const XEmbed = ({
       {embedDisabled ? null : (
       <Box id={embedId}>
         <blockquote className="twitter-tweet">
-          <a href={`https://twitter.com/i/status/${postId}`}>{linkText}</a>
+          <a href={`https://twitter.com/i/status/${postId}`}>{placeholderText}</a>
         </blockquote>
       </Box>
       )}

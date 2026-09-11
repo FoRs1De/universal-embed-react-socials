@@ -1,4 +1,12 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from "react";
+import type { EmbedWebViewProps } from "./webviewProps";
+
+export type {
+  EmbedWebViewMessageEvent,
+  EmbedWebViewNavigationRequest,
+  EmbedWebViewOpenWindowEvent,
+  EmbedWebViewProps,
+} from "./webviewProps";
 
 /** Custom loading UI, or a render function. Return `null` to reserve no space. */
 export type EmbedPlaceholder = ReactNode | (() => ReactNode);
@@ -14,11 +22,7 @@ export interface EmbedContainerProps {
   children?: ReactNode;
   id?: string;
   testID?: string;
-  [key: string]: unknown;
 }
-
-/** Extra props forwarded to the native `WebView`. Ignored on web. */
-export type EmbedWebViewProps = Record<string, unknown>;
 
 export interface CommonEmbedProps extends EmbedContainerProps {
   url: string;
@@ -26,7 +30,8 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   maxWidth?: string | number;
   /** Omit to size the embed from the platform when possible. */
   height?: string | number;
-  linkText?: string;
+  /** Text shown on the default placeholder. */
+  placeholderText?: string;
   /** Custom loading placeholder. Wins over the default UI. Pass `null` or `() => null` to render nothing and reserve no height. */
   placeholder?: EmbedPlaceholder;
   placeholderImageUrl?: string;

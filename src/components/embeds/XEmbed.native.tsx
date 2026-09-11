@@ -13,7 +13,7 @@ export const XEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on X',
+  placeholderText = 'View post on X',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -33,7 +33,7 @@ export const XEmbed = ({
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,

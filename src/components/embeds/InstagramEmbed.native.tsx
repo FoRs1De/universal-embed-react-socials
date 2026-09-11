@@ -15,7 +15,7 @@ export const InstagramEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on Instagram',
+  placeholderText = 'View post on Instagram',
   captioned = false,
   placeholderImageUrl,
   placeholderSpinner,
@@ -38,7 +38,7 @@ export const InstagramEmbed = ({
   const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: cleanUrlWithEndingSlash,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,

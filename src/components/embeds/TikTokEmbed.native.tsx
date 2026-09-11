@@ -26,7 +26,7 @@ export const TikTokEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'View post on TikTok',
+  placeholderText = 'View post on TikTok',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -49,7 +49,7 @@ export const TikTokEmbed = ({
   const fallbackHeight = usePlayer ? TIKTOK_PLAYER_FALLBACK_HEIGHT : defaultPlaceholderHeight;
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,

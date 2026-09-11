@@ -6,7 +6,7 @@ import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
 export interface ResolveEmbedPlaceholderOptions {
   url?: string;
-  linkText?: string;
+  placeholderText?: string;
   placeholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
   placeholderImageUrl?: string;
@@ -49,7 +49,7 @@ const placeholderBoxStyle = ({
 export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions): ReactNode => {
   const {
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,
@@ -80,7 +80,7 @@ export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions)
     <PlaceholderEmbed
       url={url ?? '#'}
       imageUrl={placeholderImageUrl}
-      linkText={linkText}
+      placeholderText={placeholderText}
       spinner={placeholderSpinner}
       spinnerDisabled={placeholderSpinnerDisabled}
       allowJavaScriptUrls={allowJavaScriptUrls}

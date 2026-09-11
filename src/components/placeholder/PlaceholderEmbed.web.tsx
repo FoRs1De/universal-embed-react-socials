@@ -11,7 +11,7 @@ export type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
 export const PlaceholderEmbed = ({
   url,
-  linkText = 'View post',
+  placeholderText = 'View post',
   imageUrl,
   spinner = <BorderSpinner />,
   allowJavaScriptUrls = true,
@@ -83,7 +83,7 @@ export const PlaceholderEmbed = ({
             }}
           >
             {!spinnerDisabled && spinner}
-            {!!linkText && (
+            {!!placeholderText && (
               <Txt
                 style={{
                   color: '#000000',
@@ -96,7 +96,7 @@ export const PlaceholderEmbed = ({
                   display: 'block',
                 }}
               >
-                {linkText}
+                {placeholderText}
               </Txt>
             )}
           </Box>
@@ -153,7 +153,7 @@ export const PlaceholderEmbed = ({
                   marginLeft: 16,
                 }}
               >
-                {linkText}
+                {placeholderText}
               </Txt>
               {!spinnerDisabled && <Box style={{ marginRight: 16 }}>{spinner}</Box>}
             </Box>

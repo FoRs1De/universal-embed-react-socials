@@ -16,7 +16,7 @@ export const YouTubeEmbed = ({
   url,
   maxWidth,
   height,
-  linkText = 'Watch on YouTube',
+  placeholderText = 'Watch on YouTube',
   placeholderImageUrl,
   placeholderSpinner,
   placeholderSpinnerDisabled = false,
@@ -54,7 +54,7 @@ export const YouTubeEmbed = ({
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
     url,
-    linkText,
+    placeholderText,
     placeholder,
     placeholderDisabled,
     placeholderImageUrl,

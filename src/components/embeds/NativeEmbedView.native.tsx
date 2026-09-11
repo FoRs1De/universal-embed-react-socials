@@ -211,10 +211,8 @@ export const NativeEmbedView = ({
             injectedJavaScript={
               uriBootScript ? `${uriBootScript}\n${injectedJavaScript ?? ''}` : injectedJavaScript
             }
-            onMessage={(event: { nativeEvent?: { data?: string } }) => {
-              if (typeof onMessage === 'function') {
-                onMessage(event);
-              }
+            onMessage={(event) => {
+              onMessage?.(event);
               if (!autoHeightEnabled) {
                 return;
               }
@@ -231,10 +229,7 @@ export const NativeEmbedView = ({
                 openExternalUrl(targetUrl);
                 return false;
               }
-              if (typeof onShouldStartLoadWithRequest === 'function') {
-                return onShouldStartLoadWithRequest(request);
-              }
-              return true;
+              return onShouldStartLoadWithRequest?.(request) ?? true;
             }}
             onOpenWindow={(event: WebViewOpenWindowEvent) => {
               const requestedUrl = event.nativeEvent?.targetUrl;
@@ -245,15 +240,11 @@ export const NativeEmbedView = ({
                 openExternalUrl(targetUrl);
                 return;
               }
-              if (typeof onOpenWindow === 'function') {
-                onOpenWindow(event);
-              }
+              onOpenWindow?.(event);
             }}
-            onLoad={(event: unknown) => {
+            onLoad={(event) => {
               setReady(true);
-              if (typeof onLoad === 'function') {
-                onLoad(event);
-              }
+              onLoad?.(event);
             }}
             onContentProcessDidTerminate={() => {
               webViewRef.current?.reload();
