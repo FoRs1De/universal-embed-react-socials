@@ -87,6 +87,13 @@ export const nativeAutoHeightScript = `
       if (!height) {
         height = wrapper.offsetHeight || document.documentElement.offsetHeight;
       }
+      var iframes = wrapper.getElementsByTagName('iframe');
+      for (var i = 0; i < iframes.length; i++) {
+        var bottom = Math.ceil(iframes[i].getBoundingClientRect().bottom);
+        if (bottom > height) {
+          height = bottom;
+        }
+      }
       height = Math.ceil(height);
       if (height && height !== lastHeight) {
         window.ReactNativeWebView.postMessage(JSON.stringify({ topic: topic, height: height }));
@@ -117,7 +124,7 @@ export const nativeAutoHeightScript = `
     window.addEventListener('resize', scheduleUpdate);
     var Observer = window.MutationObserver || window.WebKitMutationObserver;
     if (Observer) {
-      new Observer(scheduleUpdate).observe(wrapper, { childList: true, subtree: true });
+      new Observer(scheduleUpdate).observe(wrapper, { childList: true, subtree: true, attributes: true });
     }
     updateSize();
     true;

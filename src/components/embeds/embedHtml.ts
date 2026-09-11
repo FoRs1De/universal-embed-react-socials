@@ -1,3 +1,4 @@
+import { AUTO_HEIGHT_TOPIC } from "./nativeEmbedHeight";
 import { getFacebookSdkSrc } from "../../utils/apiVersion";
 import { escapeHtmlAttribute } from "../../utils/urls";
 
@@ -104,6 +105,9 @@ export const pinterestEmbedHtml = ({
           document.documentElement.style.height = visualH + 'px';
           document.body.style.height = visualH + 'px';
           window.parent.postMessage({ source: 'rsme-pinterest', id: id, height: visualH }, '*');
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ topic: '${AUTO_HEIGHT_TOPIC}', height: visualH }));
+          }
         }
         window.addEventListener('resize', fit);
         if (typeof ResizeObserver !== 'undefined') new ResizeObserver(fit).observe(wrap);
