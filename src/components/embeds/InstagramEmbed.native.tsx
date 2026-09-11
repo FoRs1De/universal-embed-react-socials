@@ -14,7 +14,6 @@ const captionedPlaceholderHeight = 640;
 export const InstagramEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Instagram',
   captioned = false,
@@ -26,24 +25,21 @@ export const InstagramEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
-  igVersion = DEFAULT_INSTAGRAM_API_VERSION,
-  apiVersion,
+  apiVersion = DEFAULT_INSTAGRAM_API_VERSION,
   style,
   webViewProps,
   openLinksInBrowser = true,
 }: InstagramEmbedProps) => {
-  const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedVersion = normalizeInstagramApiVersion(apiVersion);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
   const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: cleanUrlWithEndingSlash,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

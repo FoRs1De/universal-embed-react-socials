@@ -39,7 +39,6 @@ const EMBED_SUCCESS_STAGE = 'embed-success';
 const TikTokPlayerEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on TikTok',
   placeholderImageUrl,
@@ -50,7 +49,6 @@ const TikTokPlayerEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   tikTokProps,
@@ -65,7 +63,7 @@ const TikTokPlayerEmbed = ({
     }
   }, [embedDisabled]);
   const videoId = getTikTokVideoId(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const autoHeight = height == null;
   const aspectFallback = aspectRatioHeight(
     resolvedMaxWidth,
@@ -76,7 +74,6 @@ const TikTokPlayerEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,
@@ -131,7 +128,6 @@ const TikTokPlayerEmbed = ({
 const TikTokOEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on TikTok',
   placeholderImageUrl,
@@ -142,7 +138,6 @@ const TikTokOEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   scriptLoadDisabled = false,
@@ -159,7 +154,7 @@ const TikTokOEmbed = ({
   const embedContainerKey = `${placeholderId}-${processTime}`;
   const frm = useFrame(frame);
   const embedId = getTikTokVideoId(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
@@ -220,7 +215,6 @@ const TikTokOEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

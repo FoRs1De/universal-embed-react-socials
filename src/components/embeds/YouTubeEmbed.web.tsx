@@ -15,7 +15,6 @@ const borderRadius = 0;
 export const YouTubeEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'Watch on YouTube',
   placeholderImageUrl,
@@ -26,7 +25,6 @@ export const YouTubeEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled,
   embedDisabled = false,
   youTubeProps,
@@ -42,7 +40,7 @@ export const YouTubeEmbed = ({
   }, [embedDisabled]);
   const videoId = youTubeProps?.videoId ?? getYouTubeVideoId(url);
   const start = getYouTubeStart(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const percentageHeight = isPercentage(height);
   const autoHeight = height == null && youTubeProps?.opts?.height == null;
   const embedHeight = youTubeProps?.opts?.height ?? (percentageHeight ? '100%' : height);
@@ -58,7 +56,6 @@ export const YouTubeEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

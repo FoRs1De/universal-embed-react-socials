@@ -34,7 +34,6 @@ const instagramProcess = (win?: Window) =>
 export const InstagramEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Instagram',
   captioned = false,
@@ -46,20 +45,18 @@ export const InstagramEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   scriptLoadDisabled = false,
   retryDelay = 5000,
   retryDisabled = false,
-  igVersion = DEFAULT_INSTAGRAM_API_VERSION,
-  apiVersion,
+  apiVersion = DEFAULT_INSTAGRAM_API_VERSION,
   frame = undefined,
   debug = false,
   className,
   style,
 }: InstagramEmbedProps): ReactElement => {
-  const resolvedVersion = normalizeInstagramApiVersion(apiVersion ?? igVersion);
+  const resolvedVersion = normalizeInstagramApiVersion(apiVersion);
   const [stage, setStage] = useState(CHECK_SCRIPT_STAGE);
   const embedId = useId();
   const [processTime, setProcessTime] = useState(0);
@@ -157,7 +154,7 @@ export const InstagramEmbed = ({
   }, [stage, embedDisabled]);
 
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
@@ -169,7 +166,6 @@ export const InstagramEmbed = ({
     url: cleanUrlWithEndingSlash,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

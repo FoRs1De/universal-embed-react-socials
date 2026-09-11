@@ -39,7 +39,6 @@ const buildFacebookPluginSrc = (url: string, width: number, height: number, loca
 export const FacebookEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Facebook',
   placeholderImageUrl,
@@ -50,7 +49,6 @@ export const FacebookEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
@@ -60,7 +58,7 @@ export const FacebookEmbed = ({
 }: FacebookEmbedProps) => {
   const [usePluginFallback, setUsePluginFallback] = useState(false);
   const [pluginReady, setPluginReady] = useState(false);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const percentageWidth = isPercentage(resolvedMaxWidth);
   const percentageHeight = isPercentage(height);
   const pluginWidth =
@@ -116,7 +114,6 @@ export const FacebookEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

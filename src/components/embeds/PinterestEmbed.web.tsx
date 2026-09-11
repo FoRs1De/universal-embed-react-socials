@@ -16,7 +16,6 @@ export const PinterestEmbed = ({
   url,
   postUrl,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Pinterest',
   placeholderImageUrl,
@@ -27,7 +26,6 @@ export const PinterestEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   className,
@@ -41,7 +39,7 @@ export const PinterestEmbed = ({
   );
   const [frameSrc, setFrameSrc] = useState<string | undefined>();
   const [pinHeight, setPinHeight] = useState(0);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const percentageHeight = isPercentage(height);
 
   useEffect(() => {
@@ -82,7 +80,6 @@ export const PinterestEmbed = ({
     url: postHref,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

@@ -24,12 +24,10 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   url: string;
   /** Cap the embed width. On web the embed is `100%` of its container by default; pass a pixel or percent value to cap it. */
   maxWidth?: string | number;
-  /** @deprecated Use `maxWidth`. */
-  width?: string | number;
   /** Omit to size the embed from the platform when possible. */
   height?: string | number;
   linkText?: string;
-  /** Custom loading placeholder. Wins over the default UI and `embedPlaceholder`. Pass `null` or `() => null` to render nothing and reserve no height. */
+  /** Custom loading placeholder. Wins over the default UI. Pass `null` or `() => null` to render nothing and reserve no height. */
   placeholder?: EmbedPlaceholder;
   placeholderImageUrl?: string;
   placeholderSpinner?: ReactNode;
@@ -39,8 +37,6 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   /** Height of the placeholder box. Defaults to the embed height, then the provider default. */
   placeholderHeight?: string | number;
   placeholderStyle?: CSSProperties;
-  /** @deprecated Use `placeholder`. */
-  embedPlaceholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
   /**
    * When true, keep the placeholder and do not load the live embed

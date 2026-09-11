@@ -8,7 +8,6 @@ export interface ResolveEmbedPlaceholderOptions {
   url?: string;
   linkText?: string;
   placeholder?: EmbedPlaceholder;
-  embedPlaceholder?: EmbedPlaceholder;
   placeholderDisabled?: boolean;
   placeholderImageUrl?: string;
   placeholderSpinner?: ReactNode;
@@ -52,7 +51,6 @@ export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions)
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,
@@ -66,9 +64,8 @@ export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions)
 
   const boxStyle = placeholderBoxStyle(options);
   const fillStyle: CSSProperties = { width: '100%', height: '100%' };
-  const explicit = placeholder !== undefined ? placeholder : embedPlaceholder;
-  if (explicit !== undefined) {
-    const custom = typeof explicit === 'function' ? explicit() : explicit;
+  if (placeholder !== undefined) {
+    const custom = typeof placeholder === 'function' ? placeholder() : placeholder;
     if (custom == null || custom === false) {
       return null;
     }

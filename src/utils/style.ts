@@ -53,13 +53,11 @@ export const placeholderOverlayStyle: CSSProperties = {
   overflow: 'hidden',
 };
 
-/** Web embeds fill the parent unless `maxWidth` / `width` is set. */
+/** Web embeds fill the parent unless `maxWidth` is set. */
 export const DEFAULT_WEB_EMBED_WIDTH = '100%';
 
-export const resolveEmbedMaxWidth = (
-  maxWidth?: string | number,
-  width?: string | number,
-): string | number => maxWidth ?? width ?? DEFAULT_WEB_EMBED_WIDTH;
+export const resolveEmbedMaxWidth = (maxWidth?: string | number): string | number =>
+  maxWidth ?? DEFAULT_WEB_EMBED_WIDTH;
 
 export const embedMaxWidthStyle = (
   maxWidth?: string | number,

@@ -12,7 +12,6 @@ const defaultPlaceholderHeight = 372;
 export const FacebookEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Facebook',
   placeholderImageUrl,
@@ -23,7 +22,6 @@ export const FacebookEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
@@ -32,7 +30,7 @@ export const FacebookEmbed = ({
   webViewProps,
   openLinksInBrowser = true,
 }: FacebookEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const resolvedWidth = isPercentage(resolvedMaxWidth)
     ? '100%'
     : resolvedMaxWidth;
@@ -40,7 +38,6 @@ export const FacebookEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

@@ -61,7 +61,7 @@ import { InstagramEmbed } from "@fors1de/universal-embed-react-socials";
 />;
 ```
 
-`apiVersion` maps to Instagram's `data-instgrm-version`. The original `igVersion` prop still works; `apiVersion` wins if both are set.
+`apiVersion` maps to Instagram's `data-instgrm-version`.
 
 ### LinkedIn
 
@@ -152,12 +152,12 @@ Pass extra `react-native-webview` options with `webViewProps` (ignored on web):
 Every embed accepts:
 
 - `url`
-- `maxWidth` / `height` — On web, omit `maxWidth` to fill the container (`100%`). Pass a pixel or percent value to cap it. Omit `height` to size the embed from the platform when it reports it. `width` still works as a deprecated alias of `maxWidth`.
+- `maxWidth` / `height` — On web, omit `maxWidth` to fill the container (`100%`). Pass a pixel or percent value to cap it. Omit `height` to size the embed from the platform when it reports it.
 - `linkText`
 - `placeholder` — custom loading UI. Replaces the default placeholder.
 - `placeholderWidth` / `placeholderHeight` / `placeholderStyle` — optional overrides. By default the placeholder matches the embed size, or the provider’s default size before the embed has measured.
 - `placeholderImageUrl` / `placeholderSpinner` / `placeholderSpinnerDisabled` / `placeholderProps`
-- `placeholderDisabled` — hide the placeholder. `embedPlaceholder` still works as a deprecated alias of `placeholder`.
+- `placeholderDisabled` — hide the placeholder.
 - `embedDisabled` — keep the placeholder and do not load the live embed (iframe, WebView, or provider scripts) until this is `false`.
 - `className` / `style`
 - `webViewProps` (React Native only)

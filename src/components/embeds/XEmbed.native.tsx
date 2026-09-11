@@ -12,7 +12,6 @@ const defaultPlaceholderHeight = 560;
 export const XEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on X',
   placeholderImageUrl,
@@ -23,7 +22,6 @@ export const XEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled,
   embedDisabled = false,
   twitterTweetEmbedProps,
@@ -31,13 +29,12 @@ export const XEmbed = ({
   webViewProps,
   openLinksInBrowser = true,
 }: XEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

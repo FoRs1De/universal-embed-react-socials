@@ -12,7 +12,6 @@ export const PinterestEmbed = ({
   url,
   postUrl,
   maxWidth,
-  width,
   height,
   linkText = 'View post on Pinterest',
   placeholderImageUrl,
@@ -23,19 +22,17 @@ export const PinterestEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   style,
   webViewProps,
   openLinksInBrowser = true,
 }: PinterestEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: postUrl ?? url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

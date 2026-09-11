@@ -9,8 +9,6 @@ export interface InstagramEmbedProps extends CommonEmbedProps {
   retryDelay?: number;
   retryDisabled?: boolean;
   /** Instagram embed.js `data-instgrm-version`. Current official embed markup uses `"14"`. */
-  igVersion?: string;
-  /** Alias for `igVersion`. Takes precedence when both are set. */
   apiVersion?: string;
   frame?: Frame;
   debug?: boolean;

@@ -25,7 +25,6 @@ const defaultPlaceholderHeight = 739;
 export const TikTokEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on TikTok',
   placeholderImageUrl,
@@ -36,7 +35,6 @@ export const TikTokEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   style,
@@ -45,7 +43,7 @@ export const TikTokEmbed = ({
   allowsFullscreenVideo,
   tikTokProps,
 }: TikTokEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const videoId = getTikTokVideoId(url);
   const usePlayer = usesTikTokPlayer(allowsFullscreenVideo, tikTokProps);
   const fallbackHeight = usePlayer ? TIKTOK_PLAYER_FALLBACK_HEIGHT : defaultPlaceholderHeight;
@@ -53,7 +51,6 @@ export const TikTokEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

@@ -18,7 +18,6 @@ const borderRadius = 12;
 export const XEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'View post on X',
   placeholderImageUrl,
@@ -29,7 +28,6 @@ export const XEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled,
   embedDisabled = false,
   twitterTweetEmbedProps,
@@ -40,7 +38,7 @@ export const XEmbed = ({
   const [ready, setReady] = useState(false);
   const embedId = useId();
   const frm = useFrame();
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
@@ -87,7 +85,6 @@ export const XEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

@@ -12,7 +12,6 @@ export const LinkedInEmbed = ({
   url,
   postUrl,
   maxWidth,
-  width,
   height,
   linkText = 'View post on LinkedIn',
   placeholderImageUrl,
@@ -23,19 +22,17 @@ export const LinkedInEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled = false,
   embedDisabled = false,
   style,
   webViewProps,
   openLinksInBrowser = true,
 }: LinkedInEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url: postUrl ?? url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,

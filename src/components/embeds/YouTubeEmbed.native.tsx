@@ -18,7 +18,6 @@ const youTubeHeaders = { Referer: `${YOUTUBE_NATIVE_ORIGIN}/` };
 export const YouTubeEmbed = ({
   url,
   maxWidth,
-  width,
   height,
   linkText = 'Watch on YouTube',
   placeholderImageUrl,
@@ -29,7 +28,6 @@ export const YouTubeEmbed = ({
   placeholderWidth,
   placeholderHeight,
   placeholderStyle,
-  embedPlaceholder,
   placeholderDisabled,
   embedDisabled = false,
   youTubeProps,
@@ -37,7 +35,7 @@ export const YouTubeEmbed = ({
   webViewProps,
   openLinksInBrowser = true,
 }: YouTubeEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const videoId = youTubeProps?.videoId ?? getYouTubeVideoId(url);
   const start = getYouTubeStart(url);
   const playerVars: YouTubePlayerVars = {
@@ -51,7 +49,6 @@ export const YouTubeEmbed = ({
     url,
     linkText,
     placeholder,
-    embedPlaceholder,
     placeholderDisabled,
     placeholderImageUrl,
     placeholderSpinner,
