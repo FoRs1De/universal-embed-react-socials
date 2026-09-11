@@ -82,6 +82,12 @@ export const nativeAutoHeightScript = `
         return;
       }
       clearTimeout(checkPostMessageTimeout);
+      var widget = wrapper.querySelector('.twitter-tweet,.instagram-media,.tiktok-embed,.fb-post');
+      if (widget && wrapper.getElementsByTagName('iframe').length === 0) {
+        clearTimeout(forceRefreshTimeout);
+        forceRefreshTimeout = setTimeout(scheduleUpdate, 200);
+        return;
+      }
       var result = wrapper.getBoundingClientRect();
       var height = result.top > 0 ? result.height + result.top : result.height;
       if (!height) {

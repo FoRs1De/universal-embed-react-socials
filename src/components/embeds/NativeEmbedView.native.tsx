@@ -106,9 +106,16 @@ export const NativeEmbedView = ({
   const [boxWidth, setBoxWidth] = useState(0);
   const [measuredHeight, setMeasuredHeight] = useState(0);
   const [lazyVisible, setLazyVisible] = useState(!lazy);
+  const [sizeTimedOut, setSizeTimedOut] = useState(false);
   const hasPlaceholder = placeholder != null && !placeholderDisabled;
   const blocked = embedDisabled || (lazy && !lazyVisible);
   const lazyCheckRef = useRef(() => {});
+
+  useEffect(() => {
+    setReady(false);
+    setMeasuredHeight(0);
+    setSizeTimedOut(false);
+  }, [html, uri]);
 
   useEffect(() => {
     if (embedDisabled) {
@@ -158,6 +165,16 @@ export const NativeEmbedView = ({
   }, [embedDisabled, lazy, lazyVisible]);
   const fitEnabled = fitDesignWidth != null && fitDesignWidth > 0 && height == null;
   const autoHeightEnabled = autoHeight ?? (height == null && aspectRatio == null);
+  const waitingForSize = autoHeightEnabled && measuredHeight <= 0 && !sizeTimedOut;
+  const showPlaceholder = hasPlaceholder && (blocked || !ready || waitingForSize);
+
+  useEffect(() => {
+    if (!waitingForSize || !ready) {
+      return;
+    }
+    const id = setTimeout(() => setSizeTimedOut(true), 8000);
+    return () => clearTimeout(id);
+  }, [ready, waitingForSize]);
   const useAspectRatio = aspectRatio != null && height == null && !autoHeightEnabled;
   const designHeight =
     measuredHeight > 0 ? measuredHeight : toNativeSize(height, fallbackHeight);
@@ -306,7 +323,7 @@ export const NativeEmbedView = ({
           />
         ) : null}
       </View>
-      {(!ready || blocked) && hasPlaceholder ? (
+      {showPlaceholder ? (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{placeholder}</View>
       ) : null}
     </View>
