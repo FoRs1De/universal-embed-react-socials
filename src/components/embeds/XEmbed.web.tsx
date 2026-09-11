@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { embedScaleStyle, isPercentage, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getXPostId } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -41,10 +41,9 @@ export const XEmbed = ({
   const embedId = useId();
   const frm = useFrame();
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const percentageHeight = isPercentage(height);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
-    enabled: !embedDisabled && height == null && !percentageHeight,
+    enabled: !embedDisabled && height == null,
   });
 
   useEffect(() => {

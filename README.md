@@ -93,6 +93,11 @@ import { TikTokEmbed } from "@fors1de/universal-embed-react-socials";
 <TikTokEmbed url="https://www.tiktok.com/@epicgardening/video/7055411162212633903" />;
 ```
 
+Set `allowsFullscreenVideo` or pass `tikTokProps` to use TikTok's Embed Player.
+On React Native, with `openLinksInBrowser` enabled (the default), the player's
+app-opening redirects open the original HTTPS post URL. This avoids sending
+Safari through an app-install link when tapping the TikTok logo.
+
 ### X (Twitter)
 
 ```jsx

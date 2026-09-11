@@ -4,7 +4,7 @@ import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedH
 import { useFrame } from '../../hooks/useFrame';
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { classNames } from '../../utils/classNames';
-import { embedScaleStyle, isPercentage, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getCleanInstagramUrl } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -158,11 +158,10 @@ export const InstagramEmbed = ({
 
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const percentageHeight = isPercentage(height);
   const fallbackHeight = captioned ? captionedPlaceholderHeight : defaultPlaceholderHeight;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
-    enabled: !embedDisabled && height == null && !percentageHeight,
+    enabled: !embedDisabled && height == null,
   });
   const embedReady = !embedDisabled && stage === EMBED_SUCCESS_STAGE;
 

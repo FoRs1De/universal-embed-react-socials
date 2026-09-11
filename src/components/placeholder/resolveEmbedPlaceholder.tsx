@@ -37,18 +37,7 @@ const placeholderBoxStyle = ({
   embedHeight,
   providerWidth,
   providerHeight,
-}: Pick<
-  ResolveEmbedPlaceholderOptions,
-  | 'placeholderWidth'
-  | 'placeholderHeight'
-  | 'placeholderStyle'
-  | 'placeholderProps'
-  | 'extraStyle'
-  | 'embedWidth'
-  | 'embedHeight'
-  | 'providerWidth'
-  | 'providerHeight'
->): CSSProperties => ({
+}: ResolveEmbedPlaceholderOptions): CSSProperties => ({
   boxSizing: 'border-box',
   maxWidth: '100%',
   ...extraStyle,
@@ -58,41 +47,24 @@ const placeholderBoxStyle = ({
   ...placeholderProps?.style,
 });
 
-export const resolveEmbedPlaceholder = ({
-  url,
-  linkText,
-  placeholder,
-  embedPlaceholder,
-  placeholderDisabled,
-  placeholderImageUrl,
-  placeholderSpinner,
-  placeholderSpinnerDisabled,
-  placeholderProps,
-  placeholderWidth,
-  placeholderHeight,
-  placeholderStyle,
-  extraStyle,
-  embedWidth,
-  embedHeight,
-  providerWidth,
-  providerHeight,
-  allowJavaScriptUrls,
-}: ResolveEmbedPlaceholderOptions): ReactNode => {
+export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions): ReactNode => {
+  const {
+    url,
+    linkText,
+    placeholder,
+    embedPlaceholder,
+    placeholderDisabled,
+    placeholderImageUrl,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderProps,
+    allowJavaScriptUrls,
+  } = options;
   if (placeholderDisabled) {
     return null;
   }
 
-  const boxStyle = placeholderBoxStyle({
-    placeholderWidth,
-    placeholderHeight,
-    placeholderStyle,
-    placeholderProps,
-    extraStyle,
-    embedWidth,
-    embedHeight,
-    providerWidth,
-    providerHeight,
-  });
+  const boxStyle = placeholderBoxStyle(options);
   const fillStyle: CSSProperties = { width: '100%', height: '100%' };
   const explicit = placeholder !== undefined ? placeholder : embedPlaceholder;
   if (explicit !== undefined) {

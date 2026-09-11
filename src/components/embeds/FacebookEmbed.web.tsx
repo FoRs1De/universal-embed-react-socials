@@ -73,7 +73,7 @@ export const FacebookEmbed = ({
   );
   const [frameSrc, setFrameSrc] = useState<string | undefined>();
   const fallbackHeight = facebookPluginHeight(pluginWidth);
-  const autoHeight = height == null && !percentageHeight;
+  const autoHeight = height == null;
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
   const { measured, iframeRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && !usePluginFallback && !!frameSrc,
@@ -109,7 +109,7 @@ export const FacebookEmbed = ({
     typeof height === 'number' ? height : (contentHeight ?? fallbackHeight);
   const shellHeight = percentageHeight
     ? '100%'
-    : Math.round(Number(frameHeight) * (typeof height === 'number' ? 1 : scale));
+    : Math.round(frameHeight * (typeof height === 'number' ? 1 : scale));
   const showPlaceholder = !ready && !placeholderDisabled;
 
   const resolvedPlaceholder = resolveEmbedPlaceholder({
@@ -166,7 +166,7 @@ export const FacebookEmbed = ({
             <IFrame
               iframeRef={iframeRef}
               src={frameSrc}
-              height={typeof height === 'number' ? height : frameHeight}
+              height={frameHeight}
               {...facebookFrameProps}
             />
           ) : null}

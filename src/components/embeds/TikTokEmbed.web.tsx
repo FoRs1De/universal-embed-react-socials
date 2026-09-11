@@ -7,7 +7,6 @@ import {
   collapsedEmbedStyle,
   embedMaxWidthStyle,
   embedScaleStyle,
-  isPercentage,
   placeholderOverlayStyle,
   resolveEmbedFrame,
   resolveEmbedMaxWidth,
@@ -67,8 +66,7 @@ const TikTokPlayerEmbed = ({
   }, [embedDisabled]);
   const videoId = getTikTokVideoId(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
-  const percentageHeight = isPercentage(height);
-  const autoHeight = height == null && !percentageHeight;
+  const autoHeight = height == null;
   const aspectFallback = aspectRatioHeight(
     resolvedMaxWidth,
     TIKTOK_PLAYER_ASPECT_RATIO,

@@ -44,7 +44,7 @@ export const YouTubeEmbed = ({
   const start = getYouTubeStart(url);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const percentageHeight = isPercentage(height);
-  const autoHeight = height == null && youTubeProps?.opts?.height == null && !percentageHeight;
+  const autoHeight = height == null && youTubeProps?.opts?.height == null;
   const embedHeight = youTubeProps?.opts?.height ?? (percentageHeight ? '100%' : height);
   const aspectFallback = aspectRatioHeight(resolvedMaxWidth, 16 / 9, defaultPlaceholderHeight);
 

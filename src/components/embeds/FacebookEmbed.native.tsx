@@ -7,7 +7,6 @@ import { NativeEmbedView } from './NativeEmbedView';
 
 export type { FacebookEmbedProps } from './FacebookEmbed.types';
 
-const defaultEmbedWidth = 550;
 const defaultPlaceholderHeight = 372;
 
 export const FacebookEmbed = ({
@@ -36,7 +35,7 @@ export const FacebookEmbed = ({
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth, width);
   const resolvedWidth = isPercentage(resolvedMaxWidth)
     ? '100%'
-    : (resolvedMaxWidth ?? defaultEmbedWidth);
+    : resolvedMaxWidth;
   const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
     url,
     linkText,

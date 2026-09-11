@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
-import { PINTEREST_DESIGN_WIDTH, pinterestEmbedHtml } from './embedHtml';
+import { pinterestEmbedHtml } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
@@ -63,8 +63,9 @@ export const PinterestEmbed = ({
       if (!data || data.source !== 'rsme-pinterest' || data.id !== embedId) {
         return;
       }
-      if (typeof data.height === 'number' && data.height > 50) {
-        setPinHeight((prev) => (Math.abs(prev - data.height!) < 2 ? prev : Math.round(data.height!)));
+      const nextHeight = data.height;
+      if (typeof nextHeight === 'number' && nextHeight > 50) {
+        setPinHeight((prev) => (Math.abs(prev - nextHeight) < 2 ? prev : Math.round(nextHeight)));
       }
     };
     window.addEventListener('message', onMessage);

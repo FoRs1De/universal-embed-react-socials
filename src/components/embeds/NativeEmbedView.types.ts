@@ -22,5 +22,7 @@ export interface NativeEmbedViewProps {
   mediaPlaybackRequiresUserAction?: boolean;
   allowsFullscreenVideo?: boolean;
   openLinksInBrowser?: boolean;
+  /** Provider-specific normalization before opening an external browser. */
+  resolveExternalUrl?: (url: string) => string;
   webViewProps?: EmbedWebViewProps;
 }

@@ -100,6 +100,7 @@ export const NativeEmbedView = ({
   mediaPlaybackRequiresUserAction = true,
   allowsFullscreenVideo = false,
   openLinksInBrowser = true,
+  resolveExternalUrl,
   webViewProps,
 }: NativeEmbedViewProps) => {
   const webViewRef = useRef<WebView>(null);
@@ -223,8 +224,11 @@ export const NativeEmbedView = ({
               }
             }}
             onShouldStartLoadWithRequest={(request: WebViewRequest) => {
-              if (shouldOpenInBrowser(request, uri, baseUrl, openLinksInBrowser)) {
-                openExternalUrl(request.url ?? '');
+              const targetUrl = openLinksInBrowser
+                ? (resolveExternalUrl?.(request.url ?? '') ?? request.url ?? '')
+                : request.url ?? '';
+              if (shouldOpenInBrowser({ ...request, url: targetUrl }, uri, baseUrl, openLinksInBrowser)) {
+                openExternalUrl(targetUrl);
                 return false;
               }
               if (typeof onShouldStartLoadWithRequest === 'function') {
@@ -233,7 +237,10 @@ export const NativeEmbedView = ({
               return true;
             }}
             onOpenWindow={(event: WebViewOpenWindowEvent) => {
-              const targetUrl = event.nativeEvent?.targetUrl;
+              const requestedUrl = event.nativeEvent?.targetUrl;
+              const targetUrl = openLinksInBrowser && requestedUrl
+                ? (resolveExternalUrl?.(requestedUrl) ?? requestedUrl)
+                : requestedUrl;
               if (openLinksInBrowser && targetUrl && isHttpUrl(targetUrl)) {
                 openExternalUrl(targetUrl);
                 return;

@@ -1,5 +1,8 @@
+import { Linking } from 'react-native';
 import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getTikTokVideoId } from '../../utils/urls';
+import { resolveTikTokBrowserUrl } from '../../utils/tiktokUrls';
+import { withTikTokProfileLinks } from '../../utils/tiktokProfileLinks';
 import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
 import {
@@ -64,40 +67,31 @@ export const TikTokEmbed = ({
     fallbackHeight,
   });
 
-  if (usePlayer) {
-    return (
-      <NativeEmbedView
-        html={buildTikTokPlayerHtml(buildTikTokPlayerSrc(videoId, tikTokProps))}
-        baseUrl="https://www.tiktok.com"
-        width={resolvedMaxWidth}
-        height={height}
-        aspectRatio={height == null ? TIKTOK_PLAYER_ASPECT_RATIO : undefined}
-        style={style}
-        fallbackHeight={fallbackHeight}
-        placeholder={resolvedPlaceholder}
-        placeholderDisabled={placeholderDisabled}
-        embedDisabled={embedDisabled}
-        allowsInlineMediaPlayback
-        allowsFullscreenVideo={allowsFullscreenVideo !== false}
-        openLinksInBrowser={openLinksInBrowser}
-        webViewProps={webViewProps}
-      />
-    );
-  }
-
   return (
     <NativeEmbedView
-      uri={`https://www.tiktok.com/embed/v2/${videoId}`}
+      {...(usePlayer
+        ? {
+            html: buildTikTokPlayerHtml(buildTikTokPlayerSrc(videoId, tikTokProps)),
+            baseUrl: 'https://www.tiktok.com',
+            aspectRatio: height == null ? TIKTOK_PLAYER_ASPECT_RATIO : undefined,
+            allowsFullscreenVideo: allowsFullscreenVideo !== false,
+          }
+        : { uri: `https://www.tiktok.com/embed/v2/${videoId}` })}
       width={resolvedMaxWidth}
       height={height}
       style={style}
-      fallbackHeight={defaultPlaceholderHeight}
+      fallbackHeight={fallbackHeight}
       placeholder={resolvedPlaceholder}
       placeholderDisabled={placeholderDisabled}
       embedDisabled={embedDisabled}
       allowsInlineMediaPlayback
       openLinksInBrowser={openLinksInBrowser}
-      webViewProps={webViewProps}
+      resolveExternalUrl={(targetUrl: string) => resolveTikTokBrowserUrl(targetUrl, url)}
+      webViewProps={openLinksInBrowser
+        ? withTikTokProfileLinks(webViewProps, (profileUrl) => {
+            Linking.openURL(profileUrl).catch(() => undefined);
+          })
+        : webViewProps}
     />
   );
 };
