@@ -17,19 +17,6 @@ export interface EmbedPlaceholderFields {
   placeholderDisabled?: boolean;
 }
 
-export const embedPlaceholderFields = (props: EmbedPlaceholderFields): EmbedPlaceholderFields => ({
-  placeholder: props.placeholder,
-  placeholderText: props.placeholderText,
-  placeholderImageUrl: props.placeholderImageUrl,
-  placeholderSpinner: props.placeholderSpinner,
-  placeholderSpinnerDisabled: props.placeholderSpinnerDisabled,
-  placeholderProps: props.placeholderProps,
-  placeholderWidth: props.placeholderWidth,
-  placeholderHeight: props.placeholderHeight,
-  placeholderStyle: props.placeholderStyle,
-  placeholderDisabled: props.placeholderDisabled,
-});
-
 export interface ResolveEmbedPlaceholderOptions extends EmbedPlaceholderFields {
   url?: string;
   extraStyle?: CSSProperties;
@@ -107,21 +94,18 @@ export const resolveEmbedPlaceholder = (options: ResolveEmbedPlaceholderOptions)
 };
 
 export const resolveNativeEmbedPlaceholder = ({
-  resolvedMaxWidth,
   height,
   fallbackHeight,
   extraStyle,
   ...options
 }: ResolveEmbedPlaceholderOptions & {
-  resolvedMaxWidth?: string | number;
   height?: string | number;
   fallbackHeight: number;
 }): ReactNode =>
   resolveEmbedPlaceholder({
     ...options,
-    extraStyle: { width: resolvedMaxWidth ?? '100%', ...extraStyle },
+    extraStyle,
     embedWidth: '100%',
     embedHeight: '100%',
-    providerWidth: resolvedMaxWidth ?? '100%',
     providerHeight: height ?? fallbackHeight,
   });

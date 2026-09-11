@@ -1,7 +1,7 @@
 import { useEffect, useId, useState, type ReactElement } from 'react';
 import { Box, IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { useFrame } from '../../hooks/useFrame';
 import {
   aspectRatioHeight,
@@ -152,15 +152,15 @@ const TikTokOEmbed = ({
   className,
   style,
 }: TikTokEmbedProps): ReactElement => {
-  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
   const [stage, setStage] = useState(PROCESS_EMBED_STAGE);
   const placeholderId = useId();
   const [processTime, setProcessTime] = useState(0);
   const embedContainerKey = `${placeholderId}-${processTime}`;
   const frm = useFrame(frame);
   const embedId = getTikTokVideoId(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
   });
@@ -251,7 +251,7 @@ const TikTokOEmbed = ({
   });
 
   return (
-    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
+    <div ref={boxRef} style={boxStyle}>
     <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       {embedDisabled ? null : (

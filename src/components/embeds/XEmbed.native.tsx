@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { getXPostId } from '../../utils/urls';
 import { xEmbedHtml } from './embedHtml';
 import { NativeSocialEmbed } from './NativeSocialEmbed';
@@ -13,11 +14,12 @@ export const XEmbed = ({
   ...props
 }: XEmbedProps) => {
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(props.url);
+  const html = useMemo(() => xEmbedHtml({ postId }), [postId]);
   return (
     <NativeSocialEmbed
       {...props}
       placeholderText={placeholderText}
-      html={xEmbedHtml({ postId })}
+      html={html}
       baseUrl="https://twitter.com"
       fallbackHeight={defaultPlaceholderHeight}
     />

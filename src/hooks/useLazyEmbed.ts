@@ -1,29 +1,31 @@
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useLayoutEffect, useRef, useState, type MutableRefObject } from 'react';
 
-/** Assign the same node to a layout box ref and the lazy-load observer ref. */
-export const mergeBoxRef =
-  (boxRef: MutableRefObject<HTMLDivElement | null>, lazyRef: MutableRefObject<HTMLDivElement | null>) =>
-  (node: HTMLDivElement | null) => {
-    boxRef.current = node;
-    lazyRef.current = node;
-  };
-
-/** When `lazy` is set, keep the embed unloaded until it is near the viewport. */
 export const useLazyEmbed = (
   embedDisabled = false,
   lazy = false,
+  boxRef?: MutableRefObject<HTMLDivElement | null>,
 ): { ref: MutableRefObject<HTMLDivElement | null>; disabled: boolean } => {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const localRef = useRef<HTMLDivElement | null>(null);
+  const ref = boxRef ?? localRef;
   const [visible, setVisible] = useState(!lazy);
+  const [nodeRetry, setNodeRetry] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!lazy || embedDisabled || visible) {
       return;
     }
-    const node = ref.current;
-    if (!node || typeof IntersectionObserver === 'undefined') {
+    if (typeof IntersectionObserver === 'undefined') {
       setVisible(true);
       return;
+    }
+    const node = ref.current;
+    if (!node) {
+      if (nodeRetry > 0) {
+        setVisible(true);
+        return;
+      }
+      const id = requestAnimationFrame(() => setNodeRetry(1));
+      return () => cancelAnimationFrame(id);
     }
     const observer = new IntersectionObserver(
       (entries) => {
@@ -36,7 +38,7 @@ export const useLazyEmbed = (
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [embedDisabled, lazy, visible]);
+  }, [embedDisabled, lazy, nodeRetry, visible]);
 
   return { ref, disabled: embedDisabled || (lazy && !visible) };
 };

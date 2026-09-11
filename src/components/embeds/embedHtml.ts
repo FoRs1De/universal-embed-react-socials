@@ -131,7 +131,6 @@ export const xEmbedHtml = ({ postId }: { postId: string }): string =>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   `);
 
-/** LinkedIn's embed iframe is a fixed 504×570 design. Scale it to the WebView width. */
 export const LINKEDIN_DESIGN_WIDTH = 504;
 export const LINKEDIN_DESIGN_HEIGHT = 570;
 

@@ -2,7 +2,7 @@ import { useEffect, useId, useState, type ReactElement } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
 import { useFrame } from '../../hooks/useFrame';
-import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { classNames } from '../../utils/classNames';
 import { ensureScript } from '../../utils/ensureScript';
@@ -17,11 +17,11 @@ import {
   type InstagramEmbedProps,
 } from './InstagramEmbed.types';
 
-export type { InstagramEmbedProps } from './InstagramEmbed.types';
 export {
   INSTAGRAM_CAPTIONED_PLACEHOLDER_HEIGHT,
   INSTAGRAM_PLACEHOLDER_HEIGHT,
-} from './InstagramEmbed.types';
+  type InstagramEmbedProps,
+};
 
 const officialEmbedWidth = 550;
 const borderRadius = 3;
@@ -65,7 +65,9 @@ export const InstagramEmbed = ({
   className,
   style,
 }: InstagramEmbedProps): ReactElement => {
-  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
+  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion);
   const [stage, setStage] = useState(CHECK_SCRIPT_STAGE);
   const embedId = useId();
@@ -97,9 +99,7 @@ export const InstagramEmbed = ({
     if (embedDisabled || stage !== LOAD_SCRIPT_STAGE || !frm.document) {
       return;
     }
-    if (!frm.document.getElementById(INSTAGRAM_SCRIPT_ID)) {
-      ensureScript(frm.document, INSTAGRAM_SCRIPT_ID, 'https://www.instagram.com/embed.js');
-    }
+    ensureScript(frm.document, INSTAGRAM_SCRIPT_ID, 'https://www.instagram.com/embed.js');
     setStage(CONFIRM_SCRIPT_LOADED_STAGE);
   }, [stage, frm.document, embedDisabled]);
 
@@ -160,9 +160,7 @@ export const InstagramEmbed = ({
   }, [stage, embedDisabled]);
 
   const cleanUrlWithEndingSlash = getCleanInstagramUrl(url);
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const fallbackHeight = captioned ? INSTAGRAM_CAPTIONED_PLACEHOLDER_HEIGHT : INSTAGRAM_PLACEHOLDER_HEIGHT;
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
   });
@@ -200,7 +198,7 @@ export const InstagramEmbed = ({
   });
 
   return (
-    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
+    <div ref={boxRef} style={boxStyle}>
     <EmbedShell
       className={classNames(embedId, className)}
       extraClassName="rsme-instagram-embed"

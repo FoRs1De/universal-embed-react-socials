@@ -8,6 +8,10 @@ const walk = (dir) => {
       walk(fullPath);
       return;
     }
+    if (/\.native\.(js|d\.ts)$/.test(entry.name)) {
+      fs.unlinkSync(fullPath);
+      return;
+    }
     const match = entry.name.match(/^(.*)\.web\.(js|d\.ts)$/);
     if (!match) {
       return;

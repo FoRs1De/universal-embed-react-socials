@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { pinterestEmbedHtml } from './embedHtml';
 import { NativeSocialEmbed } from './NativeSocialEmbed';
 import type { PinterestEmbedProps } from './PinterestEmbed.types';
@@ -11,15 +12,19 @@ export const PinterestEmbed = ({
   postUrl,
   placeholderText = 'View post on Pinterest',
   ...props
-}: PinterestEmbedProps) => (
-  <NativeSocialEmbed
-    {...props}
-    url={url}
-    placeholderText={placeholderText}
-    placeholderUrl={postUrl ?? url}
-    html={pinterestEmbedHtml({ url: postUrl ?? url, fillWidth: true })}
-    baseUrl="https://www.pinterest.com"
-    autoHeight
-    fallbackHeight={officialEmbedHeight}
-  />
-);
+}: PinterestEmbedProps) => {
+  const pinUrl = postUrl ?? url;
+  const html = useMemo(() => pinterestEmbedHtml({ url: pinUrl, fillWidth: true }), [pinUrl]);
+  return (
+    <NativeSocialEmbed
+      {...props}
+      url={url}
+      placeholderText={placeholderText}
+      placeholderUrl={pinUrl}
+      html={html}
+      baseUrl="https://www.pinterest.com"
+      autoHeight
+      fallbackHeight={officialEmbedHeight}
+    />
+  );
+};

@@ -1,4 +1,3 @@
-/** Insert a script once per document. Returns the existing tag if it is already present. */
 export const ensureScript = (doc: Document, id: string, src: string): HTMLScriptElement => {
   const existing = doc.getElementById(id);
   if (existing instanceof HTMLScriptElement) {

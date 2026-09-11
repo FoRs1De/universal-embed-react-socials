@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Linking, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
+import type {
+  EmbedWebViewMessageEvent,
+  EmbedWebViewNavigationRequest,
+  EmbedWebViewOpenWindowEvent,
+} from '../../types';
 import { toNativeSize } from '../../utils/style';
 import {
+  AUTO_HEIGHT_TOPIC,
   injectAutoHeightScript,
   nativeAutoHeightScript,
   parseAutoHeightMessage,
@@ -10,16 +16,6 @@ import {
 import type { NativeEmbedViewProps } from './NativeEmbedView.types';
 
 export type { NativeEmbedViewProps } from './NativeEmbedView.types';
-
-type WebViewRequest = {
-  url?: string;
-  navigationType?: string;
-  isTopFrame?: boolean;
-};
-
-type WebViewOpenWindowEvent = {
-  nativeEvent?: { targetUrl?: string };
-};
 
 const isHttpUrl = (url: string): boolean => /^https?:\/\//i.test(url);
 
@@ -59,7 +55,7 @@ const isEmbedDocumentUrl = (url: string, uri?: string, baseUrl?: string): boolea
 };
 
 const shouldOpenInBrowser = (
-  request: WebViewRequest,
+  request: EmbedWebViewNavigationRequest,
   uri: string | undefined,
   baseUrl: string | undefined,
   enabled: boolean,
@@ -112,7 +108,7 @@ export const NativeEmbedView = ({
   const [lazyVisible, setLazyVisible] = useState(!lazy);
   const hasPlaceholder = placeholder != null && !placeholderDisabled;
   const blocked = embedDisabled || (lazy && !lazyVisible);
-  const live = !blocked;
+  const lazyCheckRef = useRef(() => {});
 
   useEffect(() => {
     if (embedDisabled) {
@@ -123,32 +119,41 @@ export const NativeEmbedView = ({
 
   useEffect(() => {
     if (!lazy || embedDisabled || lazyVisible) {
+      lazyCheckRef.current = () => {};
       return;
     }
     let cancelled = false;
+    let windowSize = Dimensions.get('window');
     const check = () => {
-      wrapRef.current?.measureInWindow((x, y, width, height) => {
+      wrapRef.current?.measureInWindow((x: number, y: number, width: number, height: number) => {
         if (cancelled) {
           return;
         }
-        const window = Dimensions.get('window');
         const intersects =
           width > 0 &&
           height > 0 &&
-          y < window.height + 200 &&
+          y < windowSize.height + 200 &&
           y + height > -200 &&
-          x < window.width &&
+          x < windowSize.width &&
           x + width > 0;
         if (intersects) {
           setLazyVisible(true);
         }
       });
     };
+    lazyCheckRef.current = check;
     check();
-    const id = setInterval(check, 400);
+    const onChange = ({ window }: { window: { width: number; height: number } }) => {
+      windowSize = window;
+      check();
+    };
+    const subscription = Dimensions.addEventListener('change', onChange);
+    const id = setInterval(check, 1000);
     return () => {
       cancelled = true;
       clearInterval(id);
+      subscription?.remove?.();
+      lazyCheckRef.current = () => {};
     };
   }, [embedDisabled, lazy, lazyVisible]);
   const fitEnabled = fitDesignWidth != null && fitDesignWidth > 0 && height == null;
@@ -177,7 +182,10 @@ export const NativeEmbedView = ({
     injectedJavaScriptBeforeContentLoaded,
     ...restWebViewProps
   } = webViewProps ?? {};
-  const sizingScript = autoHeightEnabled ? nativeAutoHeightScript : '';
+  const sizingScript =
+    autoHeightEnabled && !(html && html.includes(AUTO_HEIGHT_TOPIC))
+      ? nativeAutoHeightScript
+      : '';
   const uriBootScript = html ? '' : sizingScript;
   // Memoized so a re-rendering parent that rebuilds an identical HTML string
   // does not hand the WebView a new `source` and force a reload.
@@ -196,9 +204,10 @@ export const NativeEmbedView = ({
   return (
     <View
       ref={wrapRef}
-      onLayout={(event) => {
+      onLayout={(event: { nativeEvent: { layout: { width: number } } }) => {
         const next = Math.round(event.nativeEvent.layout.width);
         setBoxWidth((prev) => (Math.abs(prev - next) < 2 ? prev : next));
+        lazyCheckRef.current();
       }}
       style={[
         {
@@ -221,7 +230,7 @@ export const NativeEmbedView = ({
             : { width: '100%', height: '100%' }
         }
       >
-        {live ? (
+        {!blocked ? (
           <WebView
             ref={webViewRef}
             originWhitelist={['*']}
@@ -247,7 +256,7 @@ export const NativeEmbedView = ({
             injectedJavaScript={
               uriBootScript ? `${uriBootScript}\n${injectedJavaScript ?? ''}` : injectedJavaScript
             }
-            onMessage={(event) => {
+            onMessage={(event: EmbedWebViewMessageEvent) => {
               onMessage?.(event);
               if (!autoHeightEnabled) {
                 return;
@@ -257,19 +266,20 @@ export const NativeEmbedView = ({
                 setMeasuredHeight((prev) => (prev === next ? prev : next));
               }
             }}
-            onShouldStartLoadWithRequest={(request: WebViewRequest) => {
+            onShouldStartLoadWithRequest={(request: EmbedWebViewNavigationRequest) => {
               const targetUrl = openLinksInBrowser
-                ? (resolveExternalUrl?.(request.url ?? '') ?? request.url ?? '')
-                : request.url ?? '';
-              if (shouldOpenInBrowser({ ...request, url: targetUrl }, uri, baseUrl, openLinksInBrowser)) {
+                ? (resolveExternalUrl?.(request.url) ?? request.url)
+                : request.url;
+              const nextRequest = { ...request, url: targetUrl };
+              if (shouldOpenInBrowser(nextRequest, uri, baseUrl, openLinksInBrowser)) {
                 openExternalUrl(targetUrl);
                 return false;
               }
-              return onShouldStartLoadWithRequest?.(request) ?? true;
+              return onShouldStartLoadWithRequest?.(nextRequest) ?? true;
             }}
-            onOpenWindow={(event: WebViewOpenWindowEvent) => {
-              const requestedUrl = event.nativeEvent?.targetUrl;
-              const targetUrl = openLinksInBrowser && requestedUrl
+            onOpenWindow={(event: EmbedWebViewOpenWindowEvent) => {
+              const requestedUrl = event.nativeEvent.targetUrl;
+              const targetUrl = openLinksInBrowser
                 ? (resolveExternalUrl?.(requestedUrl) ?? requestedUrl)
                 : requestedUrl;
               if (openLinksInBrowser && targetUrl && isHttpUrl(targetUrl)) {
@@ -278,7 +288,7 @@ export const NativeEmbedView = ({
               }
               onOpenWindow?.(event);
             }}
-            onLoad={(event) => {
+            onLoad={(event: unknown) => {
               setReady(true);
               onLoad?.(event);
             }}

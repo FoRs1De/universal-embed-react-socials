@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Linking } from 'react-native';
 import { getTikTokVideoId } from '../../utils/urls';
 import { resolveTikTokBrowserUrl } from '../../utils/tiktokUrls';
@@ -32,6 +33,10 @@ export const TikTokEmbed = ({
 }: TikTokEmbedProps) => {
   const videoId = getTikTokVideoId(url);
   const usePlayer = usesTikTokPlayer(allowsFullscreenVideo, tikTokProps);
+  const html = useMemo(
+    () => (usePlayer ? buildTikTokPlayerHtml(buildTikTokPlayerSrc(videoId, tikTokProps)) : undefined),
+    [tikTokProps, usePlayer, videoId],
+  );
   return (
     <NativeSocialEmbed
       {...props}
@@ -40,7 +45,7 @@ export const TikTokEmbed = ({
       placeholderText={placeholderText}
       {...(usePlayer
         ? {
-            html: buildTikTokPlayerHtml(buildTikTokPlayerSrc(videoId, tikTokProps)),
+            html,
             baseUrl: 'https://www.tiktok.com',
             aspectRatio: height == null ? TIKTOK_PLAYER_ASPECT_RATIO : undefined,
             allowsFullscreenVideo: allowsFullscreenVideo !== false,

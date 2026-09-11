@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { DEFAULT_INSTAGRAM_API_VERSION, normalizeInstagramApiVersion } from '../../utils/apiVersion';
 import { getCleanInstagramUrl } from '../../utils/urls';
 import { instagramEmbedHtml } from './embedHtml';
@@ -8,11 +9,11 @@ import {
 } from './InstagramEmbed.types';
 import { NativeSocialEmbed } from './NativeSocialEmbed';
 
-export type { InstagramEmbedProps } from './InstagramEmbed.types';
 export {
   INSTAGRAM_CAPTIONED_PLACEHOLDER_HEIGHT,
   INSTAGRAM_PLACEHOLDER_HEIGHT,
-} from './InstagramEmbed.types';
+  type InstagramEmbedProps,
+};
 
 export const InstagramEmbed = ({
   captioned = false,
@@ -22,13 +23,16 @@ export const InstagramEmbed = ({
 }: InstagramEmbedProps) => {
   const resolvedVersion = normalizeInstagramApiVersion(apiVersion);
   const cleanUrl = getCleanInstagramUrl(props.url);
+  const html = useMemo(
+    () => instagramEmbedHtml({ url: cleanUrl, apiVersion: resolvedVersion, captioned }),
+    [captioned, cleanUrl, resolvedVersion],
+  );
   return (
     <NativeSocialEmbed
       {...props}
       url={cleanUrl}
       placeholderText={placeholderText}
-      placeholderUrl={cleanUrl}
-      html={instagramEmbedHtml({ url: cleanUrl, apiVersion: resolvedVersion, captioned })}
+      html={html}
       baseUrl="https://www.instagram.com"
       fallbackHeight={captioned ? INSTAGRAM_CAPTIONED_PLACEHOLDER_HEIGHT : INSTAGRAM_PLACEHOLDER_HEIGHT}
     />

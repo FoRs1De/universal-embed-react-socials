@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
 import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -58,9 +58,6 @@ export const FacebookEmbed = ({
   className,
   style,
 }: FacebookEmbedProps) => {
-  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
-  const [usePluginFallback, setUsePluginFallback] = useState(false);
-  const [pluginReady, setPluginReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const percentageWidth = isPercentage(resolvedMaxWidth);
   const percentageHeight = isPercentage(height);
@@ -68,6 +65,10 @@ export const FacebookEmbed = ({
     percentageWidth || typeof resolvedMaxWidth !== 'number'
       ? defaultEmbedWidth
       : clampFacebookWidth(resolvedMaxWidth);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
+  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
+  const [usePluginFallback, setUsePluginFallback] = useState(false);
+  const [pluginReady, setPluginReady] = useState(false);
   const embedHtml = useMemo(
     () => facebookEmbedHtml({ url, width: pluginWidth, apiVersion, locale }),
     [apiVersion, locale, pluginWidth, url],
@@ -75,7 +76,6 @@ export const FacebookEmbed = ({
   const [frameSrc, setFrameSrc] = useState<string | undefined>();
   const fallbackHeight = facebookPluginHeight(pluginWidth);
   const autoHeight = height == null;
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(pluginWidth, resolvedMaxWidth);
   const { measured, iframeRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && !usePluginFallback && !!frameSrc,
     measureSrcDoc: !embedDisabled && !usePluginFallback && !!frameSrc,
@@ -145,7 +145,7 @@ export const FacebookEmbed = ({
   };
 
   return (
-    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
+    <div ref={boxRef} style={boxStyle}>
       <EmbedShell
         className={className}
         extraClassName="rsme-facebook-embed"

@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { LINKEDIN_DESIGN_HEIGHT, LINKEDIN_DESIGN_WIDTH } from './embedHtml';
 import { EmbedShell } from './EmbedShell';
 import { MediaFrame } from './MediaFrame';
 import type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
 export type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
-const officialEmbedWidth = 504;
-const officialEmbedHeight = 570;
 const borderRadius = 8;
 
 export const LinkedInEmbed = ({
@@ -34,19 +33,19 @@ export const LinkedInEmbed = ({
   className,
   style,
 }: LinkedInEmbedProps) => {
-  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
-  const [ready, setReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
+  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(LINKEDIN_DESIGN_WIDTH, resolvedMaxWidth);
+  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (embedDisabled) {
       setReady(false);
     }
   }, [embedDisabled]);
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
   const { frameHeight: shellHeight, showPlaceholder } = resolveEmbedFrame({
     ready: !embedDisabled && ready,
-    fallbackHeight: officialEmbedHeight,
+    fallbackHeight: LINKEDIN_DESIGN_HEIGHT,
     scale,
     height,
     waitForMeasure: false,
@@ -72,12 +71,12 @@ export const LinkedInEmbed = ({
     },
     embedWidth: '100%',
     embedHeight: '100%',
-    providerWidth: officialEmbedWidth,
-    providerHeight: officialEmbedHeight,
+    providerWidth: LINKEDIN_DESIGN_WIDTH,
+    providerHeight: LINKEDIN_DESIGN_HEIGHT,
   });
 
   return (
-    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
+    <div ref={boxRef} style={boxStyle}>
       <EmbedShell
         className={className}
         extraClassName="rsme-linkedin-embed"
@@ -91,11 +90,11 @@ export const LinkedInEmbed = ({
           <IFrame
             className="linkedin-post"
             src={url}
-            width={officialEmbedWidth}
-            height={officialEmbedHeight}
+            width={LINKEDIN_DESIGN_WIDTH}
+            height={LINKEDIN_DESIGN_HEIGHT}
             onLoad={() => setReady(true)}
             title="LinkedIn embed"
-            style={embedScaleStyle(scale, officialEmbedWidth)}
+            style={embedScaleStyle(scale, LINKEDIN_DESIGN_WIDTH)}
           />
           )}
         </MediaFrame>

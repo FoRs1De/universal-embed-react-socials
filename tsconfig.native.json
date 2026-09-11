@@ -4,16 +4,14 @@
     "lib": ["ES2018", "DOM"],
     "module": "commonjs",
     "jsx": "react-jsx",
-    "moduleSuffixes": [".web", ""],
-    "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "moduleSuffixes": [".native", ""],
     "strict": true,
     "noImplicitReturns": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noEmit": true
   },
   "include": ["src", "types/react-native-stubs.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.web.ts", "**/*.web.tsx"]
 }

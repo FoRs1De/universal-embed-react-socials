@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
-import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { ensureScript } from '../../utils/ensureScript';
 import { useFrame } from '../../hooks/useFrame';
 import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
@@ -37,13 +37,13 @@ export const XEmbed = ({
   className,
   style,
 }: XEmbedProps) => {
-  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
   const [ready, setReady] = useState(false);
   const embedId = useId();
   const frm = useFrame();
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
+  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
   const { height: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
   });
@@ -113,7 +113,7 @@ export const XEmbed = ({
   });
 
   return (
-    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
+    <div ref={boxRef} style={boxStyle}>
     <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       {embedDisabled ? null : (

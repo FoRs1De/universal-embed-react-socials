@@ -1,19 +1,10 @@
+import { useMemo } from 'react';
 import { resolveEmbedMaxWidth } from '../../utils/style';
-import type { CommonEmbedProps } from '../../types';
-import type { PlaceholderEmbedProps } from '../placeholder/PlaceholderEmbed.types';
-import {
-  embedPlaceholderFields,
-  resolveNativeEmbedPlaceholder,
-} from '../placeholder/resolveEmbedPlaceholder';
+import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { NativeEmbedView } from './NativeEmbedView';
-import type { NativeEmbedViewProps } from './NativeEmbedView.types';
+import type { NativeSocialEmbedProps } from './NativeSocialEmbed.types';
 
-export type NativeSocialEmbedProps = CommonEmbedProps &
-  Omit<NativeEmbedViewProps, 'placeholder' | 'width' | 'embedDisabled'> & {
-    fallbackHeight: number;
-    placeholderUrl?: string;
-    placeholderProps?: PlaceholderEmbedProps;
-  };
+export type { NativeSocialEmbedProps } from './NativeSocialEmbed.types';
 
 export const NativeSocialEmbed = ({
   url,
@@ -36,21 +27,14 @@ export const NativeSocialEmbed = ({
   openLinksInBrowser = true,
   fallbackHeight,
   placeholderUrl,
-  html,
-  uri,
-  baseUrl,
-  headers,
-  aspectRatio,
-  autoHeight,
-  fitDesignWidth,
-  allowsInlineMediaPlayback,
-  mediaPlaybackRequiresUserAction,
-  allowsFullscreenVideo,
-  resolveExternalUrl,
+  ...viewProps
 }: NativeSocialEmbedProps) => {
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
-  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
-    ...embedPlaceholderFields({
+  const resolvedPlaceholder = useMemo(() => {
+    if (placeholderDisabled) {
+      return null;
+    }
+    return resolveNativeEmbedPlaceholder({
       placeholderText,
       placeholderImageUrl,
       placeholderSpinner,
@@ -61,26 +45,30 @@ export const NativeSocialEmbed = ({
       placeholderHeight,
       placeholderStyle,
       placeholderDisabled,
-    }),
-    url: placeholderUrl ?? url,
-    resolvedMaxWidth,
-    height,
+      url: placeholderUrl ?? url,
+      height,
+      fallbackHeight,
+    });
+  }, [
     fallbackHeight,
-  });
+    height,
+    placeholder,
+    placeholderDisabled,
+    placeholderHeight,
+    placeholderImageUrl,
+    placeholderProps,
+    placeholderSpinner,
+    placeholderSpinnerDisabled,
+    placeholderStyle,
+    placeholderText,
+    placeholderUrl,
+    placeholderWidth,
+    url,
+  ]);
 
   return (
     <NativeEmbedView
-      html={html}
-      uri={uri}
-      baseUrl={baseUrl}
-      headers={headers}
-      aspectRatio={aspectRatio}
-      autoHeight={autoHeight}
-      fitDesignWidth={fitDesignWidth}
-      allowsInlineMediaPlayback={allowsInlineMediaPlayback}
-      mediaPlaybackRequiresUserAction={mediaPlaybackRequiresUserAction}
-      allowsFullscreenVideo={allowsFullscreenVideo}
-      resolveExternalUrl={resolveExternalUrl}
+      {...viewProps}
       width={resolvedMaxWidth}
       height={height}
       style={style}
