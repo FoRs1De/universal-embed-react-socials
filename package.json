@@ -12,11 +12,11 @@
   "homepage": "https://github.com/fors1de/universal-embed-react-socials#readme",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "react-native": "./src/index",
+  "react-native": "./src/index.ts",
   "sideEffects": false,
   "exports": {
     ".": {
-      "react-native": "./src/index",
+      "react-native": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
