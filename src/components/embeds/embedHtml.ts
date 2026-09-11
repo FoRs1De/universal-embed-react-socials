@@ -51,14 +51,20 @@ export const instagramEmbedHtml = ({
     <script async src="https://www.instagram.com/embed.js"></script>
   `);
 
-/** Pinterest `data-pin-width="large"` widget is 600px. */
-export const PINTEREST_DESIGN_WIDTH = 600;
+/** Pinterest `data-pin-width` widget widths. */
+export const PINTEREST_PIN_WIDTH = {
+  small: 237,
+  medium: 345,
+  large: 600,
+} as const;
+
+export const PINTEREST_DESIGN_WIDTH = PINTEREST_PIN_WIDTH.large;
 
 /**
  * Pinterest's hosted `embed.html` centers a fixed-width pin in a 450px page,
  * which cannot be made responsive from the outside. Render the official
- * `pinit.js` widget in a page we own instead. On web, `fillWidth` scales that
- * 600px widget up to the iframe's client width and posts the visual height.
+ * `pinit.js` widget in a page we own instead. `fillWidth` picks small/medium/large
+ * from the viewport so logo and caption stay readable, then scales to width.
  */
 export const pinterestEmbedHtml = ({
   url,
@@ -69,38 +75,48 @@ export const pinterestEmbedHtml = ({
   fillWidth?: boolean;
   embedId?: string;
 }): string => {
-  const pin = `<a data-pin-do="embedPin" data-pin-width="large" href="${escapeHtmlAttribute(url)}"></a>`;
+  const href = escapeHtmlAttribute(url);
   if (!fillWidth) {
     return documentShell(`
       <style>
         html,body{width:${PINTEREST_DESIGN_WIDTH}px;overflow:visible;}
         iframe,span,img,[class*="embed_pin"]{max-width:none !important;margin:0 !important;}
       </style>
-      ${pin}
+      <a data-pin-do="embedPin" data-pin-width="large" href="${href}"></a>
       <script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
     `);
   }
   return documentShell(`
     <style>
       html,body{width:100%;margin:0;padding:0;overflow:hidden;}
-      #pin-wrap{width:${PINTEREST_DESIGN_WIDTH}px;transform-origin:top left;}
+      #pin-wrap{transform-origin:top left;}
       #pin-wrap iframe,#pin-wrap span,#pin-wrap img,[class*="embed_pin"]{max-width:none !important;margin:0 !important;}
     </style>
-    <div id="pin-wrap">${pin}</div>
+    <div id="pin-wrap">
+      <a id="rsme-pin" data-pin-do="embedPin" href="${href}"></a>
+    </div>
     <script>
       (function () {
-        var DESIGN = ${PINTEREST_DESIGN_WIDTH};
         var wrap = document.getElementById('pin-wrap');
+        var link = document.getElementById('rsme-pin');
+        var viewport = document.documentElement.clientWidth || ${PINTEREST_PIN_WIDTH.medium};
+        var spec = viewport >= 520
+          ? { name: 'large', width: ${PINTEREST_PIN_WIDTH.large} }
+          : viewport >= 300
+            ? { name: 'medium', width: ${PINTEREST_PIN_WIDTH.medium} }
+            : { name: 'small', width: ${PINTEREST_PIN_WIDTH.small} };
+        link.setAttribute('data-pin-width', spec.name);
+        wrap.style.width = spec.width + 'px';
+        var DESIGN = spec.width;
         var id = ${JSON.stringify(embedId)};
         function fit() {
           var pin = wrap.querySelector('iframe, span, [data-pin-id]');
           if (!pin) return;
-          var viewport = document.documentElement.clientWidth || DESIGN;
+          var view = document.documentElement.clientWidth || DESIGN;
           var pinW = pin.offsetWidth || wrap.offsetWidth || DESIGN;
           if (pinW < 50) return;
-          wrap.style.transform = 'scale(' + (viewport / pinW) + ')';
-          wrap.style.transformOrigin = 'top left';
-          var visualH = Math.ceil(wrap.getBoundingClientRect().height) + 2;
+          wrap.style.transform = 'scale(' + (view / pinW) + ')';
+          var visualH = Math.ceil(wrap.getBoundingClientRect().height) + 8;
           if (visualH < 50) return;
           document.documentElement.style.height = visualH + 'px';
           document.body.style.height = visualH + 'px';
