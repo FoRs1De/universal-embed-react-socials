@@ -14,10 +14,6 @@ export const EmbedStyle = ({ className, style }: EmbedStyleProps) => (
           display: none;
         }
 
-        .rsme-embed .twitter-tweet {
-          margin: 0 !important;
-        }
-
         .rsme-embed blockquote {
           margin: 0 !important;
           padding: 0 !important;
@@ -42,13 +38,18 @@ export const EmbedStyle = ({ className, style }: EmbedStyleProps) => (
         .rsme-embed.rsme-instagram-embed .instagram-media,
         .rsme-embed.rsme-tiktok-embed iframe,
         .rsme-embed.rsme-tiktok-embed .tiktok-embed,
-        .rsme-embed.rsme-twitter-embed iframe,
-        .rsme-embed.rsme-twitter-embed .twitter-tweet,
         .rsme-embed.rsme-pinterest-embed iframe {
           width: 100% !important;
           max-width: 100% !important;
           min-width: 0 !important;
           box-sizing: border-box !important;
+        }
+
+        .rsme-embed.rsme-twitter-embed iframe,
+        .rsme-embed.rsme-twitter-embed .twitter-tweet {
+          margin: 0 !important;
+          width: auto !important;
+          max-width: 100% !important;
         }
 
         .rsme-embed.rsme-pinterest-embed iframe {

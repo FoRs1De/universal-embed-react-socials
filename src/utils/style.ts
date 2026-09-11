@@ -17,14 +17,14 @@ export const resolveEmbedFrame = ({
   ready,
   measuredHeight,
   fallbackHeight,
-  scale,
+  scale = 1,
   height,
   waitForMeasure = true,
 }: {
   ready: boolean;
   measuredHeight?: number;
   fallbackHeight: number;
-  scale: number;
+  scale?: number;
   height?: string | number;
   waitForMeasure?: boolean;
 }): { frameHeight: string | number; showPlaceholder: boolean } => {

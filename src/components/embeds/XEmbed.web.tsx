@@ -1,10 +1,10 @@
 import { useEffect, useId, useState } from 'react';
 import { Box } from '../../host';
-import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { useAutoEmbedHeight } from '../../hooks/useEmbedHeight';
 import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { ensureScript } from '../../utils/ensureScript';
 import { useFrame } from '../../hooks/useFrame';
-import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
+import { placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
 import { getXPostId } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -42,11 +42,17 @@ export const XEmbed = ({
   const embedId = useId();
   const frm = useFrame();
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
-  const { boxRef, scale, boxStyle } = useResponsiveEmbedBox(officialEmbedWidth, resolvedMaxWidth);
-  const { disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy, boxRef);
-  const { height: observedHeight, containerRef } = useAutoEmbedHeight({
+  const { ref: boxRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
+  const { measured: observedHeight, containerRef } = useAutoEmbedHeight({
     enabled: !embedDisabled && height == null,
   });
+  const boxStyle = {
+    width: '100%' as const,
+    maxWidth:
+      typeof resolvedMaxWidth === 'number'
+        ? Math.min(resolvedMaxWidth, officialEmbedWidth)
+        : officialEmbedWidth,
+  };
 
   useEffect(() => {
     if (embedDisabled) {
@@ -108,28 +114,32 @@ export const XEmbed = ({
     ready: !embedDisabled && ready,
     measuredHeight: observedHeight,
     fallbackHeight: defaultPlaceholderHeight,
-    scale,
     height,
   });
 
   return (
     <div ref={boxRef} style={boxStyle}>
-    <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
-      <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
-      {embedDisabled ? null : (
-      <Box id={embedId}>
-        <blockquote className="twitter-tweet">
-          <a href={`https://twitter.com/i/status/${postId}`}>{placeholderText}</a>
-        </blockquote>
-      </Box>
-      )}
-      </div>
-      {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
-        <Box style={placeholderOverlayStyle}>
-          {resolvedPlaceholder}
-        </Box>
-      ) : null}
-    </EmbedShell>
+      <EmbedShell
+        className={className}
+        extraClassName="rsme-twitter-embed"
+        width="100%"
+        height={frameHeight}
+        borderRadius={borderRadius}
+        style={{ position: 'relative', ...style }}
+      >
+        <div ref={containerRef} style={{ width: '100%' }}>
+          {embedDisabled ? null : (
+            <Box id={embedId}>
+              <blockquote className="twitter-tweet" data-width={officialEmbedWidth}>
+                <a href={`https://twitter.com/i/status/${postId}`}>{placeholderText}</a>
+              </blockquote>
+            </Box>
+          )}
+        </div>
+        {showPlaceholder && !placeholderDisabled && resolvedPlaceholder != null ? (
+          <Box style={placeholderOverlayStyle}>{resolvedPlaceholder}</Box>
+        ) : null}
+      </EmbedShell>
     </div>
   );
 };
