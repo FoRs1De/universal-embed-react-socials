@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IFrame } from '../../host';
 import { useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { embedScaleStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { EmbedShell } from './EmbedShell';
@@ -28,10 +29,12 @@ export const LinkedInEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled = false,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   className,
   style,
 }: LinkedInEmbedProps) => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const [ready, setReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
 
@@ -74,7 +77,7 @@ export const LinkedInEmbed = ({
   });
 
   return (
-    <div ref={boxRef} style={boxStyle}>
+    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
       <EmbedShell
         className={className}
         extraClassName="rsme-linkedin-embed"

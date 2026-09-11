@@ -1,8 +1,6 @@
-import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getXPostId } from '../../utils/urls';
-import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { xEmbedHtml } from './embedHtml';
-import { NativeEmbedView } from './NativeEmbedView';
+import { NativeSocialEmbed } from './NativeSocialEmbed';
 import type { XEmbedProps } from './XEmbed.types';
 
 export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
@@ -10,57 +8,18 @@ export type { TwitterTweetEmbedProps, XEmbedProps } from './XEmbed.types';
 const defaultPlaceholderHeight = 560;
 
 export const XEmbed = ({
-  url,
-  maxWidth,
-  height,
-  placeholderText = 'View post on X',
-  placeholderImageUrl,
-  placeholderSpinner,
-  placeholderSpinnerDisabled = false,
-  placeholderProps,
-  placeholder,
-  placeholderWidth,
-  placeholderHeight,
-  placeholderStyle,
-  placeholderDisabled,
-  embedDisabled = false,
   twitterTweetEmbedProps,
-  style,
-  webViewProps,
-  openLinksInBrowser = true,
+  placeholderText = 'View post on X',
+  ...props
 }: XEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
-  const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
-  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
-    url,
-    placeholderText,
-    placeholder,
-    placeholderDisabled,
-    placeholderImageUrl,
-    placeholderSpinner,
-    placeholderSpinnerDisabled,
-    placeholderProps,
-    placeholderWidth,
-    placeholderHeight,
-    placeholderStyle,
-    resolvedMaxWidth,
-    height,
-    fallbackHeight: defaultPlaceholderHeight,
-  });
-
+  const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(props.url);
   return (
-    <NativeEmbedView
+    <NativeSocialEmbed
+      {...props}
+      placeholderText={placeholderText}
       html={xEmbedHtml({ postId })}
       baseUrl="https://twitter.com"
-      width={resolvedMaxWidth}
-      height={height}
-      style={style}
       fallbackHeight={defaultPlaceholderHeight}
-      placeholder={resolvedPlaceholder}
-      placeholderDisabled={placeholderDisabled}
-      embedDisabled={embedDisabled}
-      openLinksInBrowser={openLinksInBrowser}
-      webViewProps={webViewProps}
     />
   );
 };

@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type ReactElement } from 'react';
 import { Box, IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { useFrame } from '../../hooks/useFrame';
 import {
   aspectRatioHeight,
@@ -50,11 +51,13 @@ const TikTokPlayerEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled = false,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   tikTokProps,
   className,
   style,
 }: TikTokEmbedProps): ReactElement => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -92,7 +95,7 @@ const TikTokPlayerEmbed = ({
   const reserveFrame = ready || hasPlaceholder || embedDisabled;
 
   return (
-    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
+    <div ref={lazyRef} style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
       <EmbedShell
         className={className}
         extraClassName="rsme-tiktok-embed"
@@ -139,7 +142,8 @@ const TikTokOEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled = false,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   scriptLoadDisabled = false,
   retryDelay = 5000,
   retryDisabled = false,
@@ -148,6 +152,7 @@ const TikTokOEmbed = ({
   className,
   style,
 }: TikTokEmbedProps): ReactElement => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const [stage, setStage] = useState(PROCESS_EMBED_STAGE);
   const placeholderId = useId();
   const [processTime, setProcessTime] = useState(0);
@@ -246,7 +251,7 @@ const TikTokOEmbed = ({
   });
 
   return (
-    <div ref={boxRef} style={boxStyle}>
+    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
     <EmbedShell className={className} extraClassName="rsme-tiktok-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       {embedDisabled ? null : (

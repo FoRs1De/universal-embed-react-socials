@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
 import { pinterestEmbedHtml } from './embedHtml';
@@ -27,10 +28,12 @@ export const PinterestEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled = false,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   className,
   style,
 }: PinterestEmbedProps) => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const embedId = useId();
   const postHref = postUrl ?? url;
   const embedHtml = useMemo(
@@ -101,7 +104,7 @@ export const PinterestEmbed = ({
   });
 
   return (
-    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), minWidth: 0 }}>
+    <div ref={lazyRef} style={{ ...embedMaxWidthStyle(resolvedMaxWidth), minWidth: 0 }}>
       <EmbedShell
         className={className}
         extraClassName="rsme-pinterest-embed"

@@ -1,10 +1,8 @@
 import { Linking } from 'react-native';
-import { resolveEmbedMaxWidth } from '../../utils/style';
 import { getTikTokVideoId } from '../../utils/urls';
 import { resolveTikTokBrowserUrl } from '../../utils/tiktokUrls';
 import { withTikTokProfileLinks } from '../../utils/tiktokProfileLinks';
-import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
-import { NativeEmbedView } from './NativeEmbedView';
+import { NativeSocialEmbed } from './NativeSocialEmbed';
 import {
   TIKTOK_PLAYER_ASPECT_RATIO,
   TIKTOK_PLAYER_FALLBACK_HEIGHT,
@@ -24,48 +22,22 @@ const defaultPlaceholderHeight = 739;
 
 export const TikTokEmbed = ({
   url,
-  maxWidth,
-  height,
   placeholderText = 'View post on TikTok',
-  placeholderImageUrl,
-  placeholderSpinner,
-  placeholderSpinnerDisabled = false,
-  placeholderProps,
-  placeholder,
-  placeholderWidth,
-  placeholderHeight,
-  placeholderStyle,
-  placeholderDisabled = false,
-  embedDisabled = false,
-  style,
   webViewProps,
   openLinksInBrowser = true,
   allowsFullscreenVideo,
   tikTokProps,
+  height,
+  ...props
 }: TikTokEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
   const videoId = getTikTokVideoId(url);
   const usePlayer = usesTikTokPlayer(allowsFullscreenVideo, tikTokProps);
-  const fallbackHeight = usePlayer ? TIKTOK_PLAYER_FALLBACK_HEIGHT : defaultPlaceholderHeight;
-  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
-    url,
-    placeholderText,
-    placeholder,
-    placeholderDisabled,
-    placeholderImageUrl,
-    placeholderSpinner,
-    placeholderSpinnerDisabled,
-    placeholderProps,
-    placeholderWidth,
-    placeholderHeight,
-    placeholderStyle,
-    resolvedMaxWidth,
-    height,
-    fallbackHeight,
-  });
-
   return (
-    <NativeEmbedView
+    <NativeSocialEmbed
+      {...props}
+      url={url}
+      height={height}
+      placeholderText={placeholderText}
       {...(usePlayer
         ? {
             html: buildTikTokPlayerHtml(buildTikTokPlayerSrc(videoId, tikTokProps)),
@@ -74,21 +46,17 @@ export const TikTokEmbed = ({
             allowsFullscreenVideo: allowsFullscreenVideo !== false,
           }
         : { uri: `https://www.tiktok.com/embed/v2/${videoId}` })}
-      width={resolvedMaxWidth}
-      height={height}
-      style={style}
-      fallbackHeight={fallbackHeight}
-      placeholder={resolvedPlaceholder}
-      placeholderDisabled={placeholderDisabled}
-      embedDisabled={embedDisabled}
+      fallbackHeight={usePlayer ? TIKTOK_PLAYER_FALLBACK_HEIGHT : defaultPlaceholderHeight}
       allowsInlineMediaPlayback
       openLinksInBrowser={openLinksInBrowser}
       resolveExternalUrl={(targetUrl: string) => resolveTikTokBrowserUrl(targetUrl, url)}
-      webViewProps={openLinksInBrowser
-        ? withTikTokProfileLinks(webViewProps, (profileUrl) => {
-            Linking.openURL(profileUrl).catch(() => undefined);
-          })
-        : webViewProps}
+      webViewProps={
+        openLinksInBrowser
+          ? withTikTokProfileLinks(webViewProps, (profileUrl) => {
+              Linking.openURL(profileUrl).catch(() => undefined);
+            })
+          : webViewProps
+      }
     />
   );
 };

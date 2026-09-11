@@ -51,6 +51,11 @@ export interface CommonEmbedProps extends EmbedContainerProps {
   /** Extra `react-native-webview` props. Native only. */
   webViewProps?: EmbedWebViewProps;
   /**
+   * Wait until the embed is near the viewport before loading provider scripts
+   * or a WebView. Default `false`.
+   */
+  lazy?: boolean;
+  /**
    * React Native only. Open tapped embed links in the system browser instead of the WebView.
    * Defaults to `true`. Ignored on web.
    */

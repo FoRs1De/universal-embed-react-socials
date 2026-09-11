@@ -159,6 +159,7 @@ Every embed accepts:
 - `placeholderImageUrl` / `placeholderSpinner` / `placeholderSpinnerDisabled` / `placeholderProps`
 - `placeholderDisabled` — hide the placeholder.
 - `embedDisabled` — keep the placeholder and do not load the live embed (iframe, WebView, or provider scripts) until this is `false`.
+- `lazy` — wait until the embed is near the viewport before loading provider scripts or a WebView. Default `false` (load immediately, same as before).
 - `className` / `style`
 - `webViewProps` (React Native only)
 - `openLinksInBrowser` (React Native only) — open tapped embed links in the system browser. Defaults to `true`. Ignored on web.
@@ -171,6 +172,15 @@ Every embed accepts:
 ```
 
 Set `embedDisabled={false}` (or omit it) when you want the live post to load.
+
+Opt in to near-viewport loading with `lazy` (default is off, so embeds still load immediately):
+
+```jsx
+<InstagramEmbed
+  url="https://www.instagram.com/p/CUbHfhpswxt/"
+  lazy
+/>
+```
 
 Instagram and TikTok also support `scriptLoadDisabled`, `retryDelay`, `retryDisabled`, `frame`, and `debug`.
 

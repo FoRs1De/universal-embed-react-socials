@@ -1,6 +1,8 @@
 import { useEffect, useId, useState } from 'react';
 import { Box } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
+import { ensureScript } from '../../utils/ensureScript';
 import { useFrame } from '../../hooks/useFrame';
 import { embedScaleStyle, placeholderOverlayStyle, resolveEmbedFrame, resolveEmbedMaxWidth } from '../../utils/style';
 import { Subs } from '../../utils/subs';
@@ -29,11 +31,13 @@ export const XEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   twitterTweetEmbedProps,
   className,
   style,
 }: XEmbedProps) => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const postId = twitterTweetEmbedProps?.tweetId ?? getXPostId(url);
   const [ready, setReady] = useState(false);
   const embedId = useId();
@@ -55,12 +59,8 @@ export const XEmbed = ({
       return;
     }
 
-    if (!win.twttr?.widgets?.load && !doc.getElementById('twitter-widgets-script')) {
-      const script = doc.createElement('script');
-      script.id = 'twitter-widgets-script';
-      script.src = 'https://platform.twitter.com/widgets.js';
-      script.async = true;
-      doc.head.appendChild(script);
+    if (!win.twttr?.widgets?.load) {
+      ensureScript(doc, 'twitter-widgets-script', 'https://platform.twitter.com/widgets.js');
     }
 
     let processed = false;
@@ -113,7 +113,7 @@ export const XEmbed = ({
   });
 
   return (
-    <div ref={boxRef} style={boxStyle}>
+    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
     <EmbedShell className={className} extraClassName="rsme-twitter-embed" width="100%" height={frameHeight} borderRadius={borderRadius} style={{ position: 'relative', ...style }}>
       <div ref={containerRef} style={embedScaleStyle(scale, officialEmbedWidth)}>
       {embedDisabled ? null : (

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { IFrame } from '../../host';
 import { useAutoEmbedHeight, useResponsiveEmbedBox } from '../../hooks/useEmbedHeight';
+import { mergeBoxRef, useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { DEFAULT_FACEBOOK_API_VERSION, DEFAULT_FACEBOOK_LOCALE } from '../../utils/apiVersion';
 import { embedScaleStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -50,12 +51,14 @@ export const FacebookEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled = false,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   apiVersion = DEFAULT_FACEBOOK_API_VERSION,
   locale = DEFAULT_FACEBOOK_LOCALE,
   className,
   style,
 }: FacebookEmbedProps) => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const [usePluginFallback, setUsePluginFallback] = useState(false);
   const [pluginReady, setPluginReady] = useState(false);
   const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
@@ -142,7 +145,7 @@ export const FacebookEmbed = ({
   };
 
   return (
-    <div ref={boxRef} style={boxStyle}>
+    <div ref={mergeBoxRef(boxRef, lazyRef)} style={boxStyle}>
       <EmbedShell
         className={className}
         extraClassName="rsme-facebook-embed"

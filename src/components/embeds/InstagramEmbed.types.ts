@@ -2,6 +2,9 @@ import type { CommonEmbedProps } from '../../types';
 import type { Frame } from '../../hooks/useFrame';
 import type { PlaceholderEmbedProps } from '../placeholder/PlaceholderEmbed.types';
 
+export const INSTAGRAM_PLACEHOLDER_HEIGHT = 740;
+export const INSTAGRAM_CAPTIONED_PLACEHOLDER_HEIGHT = 820;
+
 export interface InstagramEmbedProps extends CommonEmbedProps {
   captioned?: boolean;
   placeholderProps?: PlaceholderEmbedProps;

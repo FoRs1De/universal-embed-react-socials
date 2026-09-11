@@ -18,6 +18,7 @@ export interface NativeEmbedViewProps {
   placeholder?: ReactNode;
   placeholderDisabled?: boolean;
   embedDisabled?: boolean;
+  lazy?: boolean;
   allowsInlineMediaPlayback?: boolean;
   mediaPlaybackRequiresUserAction?: boolean;
   allowsFullscreenVideo?: boolean;

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Linking, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Dimensions, Linking, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { toNativeSize } from '../../utils/style';
 import {
@@ -96,6 +96,7 @@ export const NativeEmbedView = ({
   placeholder,
   placeholderDisabled,
   embedDisabled = false,
+  lazy = false,
   allowsInlineMediaPlayback = false,
   mediaPlaybackRequiresUserAction = true,
   allowsFullscreenVideo = false,
@@ -104,11 +105,14 @@ export const NativeEmbedView = ({
   webViewProps,
 }: NativeEmbedViewProps) => {
   const webViewRef = useRef<WebView>(null);
+  const wrapRef = useRef<View>(null);
   const [ready, setReady] = useState(false);
   const [boxWidth, setBoxWidth] = useState(0);
   const [measuredHeight, setMeasuredHeight] = useState(0);
+  const [lazyVisible, setLazyVisible] = useState(!lazy);
   const hasPlaceholder = placeholder != null && !placeholderDisabled;
-  const live = !embedDisabled;
+  const blocked = embedDisabled || (lazy && !lazyVisible);
+  const live = !blocked;
 
   useEffect(() => {
     if (embedDisabled) {
@@ -116,6 +120,37 @@ export const NativeEmbedView = ({
       setMeasuredHeight(0);
     }
   }, [embedDisabled]);
+
+  useEffect(() => {
+    if (!lazy || embedDisabled || lazyVisible) {
+      return;
+    }
+    let cancelled = false;
+    const check = () => {
+      wrapRef.current?.measureInWindow((x, y, width, height) => {
+        if (cancelled) {
+          return;
+        }
+        const window = Dimensions.get('window');
+        const intersects =
+          width > 0 &&
+          height > 0 &&
+          y < window.height + 200 &&
+          y + height > -200 &&
+          x < window.width &&
+          x + width > 0;
+        if (intersects) {
+          setLazyVisible(true);
+        }
+      });
+    };
+    check();
+    const id = setInterval(check, 400);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [embedDisabled, lazy, lazyVisible]);
   const fitEnabled = fitDesignWidth != null && fitDesignWidth > 0 && height == null;
   const autoHeightEnabled = autoHeight ?? (height == null && aspectRatio == null);
   const useAspectRatio = aspectRatio != null && height == null && !autoHeightEnabled;
@@ -129,7 +164,7 @@ export const NativeEmbedView = ({
       ? fittedHeight
       : measuredHeight > 0
         ? measuredHeight
-        : toNativeSize(height, ready || hasPlaceholder || embedDisabled ? fallbackHeight : 0);
+        : toNativeSize(height, ready || hasPlaceholder || blocked ? fallbackHeight : 0);
   const {
     style: webViewStyle,
     onLoad,
@@ -160,6 +195,7 @@ export const NativeEmbedView = ({
 
   return (
     <View
+      ref={wrapRef}
       onLayout={(event) => {
         const next = Math.round(event.nativeEvent.layout.width);
         setBoxWidth((prev) => (Math.abs(prev - next) < 2 ? prev : next));
@@ -260,7 +296,7 @@ export const NativeEmbedView = ({
           />
         ) : null}
       </View>
-      {(!ready || embedDisabled) && hasPlaceholder ? (
+      {(!ready || blocked) && hasPlaceholder ? (
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>{placeholder}</View>
       ) : null}
     </View>

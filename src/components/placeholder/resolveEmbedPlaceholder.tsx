@@ -4,11 +4,9 @@ import type { EmbedPlaceholder } from '../../types';
 import { PlaceholderEmbed } from './PlaceholderEmbed';
 import type { PlaceholderEmbedProps } from './PlaceholderEmbed.types';
 
-export interface ResolveEmbedPlaceholderOptions {
-  url?: string;
-  placeholderText?: string;
+export interface EmbedPlaceholderFields {
   placeholder?: EmbedPlaceholder;
-  placeholderDisabled?: boolean;
+  placeholderText?: string;
   placeholderImageUrl?: string;
   placeholderSpinner?: ReactNode;
   placeholderSpinnerDisabled?: boolean;
@@ -16,6 +14,24 @@ export interface ResolveEmbedPlaceholderOptions {
   placeholderWidth?: string | number;
   placeholderHeight?: string | number;
   placeholderStyle?: CSSProperties;
+  placeholderDisabled?: boolean;
+}
+
+export const embedPlaceholderFields = (props: EmbedPlaceholderFields): EmbedPlaceholderFields => ({
+  placeholder: props.placeholder,
+  placeholderText: props.placeholderText,
+  placeholderImageUrl: props.placeholderImageUrl,
+  placeholderSpinner: props.placeholderSpinner,
+  placeholderSpinnerDisabled: props.placeholderSpinnerDisabled,
+  placeholderProps: props.placeholderProps,
+  placeholderWidth: props.placeholderWidth,
+  placeholderHeight: props.placeholderHeight,
+  placeholderStyle: props.placeholderStyle,
+  placeholderDisabled: props.placeholderDisabled,
+});
+
+export interface ResolveEmbedPlaceholderOptions extends EmbedPlaceholderFields {
+  url?: string;
   extraStyle?: CSSProperties;
   /** Current embed box size. Used when the user does not set a placeholder size. */
   embedWidth?: string | number;

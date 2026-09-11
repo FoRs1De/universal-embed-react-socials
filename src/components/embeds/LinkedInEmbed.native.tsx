@@ -1,65 +1,28 @@
-import { resolveEmbedMaxWidth } from '../../utils/style';
-import { resolveNativeEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
+import { linkedinEmbedHtml } from './embedHtml';
 import type { LinkedInEmbedProps } from './LinkedInEmbed.types';
-import { NativeEmbedView } from './NativeEmbedView';
+import { NativeSocialEmbed } from './NativeSocialEmbed';
 
 export type { LinkedInEmbedProps } from './LinkedInEmbed.types';
 
-const officialEmbedWidth = 504;
 const officialEmbedHeight = 570;
 
 export const LinkedInEmbed = ({
   url,
   postUrl,
-  maxWidth,
   height,
   placeholderText = 'View post on LinkedIn',
-  placeholderImageUrl,
-  placeholderSpinner,
-  placeholderSpinnerDisabled = false,
-  placeholderProps,
-  placeholder,
-  placeholderWidth,
-  placeholderHeight,
-  placeholderStyle,
-  placeholderDisabled = false,
-  embedDisabled = false,
-  style,
-  webViewProps,
-  openLinksInBrowser = true,
-}: LinkedInEmbedProps) => {
-  const resolvedMaxWidth = resolveEmbedMaxWidth(maxWidth);
-  const resolvedPlaceholder = resolveNativeEmbedPlaceholder({
-    url: postUrl ?? url,
-    placeholderText,
-    placeholder,
-    placeholderDisabled,
-    placeholderImageUrl,
-    placeholderSpinner,
-    placeholderSpinnerDisabled,
-    placeholderProps,
-    placeholderWidth,
-    placeholderHeight,
-    placeholderStyle,
-    resolvedMaxWidth,
-    height,
-    fallbackHeight: officialEmbedHeight,
-  });
-
-  return (
-    <NativeEmbedView
-      uri={url}
-      width={resolvedMaxWidth}
-      height={height}
-      autoHeight={false}
-      fitDesignWidth={officialEmbedWidth}
-      style={style}
-      fallbackHeight={officialEmbedHeight}
-      placeholder={resolvedPlaceholder}
-      placeholderDisabled={placeholderDisabled}
-      embedDisabled={embedDisabled}
-      openLinksInBrowser={openLinksInBrowser}
-      webViewProps={webViewProps}
-    />
-  );
-};
+  ...props
+}: LinkedInEmbedProps) => (
+  <NativeSocialEmbed
+    {...props}
+    url={url}
+    height={height}
+    placeholderText={placeholderText}
+    placeholderUrl={postUrl ?? url}
+    {...(height == null
+      ? { html: linkedinEmbedHtml({ url }), autoHeight: true }
+      : { uri: url })}
+    baseUrl="https://www.linkedin.com"
+    fallbackHeight={officialEmbedHeight}
+  />
+);

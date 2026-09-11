@@ -130,3 +130,41 @@ export const xEmbedHtml = ({ postId }: { postId: string }): string =>
     </blockquote>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   `);
+
+/** LinkedIn's embed iframe is a fixed 504×570 design. Scale it to the WebView width. */
+export const LINKEDIN_DESIGN_WIDTH = 504;
+export const LINKEDIN_DESIGN_HEIGHT = 570;
+
+export const linkedinEmbedHtml = ({ url }: { url: string }): string =>
+  documentShell(`
+    <style>
+      html,body{width:100%;margin:0;padding:0;overflow:hidden;background:transparent;}
+      #li-wrap{width:${LINKEDIN_DESIGN_WIDTH}px;transform-origin:top left;}
+      iframe{border:0;display:block;margin:0;}
+    </style>
+    <div id="li-wrap">
+      <iframe src="${escapeHtmlAttribute(url)}" width="${LINKEDIN_DESIGN_WIDTH}" height="${LINKEDIN_DESIGN_HEIGHT}" title="LinkedIn embed"></iframe>
+    </div>
+    <script>
+      (function () {
+        var DESIGN = ${LINKEDIN_DESIGN_WIDTH};
+        var DESIGN_H = ${LINKEDIN_DESIGN_HEIGHT};
+        var wrap = document.getElementById('li-wrap');
+        function fit() {
+          if (!wrap) return;
+          var viewport = document.documentElement.clientWidth || DESIGN;
+          wrap.style.transform = 'scale(' + (viewport / DESIGN) + ')';
+          var visualH = Math.ceil(DESIGN_H * (viewport / DESIGN)) + 2;
+          document.documentElement.style.height = visualH + 'px';
+          document.body.style.height = visualH + 'px';
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ topic: '${AUTO_HEIGHT_TOPIC}', height: visualH }));
+          }
+        }
+        window.addEventListener('resize', fit);
+        window.addEventListener('load', fit);
+        fit();
+      })();
+    </script>
+  `);
+

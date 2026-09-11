@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, IFrame } from '../../host';
+import { useLazyEmbed } from '../../hooks/useLazyEmbed';
 import { aspectRatioHeight, collapsedEmbedStyle, embedMaxWidthStyle, isPercentage, resolveEmbedMaxWidth } from '../../utils/style';
 import { getYouTubeStart, getYouTubeVideoId } from '../../utils/urls';
 import { resolveEmbedPlaceholder } from '../placeholder/resolveEmbedPlaceholder';
@@ -26,11 +27,13 @@ export const YouTubeEmbed = ({
   placeholderHeight,
   placeholderStyle,
   placeholderDisabled,
-  embedDisabled = false,
+  embedDisabled: embedDisabledProp = false,
+  lazy = false,
   youTubeProps,
   className,
   style,
 }: YouTubeEmbedProps) => {
+  const { ref: lazyRef, disabled: embedDisabled } = useLazyEmbed(embedDisabledProp, lazy);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -74,7 +77,7 @@ export const YouTubeEmbed = ({
   const reserveFrame = ready || hasPlaceholder || embedDisabled;
 
   return (
-    <div style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
+    <div ref={lazyRef} style={{ ...embedMaxWidthStyle(resolvedMaxWidth), ...collapsedEmbedStyle(!reserveFrame) }}>
       <EmbedShell
         className={className}
         extraClassName="rsme-youtube-embed"
